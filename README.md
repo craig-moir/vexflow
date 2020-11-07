@@ -1,3 +1,5 @@
+# A custom verion of VexFlow with some tweeked paramters for a specific application (changed paramters listed below)
+
 # VexFlow 3
 
 A JavaScript library for rendering music notation.
