@@ -1,102 +1,157 @@
+/* global module, __dirname, process, require */
+
 const path = require('path');
+const webpack = require('webpack');
+const child_process = require('child_process');
+const InjectPlugin = require('webpack-inject-plugin').default;
+const TerserPlugin = require('terser-webpack-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = (grunt) => {
-  const BANNER = [
-    '/**!',
-    ' * VexFlow <%= pkg.version %> built on <%= grunt.template.today("yyyy-mm-dd") %>.',
-    ' * Copyright (c) 2010 Mohit Muthanna Cheppudira <mohit@muthanna.com>',
-    ' *',
-    ' * http://www.vexflow.com  http://github.com/0xfe/vexflow',
-    ' */',
-  ].join('\n');
   const BASE_DIR = __dirname;
   const BUILD_DIR = path.join(BASE_DIR, 'build');
   const RELEASE_DIR = path.join(BASE_DIR, 'releases');
-  const MODULE_ENTRY = path.join(BASE_DIR, 'src/index.js');
-  const TARGET_RAW = 'vexflow-debug.js';
-  const TARGET_MIN = 'vexflow-min.js';
+  const REFERENCE_DIR = path.join(BASE_DIR, 'reference');
+  const MODULE_ENTRY_SRC = path.join(BASE_DIR, 'src/index.ts');
+  const MODULE_ENTRY_TESTS = path.join(BASE_DIR, 'tests/run.ts');
 
-  // Used for eslint and docco
-  const SOURCES = ['src/*.js', '!src/header.js'];
+  // Get current build information from git and package.json.
+  const GIT_COMMIT_HASH = child_process.execSync('git rev-parse HEAD').toString().trim();
+  const packageJSON = grunt.file.readJSON('package.json');
+  const BANNER =
+    `VexFlow ${packageJSON.version}   ${new Date().toISOString()}   ${GIT_COMMIT_HASH}\n` +
+    `Copyright (c) 2010 Mohit Muthanna Cheppudira <mohit@muthanna.com>\n` +
+    `http://www.vexflow.com   http://github.com/0xfe/vexflow`;
 
-  // Take all test files in 'tests/' and build TARGET_TESTS
-  const TARGET_TESTS = path.join(BUILD_DIR, 'vexflow-tests.js');
-  const TEST_SOURCES = [
-    'tests/vexflow_test_helpers.js',
-    'tests/mocks.js',
-    'tests/*_tests.js',
-    'tests/run.js',
-  ];
+  // Used for eslint
+  const SOURCES = ['./src/*.ts', './src/*.js'];
 
-  function webpackConfig(target, preset, mode) {
+  function webpackConfig(target, chunkFilename, configFile, moduleEntry, mode, libraryName) {
     return {
-      mode,
-      entry: MODULE_ENTRY,
+      mode: mode,
+      entry: moduleEntry,
       output: {
         path: BUILD_DIR,
         filename: target,
-        library: 'Vex',
+        chunkFilename: chunkFilename,
+        library: libraryName,
         libraryTarget: 'umd',
         libraryExport: 'default',
+        // Support different ways of loading VexFlow.
+        // The `globalObject` string is assigned to `root` in line 15 of vexflow-debug.js.
+        // VexFlow is exported as root["Vex"], and can be accessed via:
+        //   - `window.Vex` in browsers
+        //   - `globalThis.Vex` in node JS >= 12
+        //   - `this.Vex` in all other environments
+        // See: https://webpack.js.org/configuration/output/#outputglobalobject
+        globalObject: `typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : this`,
+        publicPath: 'auto',
       },
-      devtool: (process.env.VEX_GENMAP || mode === 'production') ? 'source-map' : false,
+      resolve: {
+        extensions: ['.ts', '.js', '.json'],
+        plugins: [new TsconfigPathsPlugin({ configFile: configFile })],
+      },
+      devtool: process.env.VEX_GENMAP || mode === 'production' ? 'source-map' : false,
       module: {
         rules: [
           {
-            test: /\.js?$/,
-            exclude: /(node_modules|bower_components)/,
-            use: [{
-              loader: 'babel-loader',
-              options: {
-                presets: [preset],
-                plugins: ['@babel/plugin-transform-object-assign'],
+            test: /(\.ts$|\.js$)/,
+            exclude: /node_modules/,
+            use: [
+              {
+                loader: 'ts-loader',
+                options: {
+                  configFile: configFile,
+                },
               },
-            }],
+            ],
           },
+        ],
+      },
+      plugins: [
+        // Add VERSION and BUILD properties to Vex.Flow.
+        new InjectPlugin(function () {
+          return `import{Flow}from'flow';Flow.VERSION="${packageJSON.version}";Flow.BUILD="${GIT_COMMIT_HASH}";`;
+        }),
+        // Add a banner at the top of the file.
+        new webpack.BannerPlugin(BANNER),
+      ],
+      optimization: {
+        minimizer: [
+          new TerserPlugin({
+            // Tell webpack 5 to NOT extract the banner into a separate file.
+            extractComments: false,
+          }),
         ],
       },
     };
   }
 
-  const webpackProd = webpackConfig(TARGET_MIN, ['@babel/preset-env'], 'production');
-  const webpackDev = webpackConfig(TARGET_RAW, ['@babel/preset-env'], 'development');
+  const webpackProdStatic = webpackConfig(
+    'vexflow-full-min.js',
+    'vexflow-[name]-min.js',
+    'tsconfig.json',
+    MODULE_ENTRY_SRC,
+    'production',
+    'Vex'
+  );
+  const webpackProdDynamic = webpackConfig(
+    'vexflow-core-min.js',
+    'vexflow-font-[name]-min.js',
+    'tsconfig.dynamic.json',
+    MODULE_ENTRY_SRC,
+    'production',
+    'Vex'
+  );
+  const webpackDev = webpackConfig(
+    'vexflow-debug.js',
+    'vexflow-[name]-debug.js',
+    'tsconfig.json',
+    MODULE_ENTRY_SRC,
+    'development',
+    'Vex'
+  );
+  const webpackTest = webpackConfig(
+    'vexflow-tests.js',
+    'vexflow-[name]-test.js',
+    'tsconfig.json',
+    MODULE_ENTRY_TESTS,
+    'development',
+    'Vex' /* Previously VFTests. TODO: Remove this! */
+  );
 
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
-    concat: {
-      options: {
-        banner: BANNER,
-        sourceMap: true,
-      },
-      tests: {
-        src: TEST_SOURCES,
-        dest: TARGET_TESTS,
-      },
-    },
+    pkg: packageJSON,
     webpack: {
-      build: webpackProd,
+      buildStatic: webpackProdStatic,
+      buildDynamic: webpackProdDynamic,
       buildDev: webpackDev,
-      watch: {
+      buildTest: webpackTest,
+      watchDev: {
         ...webpackDev,
         watch: true,
         keepalive: true,
         failOnError: false,
       },
+      watchTest: {
+        ...webpackTest,
+        watch: true,
+        keepalive: true,
+        failOnError: false,
+      },
+    },
+    concurrent: {
+      options: {
+        logConcurrentOutput: true,
+      },
+      tasks: ['webpack:watchDev', 'webpack:watchTest'],
     },
     eslint: {
       target: SOURCES.concat('./tests'),
+      options: { fix: true },
     },
     qunit: {
       files: ['tests/flow.html'],
-    },
-    watch: {
-      tests: {
-        files: ['tests/*', 'src/*'],
-        tasks: ['concat:tests'],
-        options: {
-          interrupt: true,
-        },
-      },
     },
     copy: {
       release: {
@@ -109,12 +164,26 @@ module.exports = (grunt) => {
           },
         ],
       },
+      reference: {
+        files: [
+          {
+            expand: true,
+            dest: REFERENCE_DIR,
+            cwd: BUILD_DIR,
+            src: ['*.js', 'docs/**', '*.map'],
+          },
+        ],
+      },
     },
-    docco: {
-      src: SOURCES,
-      options: {
-        layout: 'linear',
-        output: 'build/docs',
+    typedoc: {
+      build: {
+        options: {
+          out: 'build/docs',
+          name: 'vexflow',
+          excludeProtected: true,
+          excludePrivate: true,
+        },
+        src: ['./typedoc.ts'],
       },
     },
     gitcommit: {
@@ -150,22 +219,31 @@ module.exports = (grunt) => {
     clean: [BUILD_DIR],
   });
 
-  // Load the plugin that provides the "uglify" task.
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-docco');
+  grunt.loadNpmTasks('grunt-typedoc');
   grunt.loadNpmTasks('grunt-release');
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-git');
   grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-webpack');
+  grunt.loadNpmTasks('grunt-concurrent');
 
-  // Default task(s).
-  grunt.registerTask('default', ['eslint', 'webpack:buildDev', 'webpack:build', 'concat', 'docco']);
-  grunt.registerTask('test', 'Run qunit tests.', ['webpack:buildDev', 'concat', 'qunit']);
+  // Default tasks that run when you type `grunt`.
+  grunt.registerTask('default', [
+    'clean',
+    'eslint',
+    'webpack:buildStatic',
+    'webpack:buildDynamic',
+    'webpack:buildDev',
+    'webpack:buildTest',
+    'typedoc',
+  ]);
+
+  grunt.registerTask('watch', 'Watch src/ and tests/ concurrently', ['clean', 'eslint', 'concurrent']);
+
+  grunt.registerTask('test', 'Run qunit tests.', ['clean', 'webpack:buildDev', 'webpack:buildTest', 'qunit']);
 
   // Release current build.
   grunt.registerTask('stage', 'Stage current bundles to releases/.', () => {
@@ -174,11 +252,17 @@ module.exports = (grunt) => {
     grunt.task.run('copy:release');
   });
 
+  // Release current build.
+  grunt.registerTask('reference', 'Stage current bundles to reference/.', () => {
+    grunt.task.run('default');
+    grunt.task.run('qunit');
+    grunt.task.run('copy:reference');
+  });
+
   grunt.registerTask('alldone', 'Publish VexFlow NPM.', () => {
     grunt.log.ok('NOT YET DONE: Run `npm publish` now to publish NPM.');
   });
 
   // Increment package version generate releases
-  grunt.registerTask('publish', 'Generate releases.',
-    ['bump', 'stage', 'gitcommit:releases', 'release', 'alldone']);
+  grunt.registerTask('publish', 'Generate releases.', ['bump', 'stage', 'gitcommit:releases', 'release', 'alldone']);
 };
