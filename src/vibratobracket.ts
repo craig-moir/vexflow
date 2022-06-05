@@ -1,11 +1,12 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // Author: Balazs Forian-Szabo
 // MIT License
 
-import { log } from './util';
 import { Element } from './element';
-import { Vibrato } from './vibrato';
 import { Note } from './note';
+import { Category } from './typeguard';
+import { log } from './util';
+import { Vibrato } from './vibrato';
 
 // eslint-disable-next-line
 function L(...args: any[]) {
@@ -15,10 +16,10 @@ function L(...args: any[]) {
 /** `VibratoBracket` renders vibrato effect between two notes. */
 export class VibratoBracket extends Element {
   /** To enable logging for this class. Set `Vex.Flow.VibratoBracket.DEBUG` to `true`. */
-  static DEBUG: boolean;
+  static DEBUG: boolean = false;
 
   static get CATEGORY(): string {
-    return 'VibratoBracket';
+    return Category.VibratoBracket;
   }
 
   protected line: number;
@@ -38,11 +39,11 @@ export class VibratoBracket extends Element {
    * An undefined value for the start or stop note indicates that the vibrato
    * is drawn from the beginning or until the end of the stave accordingly.
    */
-  constructor(bracket_data: { stop?: Note; start?: Note }) {
+  constructor(bracket_data: { stop?: Note | null; start?: Note | null }) {
     super();
 
-    this.start = bracket_data.start;
-    this.stop = bracket_data.stop;
+    if (bracket_data.start) this.start = bracket_data.start;
+    if (bracket_data.stop) this.stop = bracket_data.stop;
 
     this.line = 1;
 

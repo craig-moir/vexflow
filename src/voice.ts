@@ -1,14 +1,15 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // MIT License
 
 import { BoundingBox } from './boundingbox';
-import { RuntimeError, defined } from './util';
 import { Element } from './element';
-import { Tables } from './tables';
 import { Fraction } from './fraction';
 import { RenderContext } from './rendercontext';
 import { Stave } from './stave';
+import { Tables } from './tables';
 import { Tickable } from './tickable';
+import { Category } from './typeguard';
+import { defined, RuntimeError } from './util';
 
 export interface VoiceTime {
   num_beats: number;
@@ -28,7 +29,7 @@ export enum VoiceMode {
  */
 export class Voice extends Element {
   static get CATEGORY(): string {
-    return 'Voice';
+    return Category.Voice;
   }
 
   /**
@@ -46,7 +47,7 @@ export class Voice extends Element {
   protected stave?: Stave;
   protected mode: VoiceMode = VoiceMode.STRICT;
   protected expTicksUsed?: number;
-  protected preFormatted?: boolean;
+  protected preFormatted: boolean = false;
   protected options: { softmaxFactor: number };
 
   protected readonly totalTicks: Fraction;
@@ -55,12 +56,11 @@ export class Voice extends Element {
   protected readonly tickables: Tickable[] = [];
   protected readonly time: Required<VoiceTime>;
 
-  constructor(time?: VoiceTime | string, options?: { softmaxFactor: number }) {
+  constructor(time?: VoiceTime | string) {
     super();
 
     this.options = {
-      softmaxFactor: 100,
-      ...options,
+      softmaxFactor: Tables.SOFTMAX_FACTOR,
     };
 
     // Convert the `time` string into a VoiceTime object if necessary.

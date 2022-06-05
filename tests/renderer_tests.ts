@@ -1,22 +1,24 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // Author: Ron B. Yeh
 // MIT License
 //
 // Renderer Tests
 
-/* eslint-disable */
-// @ts-nocheck
-
-import { CanvasContext } from 'canvascontext';
-import { Factory, FactoryOptions } from 'factory';
-import { Formatter } from 'formatter';
-import { RenderContext } from 'rendercontext';
-import { Renderer } from 'renderer';
-import { Stave } from 'stave';
-import { StaveNote } from 'stavenote';
-import { SVGContext } from 'svgcontext';
-import { RuntimeError } from 'util';
 import { TestOptions, VexFlowTests } from './vexflow_test_helpers';
+
+import {
+  CanvasContext,
+  Factory,
+  FactoryOptions,
+  Formatter,
+  isHTMLCanvas,
+  RenderContext,
+  Renderer,
+  RuntimeError,
+  Stave,
+  StaveNote,
+  SVGContext,
+} from '../src/index';
 
 // TODO: Should FactoryOptions.renderer.elementId also accept a canvas | div?
 
@@ -82,6 +84,7 @@ function random(options: TestOptions): void {
     canvasOrDivElement(options);
   }
 
+  // eslint-disable-next-line
   const element: any = document.getElementById(options.elementId);
   const colorForElementType = useElementIDString ? '#CCCCCC' /* light gray */ : '#0074d9'; /* blue */
   const lineStyleForWhichAPI = useRendererAPI ? 'solid' : 'dashed';
@@ -127,7 +130,7 @@ function useRendererAPI(e: HTMLCanvasElement | HTMLDivElement | string, backend:
  */
 function useFactoryAPI(e: HTMLCanvasElement | HTMLDivElement | string, backend: number) {
   const opts: FactoryOptions = {
-    renderer: { elementId: e, width: STAVE_WIDTH, height: STAVE_HEIGHT, backend },
+    renderer: { elementId: e as string, width: STAVE_WIDTH, height: STAVE_HEIGHT, backend },
   };
   const factory = new Factory(opts);
   drawStave(factory.Stave(), factory.getContext());
@@ -165,10 +168,10 @@ function canvasOrDivElement(options: TestOptions): void {
 function passRenderContext(options: TestOptions): void {
   let context: RenderContext;
   const element = document.getElementById(options.elementId) as HTMLCanvasElement | HTMLDivElement;
-  if (element instanceof window.HTMLCanvasElement) {
+  if (isHTMLCanvas(element)) {
     const ctx = element.getContext('2d');
     if (!ctx) {
-      throw new RuntimeError(`Couldn't get context from element "${options.elemendId}"`);
+      throw new RuntimeError(`Couldn't get context from element "${options.elementId}"`);
     }
     context = new CanvasContext(ctx);
   } else {
@@ -181,4 +184,5 @@ function passRenderContext(options: TestOptions): void {
   ok(true);
 }
 
+VexFlowTests.register(RendererTests);
 export { RendererTests };

@@ -10,13 +10,15 @@ export const BravuraMetrics = {
     padding: 12,
     endPaddingMax: 10,
     endPaddingMin: 5,
-    unalignedNotePadding: 10
+    unalignedNotePadding: 10,
   },
+
   accidental: {
     noteheadAccidentalPadding: 1,
     leftPadding: 2,
     accidentalSpacing: 3,
   },
+
   clef: {
     default: {
       point: 32,
@@ -80,6 +82,18 @@ export const BravuraMetrics = {
       '4': { point: 23, shiftY: -12 },
     },
   },
+
+  parenthesis: {
+    default: {
+      point: 39,
+      width: 7,
+    },
+    gracenote: {
+      point: (39 * 3) / 5,
+      width: 3,
+    },
+  },
+
   pedalMarking: {
     up: {
       point: 40,
@@ -127,6 +141,23 @@ export const BravuraMetrics = {
       offsetXStemDown: 1,
     },
   },
+
+  staveRepetition: {
+    symbolText: {
+      offsetX: 12,
+      offsetY: 25,
+      spacing: 5,
+    },
+    coda: {
+      offsetY: 25,
+    },
+    segno: {
+      offsetY: 10,
+    },
+  },
+
+  // noteHead: {
+  // },
 
   stem: {
     heightAdjustmentForFlag: -3,
@@ -192,9 +223,6 @@ export const BravuraMetrics = {
     },
     flag: {
       shiftX: -0.75,
-      tabStem: {
-        shiftX: -1.75,
-      },
       staveTempo: {
         shiftX: -1,
       },
@@ -215,6 +243,12 @@ export const BravuraMetrics = {
       ornamentTurnSlash: {
         scale: 1.2,
       },
+    },
+    stringNumber: {
+      verticalPadding: 8,
+      stemPadding: 2,
+      leftPadding: 5,
+      rightPadding: 6,
     },
     stroke: {
       arrowheadBlackDown: {
@@ -425,21 +459,21 @@ export const BravuraMetrics = {
         xOffset: -12,
         yOffset: 0,
         stemUpYOffset: 0,
-        reportedWidth: 10,
+        reportedWidth: 20,
       },
       brassDoitMedium: {
         scale: 1.0,
         xOffset: 16,
         yOffset: 0,
         stemUpYOffset: 0,
-        reportedWidth: 15,
+        reportedWidth: 22,
       },
       brassFallLipShort: {
         scale: 1.0,
         xOffset: 16,
         yOffset: 0,
         stemUpYOffset: 0,
-        reportedWidth: 5,
+        reportedWidth: 15,
       },
       brassLiftMedium: {
         scale: 1.0,
@@ -479,24 +513,30 @@ export const BravuraMetrics = {
       brassFlip: {
         scale: 1.0,
         xOffset: 10,
-        yOffset: -4,
-        stemUpYOffset: 0,
-        reportedWidth: 5,
+        yOffset: 0,
+        stemUpYOffset: 7,
+        reportedWidth: 10,
       },
       brassJazzTurn: {
         scale: 1.0,
-        xOffset: 6,
-        yOffset: -4,
-        stemUpYOffset: 0,
-        reportedWidth: 5,
+        xOffset: 0,
+        yOffset: 0,
+        stemUpYOffset: 8,
+        reportedWidth: 31,
       },
       brassSmear: {
         scale: 1.0,
         xOffset: 10,
-        yOffset: -4,
-        stemUpYOffset: 0,
+        yOffset: 0,
+        stemUpYOffset: 8,
         reportedWidth: 5,
       },
+    },
+    tuplet: {
+      noteHeadOffset: 20,
+      stemOffset: 10,
+      bottomLine: 4,
+      topModifierOffset: 15,
     },
   },
 };

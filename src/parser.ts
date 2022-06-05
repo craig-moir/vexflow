@@ -1,8 +1,8 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 //
 // A generic text parsing class for VexFlow.
 
-import { RuntimeError, log } from './util';
+import { log, RuntimeError } from './util';
 
 // To enable logging for this class. Set `Vex.Flow.Parser.DEBUG` to `true`.
 // eslint-disable-next-line
@@ -47,7 +47,7 @@ export interface Result {
 
 // Represents a mixed array containing Result and/or Result[].
 // The grouping is determined by the structure of the Grammar.
-type GroupedResults = (Result | Result[])[];
+export type GroupedResults = (Result | Result[])[];
 
 // Converts parser results into an easy to reference list that can be
 // used in triggers. This function returns:

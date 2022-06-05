@@ -1,55 +1,56 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // @author Mohit Cheppudira
 // MIT License
 
-import { RuntimeError, log, defined } from './util';
 import { Accidental } from './accidental';
+import { Annotation, AnnotationHorizontalJustify, AnnotationVerticalJustify } from './annotation';
 import { Articulation } from './articulation';
-import { Annotation } from './annotation';
+import { BarNote } from './barnote';
+import { Beam, PartialBeamDirection } from './beam';
 import { ChordSymbol } from './chordsymbol';
+import { ClefNote } from './clefnote';
+import { Curve, CurveOptions } from './curve';
+import { EasyScore, EasyScoreOptions } from './easyscore';
+import { Element } from './element';
+import { FontInfo } from './font';
 import { Formatter, FormatterOptions } from './formatter';
 import { FretHandFinger } from './frethandfinger';
-import { StringNumber } from './stringnumber';
-import { TextDynamics } from './textdynamics';
-import { ModifierContext } from './modifiercontext';
-import { MultiMeasureRest, MultimeasureRestRenderOptions } from './multimeasurerest';
-import { RenderContext } from './rendercontext';
-import { Renderer } from './renderer';
-import { Stave, StaveOptions } from './stave';
-import { StaveTie } from './stavetie';
-import { StaveLine } from './staveline';
-import { StaveNote, StaveNoteStruct } from './stavenote';
+import { GhostNote } from './ghostnote';
+import { Glyph } from './glyph';
 import { GlyphNote, GlyphNoteOptions } from './glyphnote';
-import { RepeatNote } from './repeatnote';
-import { StaveConnector } from './staveconnector';
-import { System, SystemOptions } from './system';
-import { TickContext } from './tickcontext';
-import { Tuplet, TupletOptions } from './tuplet';
-import { Voice, VoiceTime } from './voice';
-import { Beam } from './beam';
-import { Curve, CurveOptions } from './curve';
 import { GraceNote, GraceNoteStruct } from './gracenote';
 import { GraceNoteGroup } from './gracenotegroup';
-import { NoteSubGroup } from './notesubgroup';
-import { EasyScore, EasyScoreOptions } from './easyscore';
-import { TimeSigNote } from './timesignote';
 import { KeySigNote } from './keysignote';
-import { ClefNote } from './clefnote';
+import { ModifierContext } from './modifiercontext';
+import { MultiMeasureRest, MultimeasureRestRenderOptions } from './multimeasurerest';
+import { Note, NoteStruct } from './note';
+import { NoteSubGroup } from './notesubgroup';
+import { Ornament } from './ornament';
 import { PedalMarking } from './pedalmarking';
-import { TextBracket } from './textbracket';
-import { VibratoBracket } from './vibratobracket';
-import { GhostNote } from './ghostnote';
-import { BarNote } from './barnote';
+import { RenderContext } from './rendercontext';
+import { Renderer } from './renderer';
+import { RepeatNote } from './repeatnote';
+import { Stave, StaveOptions } from './stave';
+import { BarlineType } from './stavebarline';
+import { StaveConnector, StaveConnectorType } from './staveconnector';
+import { StaveLine } from './staveline';
+import { StaveNote, StaveNoteStruct } from './stavenote';
+import { StaveTie } from './stavetie';
+import { StemmableNote } from './stemmablenote';
+import { StringNumber } from './stringnumber';
+import { System, SystemOptions } from './system';
 import { TabNote, TabNoteStruct } from './tabnote';
 import { TabStave } from './tabstave';
+import { TextBracket } from './textbracket';
+import { TextDynamics } from './textdynamics';
 import { TextNote, TextNoteStruct } from './textnote';
-import { TextFont, TextFontRegistry } from './textfont';
-import { FontInfo } from './types/common';
-import { Note, NoteStruct } from './note';
-import { Glyph } from './glyph';
-import { BarlineType } from './stavebarline';
-import { StemmableNote } from './stemmablenote';
-import { Element } from './element';
+import { TickContext } from './tickcontext';
+import { TimeSigNote } from './timesignote';
+import { Tuplet, TupletOptions } from './tuplet';
+import { defined, log, RuntimeError } from './util';
+import { VibratoBracket } from './vibratobracket';
+import { Voice, VoiceTime } from './voice';
+import { isHTMLCanvas } from './web';
 
 export interface FactoryOptions {
   stave?: {
@@ -62,11 +63,7 @@ export interface FactoryOptions {
     height: number;
     background?: string;
   };
-  font?: {
-    family: string;
-    size: number;
-    weight: string;
-  };
+  font?: FontInfo;
 }
 
 // eslint-disable-next-line
@@ -75,14 +72,14 @@ function L(...args: any[]) {
 }
 
 /**
- * Factory implements a high level API around VexFlow. It will eventually
- * become the canonical way to use VexFlow.
- *
- * *This API is currently DRAFT*
+ * Factory implements a high level API around VexFlow.
  */
 export class Factory {
   /** To enable logging for this class. Set `Vex.Flow.Factory.DEBUG` to `true`. */
-  static DEBUG: boolean;
+  static DEBUG: boolean = false;
+
+  /** Default text font. */
+  static TEXT_FONT: Required<FontInfo> = { ...Element.TEXT_FONT };
 
   /**
    * Static simplified function to access constructor without providing FactoryOptions
@@ -125,11 +122,7 @@ export class Factory {
         height: 200,
         background: '#FFF',
       },
-      font: {
-        family: 'Arial',
-        size: 10,
-        weight: '',
-      },
+      font: Factory.TEXT_FONT,
     };
 
     this.setOptions(options);
@@ -163,14 +156,18 @@ export class Factory {
     let backend = this.options.renderer.backend;
     if (backend === undefined) {
       const elem = document.getElementById(elementId);
-      if (elem instanceof window.HTMLCanvasElement) {
+      // We use a custom type check here, because node-canvas mimics canvas,
+      // but is not an instance of window.HTMLCanvasElement.
+      // In fact, `window` might be undefined here.
+      // See: https://www.npmjs.com/package/canvas
+      if (isHTMLCanvas(elem)) {
         backend = Renderer.Backends.CANVAS;
       } else {
         backend = Renderer.Backends.SVG;
       }
     }
 
-    this.context = Renderer.buildContext(elementId as string, backend, width, height, background);
+    this.context = Renderer.buildContext(elementId, backend, width, height, background);
   }
 
   getContext(): RenderContext {
@@ -341,27 +338,21 @@ export class Factory {
 
   Annotation(params?: {
     text?: string;
-    vJustify?: string;
-    hJustify?: string;
-    fontFamily?: string;
-    fontSize?: number;
-    fontWeight?: string;
+    hJustify?: string | AnnotationHorizontalJustify;
+    vJustify?: string | AnnotationVerticalJustify;
+    font?: FontInfo;
   }): Annotation {
     const p = {
       text: 'p',
-      vJustify: 'below',
-      hJustify: 'center',
-      fontFamily: 'Times',
-      fontSize: 14,
-      fontWeight: 'bold italic',
-      options: {},
+      hJustify: AnnotationHorizontalJustify.CENTER,
+      vJustify: AnnotationVerticalJustify.BOTTOM,
       ...params,
     };
 
     const annotation = new Annotation(p.text);
     annotation.setJustification(p.hJustify);
     annotation.setVerticalJustification(p.vJustify);
-    annotation.setFont(p.fontFamily, p.fontSize, p.fontWeight);
+    annotation.setFont(p.font);
     annotation.setContext(this.context);
     return annotation;
   }
@@ -413,6 +404,31 @@ export class Factory {
     return articulation;
   }
 
+  Ornament(
+    type: string,
+    params?: { position?: string | number; upperAccidental?: string; lowerAccidental?: string; delayed?: boolean }
+  ) {
+    const options = {
+      type,
+      position: 0,
+      accidental: '',
+      ...params,
+    };
+    const ornament = new Ornament(type);
+    ornament.setPosition(options.position);
+    if (options.upperAccidental) {
+      ornament.setUpperAccidental(options.upperAccidental);
+    }
+    if (options.lowerAccidental) {
+      ornament.setLowerAccidental(options.lowerAccidental);
+    }
+    if (typeof options.delayed !== 'undefined') {
+      ornament.setDelayed(options.delayed);
+    }
+    ornament.setContext(this.context);
+    return ornament;
+  }
+
   TextDynamics(params?: { text?: string; duration?: string; dots?: number; line?: number }): TextDynamics {
     const p = {
       text: 'p',
@@ -448,10 +464,11 @@ export class Factory {
     return fingering;
   }
 
-  StringNumber(params: { number: string; position: string }): StringNumber {
+  StringNumber(params: { number: string; position: string }, drawCircle = true): StringNumber {
     const stringNumber = new StringNumber(params.number);
     stringNumber.setPosition(params.position);
     stringNumber.setContext(this.context);
+    stringNumber.setDrawCircle(drawCircle);
     return stringNumber;
   }
 
@@ -471,17 +488,17 @@ export class Factory {
     return multiMeasureRest;
   }
 
-  Voice(params?: { time?: VoiceTime | string; options?: { softmaxFactor: number } }): Voice {
+  Voice(params?: { time?: VoiceTime | string }): Voice {
     const p = {
       time: '4/4',
       ...params,
     };
-    const voice = new Voice(p.time, p.options);
+    const voice = new Voice(p.time);
     this.voices.push(voice);
     return voice;
   }
 
-  StaveConnector(params: { top_stave: Stave; bottom_stave: Stave; type: string }): StaveConnector {
+  StaveConnector(params: { top_stave: Stave; bottom_stave: Stave; type: StaveConnectorType }): StaveConnector {
     const connector = new StaveConnector(params.top_stave, params.bottom_stave);
     connector.setType(params.type).setContext(this.context);
     this.renderQ.push(connector);
@@ -504,9 +521,23 @@ export class Factory {
     return tuplet;
   }
 
-  Beam(params: { notes: StemmableNote[]; options?: { autoStem?: boolean; secondaryBeamBreaks?: number[] } }): Beam {
+  Beam(params: {
+    notes: StemmableNote[];
+    options?: {
+      autoStem?: boolean;
+      secondaryBeamBreaks?: number[];
+      partialBeamDirections?: {
+        [noteIndex: number]: PartialBeamDirection;
+      };
+    };
+  }): Beam {
     const beam = new Beam(params.notes, params.options?.autoStem).setContext(this.context);
     beam.breakSecondaryAt(params.options?.secondaryBeamBreaks ?? []);
+    if (params.options?.partialBeamDirections) {
+      Object.entries(params.options?.partialBeamDirections).forEach(([noteIndex, direction]) => {
+        beam.setPartialBeamSideAt(Number(noteIndex), direction);
+      });
+    }
     this.renderQ.push(beam);
     return beam;
   }
@@ -518,8 +549,8 @@ export class Factory {
   }
 
   StaveTie(params: {
-    from: Note;
-    to: Note;
+    from?: Note | null;
+    to?: Note | null;
     first_indices?: number[];
     last_indices?: number[];
     text?: string;
@@ -564,8 +595,8 @@ export class Factory {
   }
 
   VibratoBracket(params: {
-    from: Note;
-    to: Note;
+    from: Note | null;
+    to: Note | null;
     options: {
       harsh?: boolean;
       line?: number;
@@ -612,9 +643,6 @@ export class Factory {
     return textBracket;
   }
 
-  // TODO: SystemOptions make all properties optional.
-  // eslint-disable-next-line
-  // @ts-ignore
   System(params: SystemOptions = {}): System {
     params.factory = this;
     const system = new System(params).setContext(this.context);
@@ -663,11 +691,6 @@ export class Factory {
     const group = new NoteSubGroup(p.notes);
     group.setContext(this.context);
     return group;
-  }
-
-  TextFont(params: TextFontRegistry): TextFont {
-    params.factory = this;
-    return new TextFont(params);
   }
 
   /** Render the score. */

@@ -1,21 +1,19 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // MIT License
 //
 // Auto Beaming Tests
 
-/* eslint-disable */
-// @ts-nocheck
-
-// TODO: Beam has a "private readonly stem_direction" without an accessor.
 // TODO: Beam.generateBeams(voice.getTickables() as StemmableNote[], ...) requires a cast to StemmableNote[].
 //       Is there a cleaner way to handle this?
 
-import { VexFlowTests, TestOptions, concat } from './vexflow_test_helpers';
-import { Beam } from 'beam';
-import { Fraction } from 'fraction';
-import { Stem } from 'stem';
-import { StemmableNote } from 'stemmablenote';
-import { EasyScore } from 'easyscore';
+import { concat, TestOptions, VexFlowTests } from './vexflow_test_helpers';
+
+import { Beam } from '../src/beam';
+import { EasyScore } from '../src/easyscore';
+import { Fraction } from '../src/fraction';
+import { Stave } from '../src/stave';
+import { Stem } from '../src/stem';
+import { StemmableNote } from '../src/stemmablenote';
 
 const AutoBeamFormattingTests = {
   Start(): void {
@@ -114,12 +112,12 @@ function evenGroupStemDirections(options: TestOptions): void {
 
   beams.forEach((beam) => beam.setContext(f.getContext()).draw());
 
-  equal(beams[0].stem_direction, Stem.UP);
-  equal(beams[1].stem_direction, Stem.UP);
-  equal(beams[2].stem_direction, Stem.UP);
-  equal(beams[3].stem_direction, Stem.UP);
-  equal(beams[4].stem_direction, Stem.DOWN);
-  equal(beams[5].stem_direction, Stem.DOWN);
+  equal(beams[0].getStemDirection(), Stem.UP);
+  equal(beams[1].getStemDirection(), Stem.UP);
+  equal(beams[2].getStemDirection(), Stem.UP);
+  equal(beams[3].getStemDirection(), Stem.UP);
+  equal(beams[4].getStemDirection(), Stem.DOWN);
+  equal(beams[5].getStemDirection(), Stem.DOWN);
 
   ok(true, 'Auto Beaming Applicator Test');
 }
@@ -136,10 +134,10 @@ function oddGroupStemDirections(options: TestOptions): void {
   const groups = [new Fraction(3, 8)];
   const beams = Beam.applyAndGetBeams(voice, undefined, groups);
 
-  equal(beams[0].stem_direction, Stem.DOWN, 'Notes are equidistant from middle line');
-  equal(beams[1].stem_direction, Stem.DOWN);
-  equal(beams[2].stem_direction, Stem.UP);
-  equal(beams[3].stem_direction, Stem.DOWN, 'Notes are equidistant from middle line');
+  equal(beams[0].getStemDirection(), Stem.DOWN, 'Notes are equidistant from middle line');
+  equal(beams[1].getStemDirection(), Stem.DOWN);
+  equal(beams[2].getStemDirection(), Stem.UP);
+  equal(beams[3].getStemDirection(), Stem.DOWN, 'Notes are equidistant from middle line');
 
   f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
 
@@ -436,6 +434,7 @@ function autoOddBeamGroups(options: TestOptions): void {
   ];
 
   f.Formatter().formatToStave([voice1], stave1).formatToStave([voice2], stave2).formatToStave([voice3], stave3);
+  Stave.formatBegModifiers([stave1, stave2, stave3]);
 
   f.draw();
 
@@ -470,6 +469,7 @@ function customBeamGroups(options: TestOptions): void {
   ];
 
   f.Formatter().formatToStave([voice1], stave1).formatToStave([voice2], stave2).formatToStave([voice3], stave3);
+  Stave.formatBegModifiers([stave1, stave2, stave3]);
 
   f.draw();
 
@@ -874,4 +874,5 @@ function flatBeamsDownBounds(options: TestOptions): void {
   ok(true, 'Flat Beams Down (uniform) Test');
 }
 
+VexFlowTests.register(AutoBeamFormattingTests);
 export { AutoBeamFormattingTests };

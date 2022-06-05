@@ -1,4 +1,4 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 //
 // ## Description
 // Author: Raffaele Viglianti, 2012 http://itisnotsound.wordpress.com/
@@ -6,15 +6,16 @@
 // This class implements hairpins between notes.
 // Hairpins can be either crescendo or decrescendo.
 
-import { RuntimeError } from './util';
 import { Element } from './element';
 import { Modifier } from './modifier';
 import { Note } from './note';
 import { RenderContext } from './rendercontext';
+import { Category } from './typeguard';
+import { RuntimeError } from './util';
 
 export interface StaveHairpinRenderOptions {
-  right_shift_ticks: number;
-  left_shift_ticks: number;
+  right_shift_ticks?: number;
+  left_shift_ticks?: number;
   left_shift_px: number;
   right_shift_px: number;
   height: number;
@@ -23,7 +24,7 @@ export interface StaveHairpinRenderOptions {
 
 export class StaveHairpin extends Element {
   static get CATEGORY(): string {
-    return 'StaveHairpin';
+    return Category.StaveHairpin;
   }
 
   protected hairpin: number;
@@ -50,8 +51,8 @@ export class StaveHairpin extends Element {
    *
    *  {
    *   height: px,
-   *   y_shift: px, //vertical offset
-   *   left_shift_ticks: 0, //left horizontal offset expressed in ticks
+   *   y_shift: px,         // vertical offset
+   *   left_shift_ticks: 0, // left horizontal offset expressed in ticks
    *   right_shift_ticks: 0 // right horizontal offset expressed in ticks
    *  }
    *
@@ -70,8 +71,8 @@ export class StaveHairpin extends Element {
       throw new RuntimeError('BadArguments', 'A valid Formatter must be provide to draw offsets by ticks.');
     }
 
-    const l_shift_px = ppt * options.left_shift_ticks;
-    const r_shift_px = ppt * options.right_shift_ticks;
+    const l_shift_px = ppt * (options.left_shift_ticks ?? 0);
+    const r_shift_px = ppt * (options.right_shift_ticks ?? 0);
 
     const hairpin_options = {
       height: options.height,

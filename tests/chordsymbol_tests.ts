@@ -1,19 +1,25 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // MIT License
 //
 // ChordSymbol Tests
 
-import { VexFlowTests, TestOptions } from './vexflow_test_helpers';
-import { Accidental } from 'accidental';
-import { ChordSymbol } from 'chordsymbol';
-import { Formatter } from 'formatter';
-import { Stave } from 'stave';
-import { StaveNote } from 'stavenote';
+import { TestOptions, VexFlowTests } from './vexflow_test_helpers';
+
+import { Accidental } from '../src/accidental';
+import { ChordSymbol } from '../src/chordsymbol';
+import { Factory } from '../src/factory';
+import { Font, FontGlyph } from '../src/font';
+import { Formatter } from '../src/formatter';
+import { Ornament } from '../src/ornament';
+import { Stave } from '../src/stave';
+import { StaveNote } from '../src/stavenote';
+import { Tables } from '../src/tables';
 
 const ChordSymbolTests = {
   Start(): void {
     QUnit.module('ChordSymbol');
     const run = VexFlowTests.runTests;
+    run('Chord Symbol With Modifiers', withModifiers);
     run('Chord Symbol Font Size Tests', fontSize);
     run('Chord Symbol Kerning Tests', kern);
     run('Top Chord Symbols', top);
@@ -29,8 +35,116 @@ const superscript = { symbolModifier: ChordSymbol.symbolModifiers.SUPERSCRIPT };
 const subscript = { symbolModifier: ChordSymbol.symbolModifiers.SUBSCRIPT };
 
 // Helper function for creating StaveNotes.
-const note = (keys: string[], duration: string, chordSymbol: ChordSymbol) =>
-  new StaveNote({ keys, duration }).addModifier(chordSymbol, 0);
+const note = (factory: Factory, keys: string[], duration: string, chordSymbol: ChordSymbol) =>
+  factory.StaveNote({ keys, duration }).addModifier(chordSymbol, 0);
+
+/** Calculate the glyph's width in the current music font. */
+// How is this different from Glyph.getWidth()? The numbers don't match up.
+function getGlyphWidth(glyphName: string): number {
+  // `38` seems to be the `font_scale` specified in many classes, such as
+  // Accidental, Articulation, Ornament, Strokes. Does this mean `38pt`???
+  //
+  // However, tables.ts specifies:
+  //   NOTATION_FONT_SCALE: 39,
+  //   TABLATURE_FONT_SCALE: 39,
+  const musicFont = Tables.currentMusicFont();
+  const glyph: FontGlyph = musicFont.getGlyphs()[glyphName];
+  const widthInEm = (glyph.x_max - glyph.x_min) / musicFont.getResolution();
+  return widthInEm * 38 * Font.scaleToPxFrom.pt;
+}
+function withModifiers(options: TestOptions): void {
+  const f = VexFlowTests.makeFactory(options, 750, 580);
+  const ctx = f.getContext();
+  ctx.scale(1.5, 1.5);
+  ctx.fillStyle = '#221';
+  ctx.strokeStyle = '#221';
+
+  function draw(chords: ChordSymbol[], y: number) {
+    const notes = [
+      note(f, ['c/4'], 'q', chords[0]).addModifier(new Ornament('doit')),
+      note(f, ['c/4'], 'q', chords[1]),
+      note(f, ['c/4'], 'q', chords[2]).addModifier(new Ornament('fall')),
+      note(f, ['c/4'], 'q', chords[3]),
+    ];
+    const score = f.EasyScore();
+    const voice = score.voice(notes, { time: '4/4' });
+    const formatter = f.Formatter();
+    formatter.joinVoices([voice]);
+    const voiceW = formatter.preCalculateMinTotalWidth([voice]);
+    const staffW = voiceW + Stave.defaultPadding + getGlyphWidth('gClef');
+    formatter.format([voice], voiceW);
+    const staff = f.Stave({ x: 10, y, width: staffW }).addClef('treble').draw();
+    voice.draw(ctx, staff);
+  }
+
+  let chords = [];
+  chords.push(
+    f
+      .ChordSymbol({ fontSize: 10 })
+      .addText('F7')
+      .addGlyph('leftParenTall')
+      .addGlyphOrText('b9', superscript)
+      .addGlyphOrText('#11', subscript)
+      .addGlyph('rightParenTall')
+  );
+  chords.push(
+    f.ChordSymbol({ fontSize: 12 }).addText('F7').addGlyphOrText('b9', superscript).addGlyphOrText('#11', subscript)
+  );
+  chords.push(
+    f
+      .ChordSymbol({ fontSize: 14 })
+      .addText('F7')
+      .addGlyph('leftParenTall')
+      .addGlyphOrText('add 3', superscript)
+      .addGlyphOrText('omit 9', subscript)
+      .addGlyph('rightParenTall')
+  );
+  chords.push(
+    f
+      .ChordSymbol({ fontSize: 16 })
+      .addText('F7')
+      .addGlyph('leftParenTall')
+      .addGlyphOrText('b9', superscript)
+      .addGlyphOrText('#11', subscript)
+      .addGlyph('rightParenTall')
+  );
+  draw(chords, 40);
+
+  chords = [];
+  chords.push(
+    f
+      .ChordSymbol({ fontSize: 10 })
+      .setFontSize(10)
+      .addText('F7')
+      .addGlyphOrText('#11', superscript)
+      .addGlyphOrText('b9', subscript)
+  );
+  chords.push(
+    f.ChordSymbol({ fontSize: 12 }).addText('F7').addGlyphOrText('#11', superscript).addGlyphOrText('b9', subscript)
+  );
+  chords.push(
+    f.ChordSymbol({ fontSize: 14 }).addText('F7').addGlyphOrText('#11', superscript).addGlyphOrText('b9', subscript)
+  );
+  chords.push(
+    f
+      .ChordSymbol({ fontSize: 16 })
+      .setFontSize(16)
+      .addText('F7')
+      .addGlyphOrText('#11', superscript)
+      .addGlyphOrText('b9', subscript)
+  );
+  draw(chords, 140);
+
+  chords = [
+    f.ChordSymbol({ fontSize: 10 }).addGlyphOrText('Ab').addGlyphOrText('7(#11b9)', superscript),
+    f.ChordSymbol({ fontSize: 14 }).addGlyphOrText('C#').addGlyphOrText('7(#11b9)', superscript),
+    f.ChordSymbol({ fontSize: 16 }).addGlyphOrText('Ab').addGlyphOrText('7(#11b9)', superscript),
+    f.ChordSymbol({ fontSize: 18 }).addGlyphOrText('C#').addGlyphOrText('7(#11b9)', superscript),
+  ];
+  draw(chords, 240);
+
+  ok(true, 'Font Size Chord Symbol');
+}
 
 function fontSize(options: TestOptions): void {
   const f = VexFlowTests.makeFactory(options, 750, 580);
@@ -40,14 +154,17 @@ function fontSize(options: TestOptions): void {
   ctx.strokeStyle = '#221';
 
   function draw(chords: ChordSymbol[], y: number) {
-    const stave = new Stave(10, y, 450).addClef('treble').setContext(ctx).draw();
+    const stave = f.Stave({ x: 10, y, width: 450 }).addClef('treble');
     const notes = [
-      note(['c/4'], 'q', chords[0]),
-      note(['c/4'], 'q', chords[1]),
-      note(['c/4'], 'q', chords[2]),
-      note(['c/4'], 'q', chords[3]),
+      note(f, ['c/4'], 'q', chords[0]),
+      note(f, ['c/4'], 'q', chords[1]),
+      note(f, ['c/4'], 'q', chords[2]),
+      note(f, ['c/4'], 'q', chords[3]),
     ];
-    Formatter.FormatAndDraw(ctx, stave, notes);
+    const score = f.EasyScore();
+    const voice = score.voice(notes, { time: '4/4' });
+    f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
+    f.draw();
   }
 
   let chords = [];
@@ -128,22 +245,25 @@ function fontSize(options: TestOptions): void {
 }
 
 function kern(options: TestOptions): void {
-  const f = VexFlowTests.makeFactory(options, 650, 650);
+  const f = VexFlowTests.makeFactory(options, 650 * 1.5, 650);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
   ctx.fillStyle = '#221';
   ctx.strokeStyle = '#221';
 
   function draw(chords: ChordSymbol[], y: number) {
-    const stave = new Stave(10, y, 450).addClef('treble').setContext(ctx).draw();
+    const stave = f.Stave({ x: 10, y, width: 450 }).addClef('treble').setContext(ctx).draw();
 
     const notes = [
-      note(['C/4'], 'q', chords[0]),
-      note(['C/4'], 'q', chords[1]),
-      note(['C/4'], 'q', chords[2]),
-      note(['C/4'], 'q', chords[3]),
+      note(f, ['C/4'], 'q', chords[0]),
+      note(f, ['C/4'], 'q', chords[1]),
+      note(f, ['C/4'], 'q', chords[2]),
+      note(f, ['C/4'], 'q', chords[3]),
     ];
-    Formatter.FormatAndDraw(ctx, stave, notes);
+    const score = f.EasyScore();
+    const voice = score.voice(notes, { time: '4/4' });
+    f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
+    f.draw();
   }
 
   let chords = [
@@ -182,19 +302,22 @@ function kern(options: TestOptions): void {
 }
 
 function top(options: TestOptions): void {
-  const f = VexFlowTests.makeFactory(options, 650, 650);
+  const f = VexFlowTests.makeFactory(options, 650 * 1.5, 650);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
   ctx.fillStyle = '#221';
   ctx.strokeStyle = '#221';
 
   function draw(c1: ChordSymbol, c2: ChordSymbol, y: number) {
-    const stave = new Stave(10, y, 450).addClef('treble').setContext(ctx).draw();
+    const stave = f.Stave({ x: 10, y, width: 450 }).addClef('treble').setContext(ctx).draw();
     const notes = [
-      note(['e/4', 'a/4', 'd/5'], 'h', c1).addAccidental(0, new Accidental('b')),
-      note(['c/4', 'e/4', 'b/4'], 'h', c2),
+      note(f, ['e/4', 'a/4', 'd/5'], 'h', c1).addModifier(new Accidental('b'), 0),
+      note(f, ['c/4', 'e/4', 'b/4'], 'h', c2),
     ];
-    Formatter.FormatAndDraw(ctx, stave, notes);
+    const score = f.EasyScore();
+    const voice = score.voice(notes, { time: '4/4' });
+    f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
+    f.draw();
   }
 
   let chord1 = f
@@ -232,7 +355,7 @@ function top(options: TestOptions): void {
 }
 
 function topJustify(options: TestOptions): void {
-  const f = VexFlowTests.makeFactory(options, 500, 680);
+  const f = VexFlowTests.makeFactory(options, 500 * 1.5, 680);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
   ctx.fillStyle = '#221';
@@ -242,8 +365,8 @@ function topJustify(options: TestOptions): void {
     const stave = new Stave(10, y, 450).addClef('treble').setContext(ctx).draw();
 
     const notes = [
-      note(['e/4', 'a/4', 'd/5'], 'h', chord1).addAccidental(0, new Accidental('b')),
-      note(['c/4', 'e/4', 'B/4'], 'h', chord2),
+      note(f, ['e/4', 'a/4', 'd/5'], 'h', chord1).addModifier(new Accidental('b'), 0),
+      note(f, ['c/4', 'e/4', 'B/4'], 'h', chord2),
     ];
     Formatter.FormatAndDraw(ctx, stave, notes);
   }
@@ -282,7 +405,7 @@ function topJustify(options: TestOptions): void {
 }
 
 function bottom(options: TestOptions): void {
-  const f = VexFlowTests.makeFactory(options, 600, 230);
+  const f = VexFlowTests.makeFactory(options, 600 * 1.5, 230);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
   ctx.fillStyle = '#221';
@@ -292,10 +415,10 @@ function bottom(options: TestOptions): void {
     const stave = new Stave(10, y, 400).addClef('treble').setContext(ctx).draw();
 
     const notes = [
-      note(['c/4', 'f/4', 'a/4'], 'q', chords[0]),
-      note(['c/4', 'e/4', 'b/4'], 'q', chords[1]).addAccidental(2, new Accidental('b')),
-      note(['c/4', 'e/4', 'g/4'], 'q', chords[2]),
-      note(['c/4', 'f/4', 'a/4'], 'q', chords[3]).addAccidental(1, new Accidental('#')),
+      note(f, ['c/4', 'f/4', 'a/4'], 'q', chords[0]),
+      note(f, ['c/4', 'e/4', 'b/4'], 'q', chords[1]).addModifier(new Accidental('b'), 2),
+      note(f, ['c/4', 'e/4', 'g/4'], 'q', chords[2]),
+      note(f, ['c/4', 'f/4', 'a/4'], 'q', chords[3]).addModifier(new Accidental('#'), 1),
     ];
     Formatter.FormatAndDraw(ctx, stave, notes);
   }
@@ -312,7 +435,7 @@ function bottom(options: TestOptions): void {
 }
 
 function bottomStemDown(options: TestOptions): void {
-  const f = VexFlowTests.makeFactory(options, 600, 330);
+  const f = VexFlowTests.makeFactory(options, 600 * 1.5, 330);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
   ctx.fillStyle = '#221';
@@ -326,9 +449,9 @@ function bottomStemDown(options: TestOptions): void {
     const stave = new Stave(10, y, 400).addClef('treble').setContext(ctx).draw();
     const notes = [
       note(['c/4', 'f/4', 'a/4'], 'q', chords[0]),
-      note(['c/4', 'e/4', 'b/4'], 'q', chords[1]).addAccidental(2, new Accidental('b')),
+      note(['c/4', 'e/4', 'b/4'], 'q', chords[1]).addModifier(new Accidental('b'), 2),
       note(['c/4', 'e/4', 'g/4'], 'q', chords[2]),
-      note(['c/4', 'f/4', 'a/4'], 'q', chords[3]).addAccidental(1, new Accidental('#')),
+      note(['c/4', 'f/4', 'a/4'], 'q', chords[3]).addModifier(new Accidental('#'), 1),
     ];
     Formatter.FormatAndDraw(ctx, stave, notes);
   }
@@ -345,7 +468,7 @@ function bottomStemDown(options: TestOptions): void {
 }
 
 function doubleBottom(options: TestOptions): void {
-  const f = VexFlowTests.makeFactory(options, 600, 260);
+  const f = VexFlowTests.makeFactory(options, 600 * 1.5, 260);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
   ctx.fillStyle = '#221';
@@ -356,12 +479,12 @@ function doubleBottom(options: TestOptions): void {
     const note = (keys: string[], duration: string, chordSymbol1: ChordSymbol, chordSymbol2: ChordSymbol) =>
       new StaveNote({ keys, duration }).addModifier(chordSymbol1, 0).addModifier(chordSymbol2, 0);
 
-    const stave = new Stave(10, y, 450).addClef('treble').setContext(ctx).draw();
+    const stave = f.Stave({ x: 10, y, width: 450 }).addClef('treble').setContext(ctx).draw();
     const notes = [
       note(['c/4', 'f/4', 'a/4'], 'q', chords[0], chords2[0]),
-      note(['c/4', 'e/4', 'b/4'], 'q', chords[1], chords2[1]).addAccidental(2, new Accidental('b')),
+      note(['c/4', 'e/4', 'b/4'], 'q', chords[1], chords2[1]).addModifier(f.Accidental({ type: 'b' }), 2),
       note(['c/4', 'e/4', 'g/4'], 'q', chords[2], chords2[2]),
-      note(['c/4', 'f/4', 'a/4'], 'q', chords[3], chords2[3]).addAccidental(1, new Accidental('#')),
+      note(['c/4', 'f/4', 'a/4'], 'q', chords[3], chords2[3]).addModifier(f.Accidental({ type: '#' }), 1),
     ];
     Formatter.FormatAndDraw(ctx, stave, notes);
   }
@@ -383,4 +506,5 @@ function doubleBottom(options: TestOptions): void {
   ok(true, '2 Bottom Chord Symbol');
 }
 
+VexFlowTests.register(ChordSymbolTests);
 export { ChordSymbolTests };

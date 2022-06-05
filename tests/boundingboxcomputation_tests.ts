@@ -1,12 +1,11 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // MIT License
 //
 // BoundingBoxComputation Tests
 
-import { VexFlowTests, TestOptions } from './vexflow_test_helpers';
-import { BoundingBoxComputation } from 'boundingboxcomputation';
-import { Glyph, OutlineCode } from 'glyph';
-import { RenderContext } from 'rendercontext';
+import { TestOptions, VexFlowTests } from './vexflow_test_helpers';
+
+import { BoundingBoxComputation, Glyph, OutlineCode, RenderContext } from '../src/index';
 
 const BoundingBoxComputationTests = {
   Start(): void {
@@ -242,4 +241,5 @@ function cubic(options: TestOptions): void {
   ok(Math.abs(bbox.getH() - box[3]) < 0.01, `Bad H: ${bbox.getH()}`);
 }
 
+VexFlowTests.register(BoundingBoxComputationTests);
 export { BoundingBoxComputationTests };

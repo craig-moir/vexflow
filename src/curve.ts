@@ -3,9 +3,10 @@
 //
 // This class implements curves (for slurs)
 
-import { RuntimeError } from './util';
 import { Element } from './element';
 import { Note } from './note';
+import { Category } from './typeguard';
+import { RuntimeError } from './util';
 
 export interface CurveOptions {
   /** Two control points for the bezier curves. */
@@ -25,7 +26,7 @@ export enum CurvePosition {
 
 export class Curve extends Element {
   static get CATEGORY(): string {
-    return 'Curve';
+    return Category.Curve;
   }
 
   public render_options: Required<CurveOptions>;

@@ -1,21 +1,25 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // MIT License
 //
 // Beam Tests
 
-/* eslint-disable */
-// @ts-nocheck
-
-// TODO: Beam has a "private readonly stem_direction" without an accessor.
 // TODO: Factory.Beam()'s 'notes' argument is a StemmableNote[], but we only have access to Tickable[].
 
-import { VexFlowTests, TestOptions, concat } from './vexflow_test_helpers';
-import { Beam } from 'beam';
-import { Stem } from 'stem';
-import { Voice } from 'voice';
-import { StemmableNote } from 'stemmablenote';
-import { StaveNoteStruct } from 'stavenote';
-import { TabNoteStruct } from 'tabnote';
+import { concat, TestOptions, VexFlowTests } from './vexflow_test_helpers';
+
+import {
+  AnnotationVerticalJustify,
+  Beam,
+  Dot,
+  Font,
+  FontStyle,
+  FontWeight,
+  StaveNoteStruct,
+  Stem,
+  StemmableNote,
+  TabNoteStruct,
+  Voice,
+} from '../src/index';
 
 const BeamTests = {
   Start(): void {
@@ -35,6 +39,7 @@ const BeamTests = {
     run('Lengthy Beam', lenghty);
     run('Outlier Beam', outlier);
     run('Break Secondary Beams', breakSecondaryBeams);
+    run('Partial Beam Direction', partialBeamDirection);
     run('TabNote Beams Up', tabBeamsUp);
     run('TabNote Beams Down', tabBeamsDown);
     run('TabNote Auto Create Beams', autoTabBeams);
@@ -162,6 +167,36 @@ function breakSecondaryBeams(options: TestOptions): void {
   ok(true, 'Breaking Secondary Beams Test');
 }
 
+function partialBeamDirection(options: TestOptions): void {
+  const f = VexFlowTests.makeFactory(options, 600, 200);
+  const stave = f.Stave({ y: 20 });
+  const score = f.EasyScore();
+
+  const voice = score.voice.bind(score);
+  const beam = score.beam.bind(score);
+  const notes = score.notes.bind(score);
+
+  const voices = [
+    voice(
+      [
+        // Default beaming:
+        beam(notes('f4/8, f4/16, f4/8, f4/16', { stem: 'up' })),
+        // Force first 16th beam right
+        beam(notes('f4/8, f4/16, f4/8, f4/16', { stem: 'up' }), { partialBeamDirections: { '1': 'R' } }),
+        // Force first 16th beam left
+        beam(notes('f4/8, f4/16, f4/8, f4/16', { stem: 'up' }), { partialBeamDirections: { '1': 'L' } }),
+      ].reduce(concat),
+      { time: '9/8' }
+    ),
+  ];
+
+  f.Formatter().joinVoices(voices).formatToStave(voices, stave);
+
+  f.draw();
+
+  ok(true, 'Partial beam direction test');
+}
+
 function slopey(options: TestOptions): void {
   const f = VexFlowTests.makeFactory(options, 350, 140);
   const stave = f.Stave({ y: 20 });
@@ -208,12 +243,12 @@ function autoStem(options: TestOptions): void {
   const UP = Stem.UP;
   const DOWN = Stem.DOWN;
 
-  equal(beams[0].stem_direction, UP);
-  equal(beams[1].stem_direction, UP);
-  equal(beams[2].stem_direction, UP);
-  equal(beams[3].stem_direction, UP);
-  equal(beams[4].stem_direction, DOWN);
-  equal(beams[5].stem_direction, DOWN);
+  equal(beams[0].getStemDirection(), UP);
+  equal(beams[1].getStemDirection(), UP);
+  equal(beams[2].getStemDirection(), UP);
+  equal(beams[3].getStemDirection(), UP);
+  equal(beams[4].getStemDirection(), DOWN);
+  equal(beams[5].getStemDirection(), DOWN);
 
   f.draw();
 
@@ -237,13 +272,13 @@ function mixed(options: TestOptions): void {
     [0, 4],
     [4, 8],
     [8, 12],
-  ].forEach((range) => f.Beam({ notes: voice1.getTickables().slice(range[0], range[1]) }));
+  ].forEach((range) => f.Beam({ notes: voice1.getTickables().slice(range[0], range[1]) as StemmableNote[] }));
 
   [
     [0, 4],
     [4, 8],
     [8, 12],
-  ].forEach((range) => f.Beam({ notes: voice2.getTickables().slice(range[0], range[1]) }));
+  ].forEach((range) => f.Beam({ notes: voice2.getTickables().slice(range[0], range[1]) as StemmableNote[] }));
 
   f.Formatter().joinVoices([voice1, voice2]).formatToStave([voice1, voice2], stave);
 
@@ -271,8 +306,8 @@ function mixed2(options: TestOptions): void {
     { time: '31/64' }
   );
 
-  f.Beam({ notes: voice.getTickables().slice(0, 12) });
-  f.Beam({ notes: voice2.getTickables().slice(0, 12) });
+  f.Beam({ notes: voice.getTickables().slice(0, 12) as StemmableNote[] });
+  f.Beam({ notes: voice2.getTickables().slice(0, 12) as StemmableNote[] });
 
   f.Formatter().joinVoices([voice, voice2]).formatToStave([voice, voice2], stave);
 
@@ -315,7 +350,7 @@ function partial(options: TestOptions): void {
     { time: '89/64' }
   );
 
-  const notes = voice.getTickables();
+  const notes = voice.getTickables() as StemmableNote[];
   f.Beam({ notes: notes.slice(0, 3) });
   f.Beam({ notes: notes.slice(3, 9) });
   f.Beam({ notes: notes.slice(9, 13) });
@@ -335,7 +370,7 @@ function tradeoffs(options: TestOptions): void {
 
   const voice = score.voice(score.notes('a4/8, b4/8, c4/8, d4/8, g4/8, a4/8, b4/8, c4/8', { stem: 'up' }));
 
-  const notes = voice.getTickables();
+  const notes = voice.getTickables() as StemmableNote[];
   f.Beam({ notes: notes.slice(0, 4) });
   f.Beam({ notes: notes.slice(4, 8) });
 
@@ -355,7 +390,7 @@ function insane(options: TestOptions): void {
     score.notes('g4/8, g5/8, c4/8, b5/8, g4/8[stem="down"], a5[stem="down"], b4[stem="down"], c4/8', { stem: 'up' })
   );
 
-  const notes = voice.getTickables();
+  const notes = voice.getTickables() as StemmableNote[];
   f.Beam({ notes: notes.slice(0, 4) });
   f.Beam({ notes: notes.slice(4, 7) });
 
@@ -394,7 +429,7 @@ function outlier(options: TestOptions): void {
     )
   );
 
-  const notes = voice.getTickables();
+  const notes = voice.getTickables() as StemmableNote[];
   f.Beam({ notes: notes.slice(0, 4) });
   f.Beam({ notes: notes.slice(4, 8) });
 
@@ -561,8 +596,7 @@ function tabBeamsDown(options: TestOptions): void {
     return tabNote;
   });
 
-  notes[1].addDot();
-  notes[1].addDot();
+  Dot.buildAndAttach([notes[1], notes[1]]);
 
   f.Beam({ notes: notes.slice(1, 7) });
   f.Beam({ notes: notes.slice(8, 11) });
@@ -712,8 +746,8 @@ function tabBeamsAutoStem(options: TestOptions): void {
 }
 
 function complexWithAnnotation(options: TestOptions): void {
-  const f = VexFlowTests.makeFactory(options, 500, 200);
-  const stave = f.Stave({ y: 40 });
+  const factory = VexFlowTests.makeFactory(options, 500, 200);
+  const stave = factory.Stave({ y: 40 });
 
   const s1: StaveNoteStruct[] = [
     { keys: ['e/4'], duration: '128', stem_direction: 1 },
@@ -735,18 +769,33 @@ function complexWithAnnotation(options: TestOptions): void {
     { keys: ['c/5'], duration: '32', stem_direction: -1 },
   ];
 
-  const notes1 = s1.map((struct) => f.StaveNote(struct).addModifier(f.Annotation({ text: '1', vJustify: 'above' }), 0));
+  const font = {
+    family: Font.SERIF,
+    size: 14,
+    weight: FontWeight.BOLD,
+    style: FontStyle.ITALIC,
+  };
 
-  const notes2 = s2.map((struct) => f.StaveNote(struct).addModifier(f.Annotation({ text: '3', vJustify: 'below' }), 0));
+  const notes1 = s1.map((struct) =>
+    factory
+      .StaveNote(struct) //
+      .addModifier(factory.Annotation({ text: '1', vJustify: AnnotationVerticalJustify.TOP, font }), 0)
+  );
 
-  f.Beam({ notes: notes1 });
-  f.Beam({ notes: notes2 });
+  const notes2 = s2.map((struct) =>
+    factory
+      .StaveNote(struct) //
+      .addModifier(factory.Annotation({ text: '3', vJustify: AnnotationVerticalJustify.BOTTOM, font }), 0)
+  );
 
-  const voice = f.Voice().setMode(Voice.Mode.SOFT).addTickables(notes1).addTickables(notes2);
+  factory.Beam({ notes: notes1 });
+  factory.Beam({ notes: notes2 });
 
-  f.Formatter().joinVoices([voice]).formatToStave([voice], stave, { stave: stave });
+  const voice = factory.Voice().setMode(Voice.Mode.SOFT).addTickables(notes1).addTickables(notes2);
 
-  f.draw();
+  factory.Formatter().joinVoices([voice]).formatToStave([voice], stave, { stave: stave });
+
+  factory.draw();
 
   ok(true, 'Complex beam annotations');
 }
@@ -794,4 +843,5 @@ function complexWithArticulation(options: TestOptions): void {
   ok(true, 'Complex beam articulations');
 }
 
+VexFlowTests.register(BeamTests);
 export { BeamTests };

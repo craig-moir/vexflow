@@ -1,10 +1,11 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // MIT License
 
-import { defined, RuntimeError } from './util';
 import { Element } from './element';
 import { ModifierContext } from './modifiercontext';
 import { Note } from './note';
+import { Category } from './typeguard';
+import { defined, RuntimeError } from './util';
 
 export enum ModifierPosition {
   CENTER = 0,
@@ -35,7 +36,7 @@ export class Modifier extends Element {
    * The `ModifierContext` uses this to determine the type and order of the modifiers.
    */
   static get CATEGORY(): string {
-    return 'Modifier';
+    return Category.Modifier;
   }
 
   /** Modifiers can be positioned almost anywhere, relative to a note. */

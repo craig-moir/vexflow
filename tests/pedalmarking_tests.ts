@@ -1,16 +1,15 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // MIT License
 //
 // PedalMarking Tests
 
-/* eslint-disable */
-// @ts-nocheck
-
 // TODO: Fix Error => Type 'Tickable' is not assignable to type 'StaveNote'.
 
-import { Factory } from 'factory';
-import { Tickable } from 'tickable';
 import { TestOptions, VexFlowTests } from './vexflow_test_helpers';
+
+import { Factory } from '../src/factory';
+import { StaveNote } from '../src/stavenote';
+import { Tickable } from '../src/tickable';
 
 const PedalMarkingTests = {
   Start(): void {
@@ -54,7 +53,7 @@ function createTest(makePedal: (f: Factory, v1: Tickable[], v2: Tickable[]) => v
 function withSimplePedal(style: string) {
   return (factory: Factory, notes0: Tickable[], notes1: Tickable[]) =>
     factory.PedalMarking({
-      notes: [notes0[0], notes0[2], notes0[3], notes1[3]],
+      notes: [notes0[0], notes0[2], notes0[3], notes1[3]] as StaveNote[],
       options: { style },
     });
 }
@@ -62,7 +61,7 @@ function withSimplePedal(style: string) {
 function withReleaseAndDepressedPedal(style: string) {
   return (factory: Factory, notes0: Tickable[], notes1: Tickable[]) =>
     factory.PedalMarking({
-      notes: [notes0[0], notes0[3], notes0[3], notes1[1], notes1[1], notes1[3]],
+      notes: [notes0[0], notes0[3], notes0[3], notes1[1], notes1[1], notes1[3]] as StaveNote[],
       options: { style },
     });
 }
@@ -75,7 +74,7 @@ const releaseDepress2 = createTest(withReleaseAndDepressedPedal('mixed'));
 
 const customTest1 = createTest((factory, notes0, notes1) => {
   const pedal = factory.PedalMarking({
-    notes: [notes0[0], notes1[3]],
+    notes: [notes0[0], notes1[3]] as StaveNote[],
     options: { style: 'text' },
   });
   pedal.setCustomText('una corda', 'tre corda');
@@ -84,11 +83,12 @@ const customTest1 = createTest((factory, notes0, notes1) => {
 
 const customTest2 = createTest((factory, notes0, notes1) => {
   const pedal = factory.PedalMarking({
-    notes: [notes0[0], notes1[3]],
+    notes: [notes0[0], notes1[3]] as StaveNote[],
     options: { style: 'mixed' },
   });
   pedal.setCustomText('Sost. Ped.');
   return pedal;
 });
 
+VexFlowTests.register(PedalMarkingTests);
 export { PedalMarkingTests };

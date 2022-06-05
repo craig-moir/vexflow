@@ -1,11 +1,11 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 //
 // ## Description
 //
 // This class implements diatonic key management.
 
+import { KeyParts, Music } from './music';
 import { RuntimeError } from './util';
-import { Music, KeyParts } from './music';
 
 export class KeyManager {
   protected music: Music;

@@ -1,12 +1,13 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // MIT License
 
-import { RuntimeError } from './util';
-import { Note, NoteStruct } from './note';
+import { Font, FontInfo, FontStyle, FontWeight } from './font';
 import { Glyph } from './glyph';
-import { FontInfo } from './types/common';
+import { Note, NoteStruct } from './note';
+import { Category } from './typeguard';
+import { RuntimeError } from './util';
 
-export enum Justification {
+export enum TextJustification {
   LEFT = 1,
   CENTER = 2,
   RIGHT = 3,
@@ -25,25 +26,22 @@ export interface TextNoteStruct extends NoteStruct {
 /**
  * `TextNote` is a notation element that is positioned in time. Generally
  * meant for objects that sit above/below the staff and inline with each other.
+ * `TextNote` has to be assigned to a `Stave` before rendering by means of `setStave`.
  * Examples of this would be such as dynamics, lyrics, chord changes, etc.
  */
 export class TextNote extends Note {
   static get CATEGORY(): string {
-    return 'TextNote';
+    return Category.TextNote;
   }
 
-  protected text: string;
-  protected superscript?: string;
-  protected subscript?: string;
-  protected smooth: boolean;
+  static TEXT_FONT: Required<FontInfo> = {
+    family: Font.SANS_SERIF,
+    size: 12,
+    weight: FontWeight.NORMAL,
+    style: FontStyle.NORMAL,
+  };
 
-  protected font: FontInfo;
-  protected justification: Justification;
-  protected line: number;
-
-  static get Justification(): typeof Justification {
-    return Justification;
-  }
+  static readonly Justification = TextJustification;
 
   /** Glyph data. */
   static get GLYPHS(): Record<string, { code: string }> {
@@ -108,22 +106,24 @@ export class TextNote extends Note {
     };
   }
 
+  protected text: string;
+  protected superscript?: string;
+  protected subscript?: string;
+  protected smooth: boolean;
+  protected justification: TextJustification;
+  protected line: number;
+
   constructor(noteStruct: TextNoteStruct) {
     super(noteStruct);
 
     this.text = noteStruct.text || '';
     this.superscript = noteStruct.superscript;
     this.subscript = noteStruct.subscript;
-    this.font = {
-      family: 'Arial',
-      size: 12,
-      weight: '',
-      ...noteStruct.font,
-    };
+    this.setFont(noteStruct.font);
     this.line = noteStruct.line || 0;
     this.smooth = noteStruct.smooth || false;
     this.ignore_ticks = noteStruct.ignore_ticks || false;
-    this.justification = Justification.LEFT;
+    this.justification = TextJustification.LEFT;
 
     // Determine and set initial note width. Note that the text width is
     // an approximation and isn't very accurate. The only way to accurately
@@ -140,7 +140,7 @@ export class TextNote extends Note {
   }
 
   /** Set the horizontal justification of the TextNote. */
-  setJustification(just: Justification): this {
+  setJustification(just: TextJustification): this {
     this.justification = just;
     return this;
   }
@@ -163,23 +163,26 @@ export class TextNote extends Note {
         // Width already set.
       } else {
         const ctx = this.checkContext();
-        ctx.setFont(this.font.family, this.font.size, this.font.weight);
+        ctx.setFont(this.textFont);
         this.setWidth(ctx.measureText(this.text).width);
       }
     }
 
-    if (this.justification === TextNote.Justification.CENTER) {
+    if (this.justification === TextJustification.CENTER) {
       this.leftDisplacedHeadPx = this.width / 2;
-    } else if (this.justification === TextNote.Justification.RIGHT) {
+    } else if (this.justification === TextJustification.RIGHT) {
       this.leftDisplacedHeadPx = this.width;
     }
 
     // We reposition to the center of the note head
     this.rightDisplacedHeadPx = tickContext.getMetrics().glyphPx / 2;
-    this.setPreFormatted(true);
+    this.preFormatted = true;
   }
 
-  /** Renders the TextNote. */
+  /**
+   * Renders the TextNote.
+   * `TextNote` has to be assigned to a `Stave` before rendering by means of `setStave`.
+   */
   draw(): void {
     const ctx = this.checkContext();
     const stave = this.checkStave();
@@ -193,9 +196,9 @@ export class TextNote extends Note {
     // Align based on tick-context width.
     const width = this.getWidth();
 
-    if (this.justification === TextNote.Justification.CENTER) {
+    if (this.justification === TextJustification.CENTER) {
       x -= width / 2;
-    } else if (this.justification === TextNote.Justification.RIGHT) {
+    } else if (this.justification === TextJustification.RIGHT) {
       x -= width;
     }
 
@@ -206,20 +209,24 @@ export class TextNote extends Note {
     } else {
       y = stave.getYForLine(this.line + -3);
       this.applyStyle(ctx);
-      ctx.setFont(this.font.family, this.font.size, this.font.weight);
+      ctx.setFont(this.textFont);
       ctx.fillText(this.text, x, y);
 
       const height = ctx.measureText(this.text).height;
 
-      // Write superscript
+      // We called this.setFont(...) in the constructor, so we know this.textFont is available.
+      // eslint-disable-next-line
+      const { family, size, weight, style } = this.textFont!;
+      // Scale the font size by 1/1.3.
+      const smallerFontSize = Font.scaleSize(size, 0.769231);
+
       if (this.superscript) {
-        ctx.setFont(this.font.family, this.font.size / 1.3, this.font.weight);
+        ctx.setFont(family, smallerFontSize, weight, style);
         ctx.fillText(this.superscript, x + this.width + 2, y - height / 2.2);
       }
 
-      // Write subscript
       if (this.subscript) {
-        ctx.setFont(this.font.family, this.font.size / 1.3, this.font.weight);
+        ctx.setFont(family, smallerFontSize, weight, style);
         ctx.fillText(this.subscript, x + this.width + 2, y + height / 2.2 - 1);
       }
 

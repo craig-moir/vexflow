@@ -1,23 +1,24 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 //
 // ## Description
 //
 // This file implements `GraceNoteGroup` which is used to format and
 // render grace notes.
 
-import { log } from './util';
-import { Tables } from './tables';
-import { Modifier } from './modifier';
-import { Formatter } from './formatter';
-import { Voice } from './voice';
 import { Beam } from './beam';
-import { RenderContext } from './rendercontext';
-import { StaveTie } from './stavetie';
-import { TabTie } from './tabtie';
-import { Note } from './note';
-import { StemmableNote } from './stemmablenote';
+import { Formatter } from './formatter';
+import { Modifier } from './modifier';
 import { ModifierContextState } from './modifiercontext';
-import { isStaveNote } from 'typeguard';
+import { Note } from './note';
+import { RenderContext } from './rendercontext';
+import { StaveNote } from './stavenote';
+import { StaveTie } from './stavetie';
+import { StemmableNote } from './stemmablenote';
+import { Tables } from './tables';
+import { TabTie } from './tabtie';
+import { Category, isStaveNote } from './typeguard';
+import { log } from './util';
+import { Voice } from './voice';
 
 // To enable logging for this class. Set `GraceNoteGroup.DEBUG` to `true`.
 // eslint-disable-next-line
@@ -27,10 +28,10 @@ function L(...args: any) {
 
 /** GraceNoteGroup is used to format and render grace notes. */
 export class GraceNoteGroup extends Modifier {
-  static DEBUG: boolean;
+  static DEBUG: boolean = false;
 
   static get CATEGORY(): string {
-    return 'GraceNoteGroup';
+    return Category.GraceNoteGroup;
   }
 
   protected readonly voice: Voice;
@@ -38,7 +39,7 @@ export class GraceNoteGroup extends Modifier {
   protected readonly show_slur?: boolean;
 
   protected preFormatted: boolean = false;
-  protected formatter: Formatter;
+  protected formatter?: Formatter;
   public render_options: { slur_y_shift: number };
   protected slur?: StaveTie | TabTie;
   protected beams: Beam[];
@@ -84,7 +85,9 @@ export class GraceNoteGroup extends Modifier {
     for (let i = 0; i < group_list.length; ++i) {
       const gracenote_group = group_list[i].gracenote_group;
       formatWidth = gracenote_group.getWidth() + group_list[i].spacing;
-      gracenote_group.setSpacingFromNextModifier(group_shift - Math.min(formatWidth, group_shift));
+      gracenote_group.setSpacingFromNextModifier(
+        group_shift - Math.min(formatWidth, group_shift) + StaveNote.minNoteheadPadding
+      );
     }
 
     state.left_shift += group_shift;
@@ -102,7 +105,6 @@ export class GraceNoteGroup extends Modifier {
     this.show_slur = show_slur;
     this.slur = undefined;
 
-    this.formatter = new Formatter();
     this.voice = new Voice({
       num_beats: 4,
       beat_value: 4,
@@ -123,6 +125,9 @@ export class GraceNoteGroup extends Modifier {
   preFormat(): void {
     if (this.preFormatted) return;
 
+    if (!this.formatter) {
+      this.formatter = new Formatter();
+    }
     this.formatter.joinVoices([this.voice]).format([this.voice], 0, {});
     this.setWidth(this.formatter.getMinTotalWidth());
     this.preFormatted = true;
@@ -148,7 +153,7 @@ export class GraceNoteGroup extends Modifier {
   }
 
   getWidth(): number {
-    return this.width;
+    return this.width + StaveNote.minNoteheadPadding;
   }
 
   getGraceNotes(): Note[] {

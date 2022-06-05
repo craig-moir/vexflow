@@ -1,25 +1,31 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 //
-// ## Description
 // This class implements varies types of ties between contiguous notes. The
 // ties include: regular ties, hammer ons, pull offs, and slides.
 
-import { RuntimeError } from './util';
 import { Element } from './element';
-import { FontInfo } from './types/common';
+import { FontInfo } from './font';
 import { Note } from './note';
+import { Category } from './typeguard';
+import { RuntimeError } from './util';
 
+// For backwards compatibility with 3.0.9, first_note and/or last_note can be undefined or null.
+// We prefer undefined instead of null.
+// However, some of our test cases used to pass in null, so maybe there is client code relying on it.
 export interface TieNotes {
-  first_note: Note;
-  last_note: Note;
+  first_note?: Note | null;
+  last_note?: Note | null;
   first_indices?: number[];
   last_indices?: number[];
 }
 
 export class StaveTie extends Element {
   static get CATEGORY(): string {
-    return 'StaveTie';
+    return Category.StaveTie;
   }
+
+  /** Default text font. */
+  static TEXT_FONT: Required<FontInfo> = { ...Element.TEXT_FONT };
 
   public render_options: {
     cp2: number;
@@ -29,12 +35,9 @@ export class StaveTie extends Element {
     first_x_shift: number;
     text_shift_x: number;
     y_shift: number;
-    font: FontInfo;
   };
 
   protected text?: string;
-
-  protected font: FontInfo;
 
   // notes is initialized by the constructor via this.setNotes(notes).
   protected notes!: TieNotes;
@@ -65,15 +68,9 @@ export class StaveTie extends Element {
       last_x_shift: 0,
       y_shift: 7,
       tie_spacing: 0,
-      font: { family: 'Arial', size: 10, weight: '' },
     };
 
-    this.font = this.render_options.font;
-  }
-
-  setFont(font: FontInfo): this {
-    this.font = font;
-    return this;
+    this.resetFont();
   }
 
   setDirection(direction: number): this {
@@ -155,12 +152,20 @@ export class StaveTie extends Element {
       const top_cp_y = (first_y_px + last_y_px) / 2 + cp1 * params.direction;
       const bottom_cp_y = (first_y_px + last_y_px) / 2 + cp2 * params.direction;
 
+      // id probably unnecessary if we save the group to 'el' via setAttribute
+      // let id: string = "";
+      // if (this.notes.first_note) {
+      //   id = this.notes.first_note.getAttribute('id') + '-tie';
+      // }
+      // this.setAttribute('el', ctx.openGroup('stavetie', id));
+      this.setAttribute('el', ctx.openGroup('stavetie'));
       ctx.beginPath();
       ctx.moveTo(params.first_x_px + first_x_shift, first_y_px);
       ctx.quadraticCurveTo(cp_x, top_cp_y, params.last_x_px + last_x_shift, last_y_px);
       ctx.quadraticCurveTo(cp_x, bottom_cp_y, params.first_x_px + first_x_shift, first_y_px);
       ctx.closePath();
       ctx.fill();
+      ctx.closeGroup();
     }
   }
 
@@ -170,11 +175,12 @@ export class StaveTie extends Element {
     let center_x = (first_x_px + last_x_px) / 2;
     center_x -= ctx.measureText(this.text).width / 2;
     const stave = this.notes.first_note?.checkStave() ?? this.notes.last_note?.checkStave();
-
-    ctx.save();
-    ctx.setFont(this.font.family, this.font.size, this.font.weight);
-    ctx.fillText(this.text, center_x + this.render_options.text_shift_x, stave.getYForTopText() - 1);
-    ctx.restore();
+    if (stave) {
+      ctx.save();
+      ctx.setFont(this.textFont);
+      ctx.fillText(this.text, center_x + this.render_options.text_shift_x, stave.getYForTopText() - 1);
+      ctx.restore();
+    }
   }
 
   draw(): boolean {
@@ -184,16 +190,17 @@ export class StaveTie extends Element {
     const first_note = this.notes.first_note;
     const last_note = this.notes.last_note;
 
-    let first_x_px;
-    let last_x_px;
-    let first_ys;
-    let last_ys;
+    // Provide some default values so the compiler doesn't complain.
+    let first_x_px = 0;
+    let last_x_px = 0;
+    let first_ys: number[] = [0];
+    let last_ys: number[] = [0];
     let stem_direction = 0;
     if (first_note) {
       first_x_px = first_note.getTieRightX() + this.render_options.tie_spacing;
       stem_direction = first_note.getStemDirection();
       first_ys = first_note.getYs();
-    } else {
+    } else if (last_note) {
       const stave = last_note.checkStave();
       first_x_px = stave.getTieStartX();
       first_ys = last_note.getYs();
@@ -204,7 +211,7 @@ export class StaveTie extends Element {
       last_x_px = last_note.getTieLeftX() + this.render_options.tie_spacing;
       stem_direction = last_note.getStemDirection();
       last_ys = last_note.getYs();
-    } else {
+    } else if (first_note) {
       const stave = first_note.checkStave();
       last_x_px = stave.getTieEndX();
       last_ys = first_note.getYs();

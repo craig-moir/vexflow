@@ -1,17 +1,19 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // MIT License
 //
 // Bend Tests
 
-import { VexFlowTests, TestOptions } from './vexflow_test_helpers';
-import { ContextBuilder } from 'renderer';
-import { Bend, BendPhrase } from 'bend';
-import { Formatter } from 'formatter';
-import { ModifierContext } from 'modifiercontext';
-import { TabNote, TabNoteStruct } from 'tabnote';
-import { TabStave } from 'tabstave';
-import { TickContext } from 'tickcontext';
-import { Note } from 'note';
+import { TestOptions, VexFlowTests } from './vexflow_test_helpers';
+
+import { Bend, BendPhrase } from '../src/bend';
+import { Font } from '../src/font';
+import { Formatter } from '../src/formatter';
+import { ModifierContext } from '../src/modifiercontext';
+import { Note } from '../src/note';
+import { ContextBuilder } from '../src/renderer';
+import { TabNote, TabNoteStruct } from '../src/tabnote';
+import { TabStave } from '../src/tabstave';
+import { TickContext } from '../src/tickcontext';
 
 const BendTests = {
   Start(): void {
@@ -39,7 +41,7 @@ function doubleBends(options: TestOptions, contextBuilder: ContextBuilder): void
   ctx.scale(1.5, 1.5);
   ctx.fillStyle = '#221';
   ctx.strokeStyle = '#221';
-  ctx.setRawFont(' 10pt Arial');
+  ctx.font = '10pt Arial';
   const stave = new TabStave(10, 10, 450).addTabGlyph().setContext(ctx).draw();
 
   const notes = [
@@ -132,7 +134,8 @@ function reverseBends(options: TestOptions, contextBuilder: ContextBuilder): voi
   ctx.scale(1.5, 1.5);
   ctx.fillStyle = '#221';
   ctx.strokeStyle = '#221';
-  ctx.setRawFont('10pt Arial');
+  ctx.setFont('10pt Arial');
+
   const stave = new TabStave(10, 10, 450).addTabGlyph().setContext(ctx).draw();
 
   const notes = [
@@ -184,7 +187,7 @@ function bendPhrase(options: TestOptions, contextBuilder: ContextBuilder): void 
   ctx.scale(1.5, 1.5);
   ctx.fillStyle = '#221';
   ctx.strokeStyle = '#221';
-  ctx.setRawFont(' 10pt Arial');
+  ctx.font = Font.SIZE + 'pt ' + Font.SANS_SERIF; // Optionally use constants defined in Font.
   const stave = new TabStave(10, 10, 450).addTabGlyph().setContext(ctx).draw();
 
   const phrase1 = [
@@ -260,4 +263,5 @@ function whackoBends(options: TestOptions, contextBuilder: ContextBuilder): void
   ok(true, 'Whacko Bend & Release');
 }
 
+VexFlowTests.register(BendTests);
 export { BendTests };

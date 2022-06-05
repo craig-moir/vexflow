@@ -1,13 +1,14 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // MIT License
 //
 // Curve Tests
 
-import { VexFlowTests, concat, TestOptions } from './vexflow_test_helpers';
-import { CurvePosition } from 'curve';
-import { Factory } from 'factory';
-import { StaveNote } from 'stavenote';
-import { BuilderOptions } from 'easyscore';
+import { concat, TestOptions, VexFlowTests } from './vexflow_test_helpers';
+
+import { CurvePosition } from '../src/curve';
+import { BuilderOptions } from '../src/easyscore';
+import { Factory } from '../src/factory';
+import { StemmableNote } from '../src/stemmablenote';
 
 const CurveTests = {
   Start(): void {
@@ -28,7 +29,11 @@ type NoteParams = [string, BuilderOptions];
  * a setupCurves() callback which uses Factory.Curve(...) to build the curves.
  * Curves can be used to indicate slurs (legato articulation).
  */
-function createTest(noteGroup1: NoteParams, noteGroup2: NoteParams, setupCurves: (f: Factory, n: StaveNote[]) => void) {
+function createTest(
+  noteGroup1: NoteParams,
+  noteGroup2: NoteParams,
+  setupCurves: (f: Factory, n: StemmableNote[]) => void
+) {
   return (options: TestOptions) => {
     const factory = VexFlowTests.makeFactory(options, 350, 200);
     const stave = factory.Stave({ y: 50 });
@@ -161,4 +166,5 @@ const top = createTest(
   }
 );
 
+VexFlowTests.register(CurveTests);
 export { CurveTests };

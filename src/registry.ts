@@ -1,4 +1,4 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // @author Mohit Cheppudira
 //
 // ## Description
@@ -17,8 +17,8 @@
 // the registry. This allows fast look up of elements by attributes like id, type,
 // and class.
 
-import { RuntimeError } from './util';
 import { Element } from './element';
+import { RuntimeError } from './util';
 
 // Indexes are represented as maps of maps of maps. This allows
 // for both multi-labeling (e.g., an element can have multiple classes)
@@ -33,7 +33,7 @@ class Index {
   }
 }
 
-interface RegistryUpdate {
+export interface RegistryUpdate {
   id: string;
   name: string;
   value: string | undefined;

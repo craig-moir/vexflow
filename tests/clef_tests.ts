@@ -1,9 +1,9 @@
-// [VexFlow](http://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
+// [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // MIT License
 //
 // Clef Tests
 
-import { VexFlowTests, TestOptions } from './vexflow_test_helpers';
+import { TestOptions, VexFlowTests } from './vexflow_test_helpers';
 
 const ClefTests = {
   Start(): void {
@@ -139,4 +139,5 @@ function drawClefChange(options: TestOptions): void {
   ok(true, 'all pass');
 }
 
+VexFlowTests.register(ClefTests);
 export { ClefTests };
