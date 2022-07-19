@@ -1,9 +1,5 @@
-/**
- * The Bravura font was created by Daniel Spreadbury @ Steinberg.
- * https://github.com/steinbergmedia/bravura/
- */
-export const BravuraMetrics = {
-  name: 'Bravura',
+export const LelandMetrics = {
+  name: 'Leland',
   smufl: true,
 
   stave: {
@@ -342,12 +338,6 @@ export const BravuraMetrics = {
           shiftX: -4,
         },
         noteheadXWholeStemDown: {
-          shiftX: 1,
-        },
-        noteheadXDoubleWholeStemUp: {
-          shiftX: -4,
-        },
-        noteheadXDoubleWholeStemDown: {
           shiftX: 1,
         },
         noteheadSquareWhiteStemDown: {
