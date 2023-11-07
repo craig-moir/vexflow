@@ -7,14 +7,20 @@ import { StaveConnector } from './staveconnector.js';
 import { Tables } from './tables.js';
 import { TickContext } from './tickcontext.js';
 import { isNote, isStaveNote } from './typeguard.js';
-import { defined, log, midLine, RuntimeError } from './util.js';
+import { defined, log, midLine, RuntimeError, sumArray } from './util.js';
 import { Voice } from './voice.js';
-const sumArray = (arr) => arr.reduce((a, b) => a + b, 0);
 function createContexts(voices, makeContext, addToContext) {
-    const resolutionMultiplier = Formatter.getResolutionMultiplier(voices);
+    if (voices.length == 0)
+        return {
+            map: {},
+            array: [],
+            list: [],
+            resolutionMultiplier: 0,
+        };
     const tickToContextMap = {};
     const tickList = [];
     const contexts = [];
+    const resolutionMultiplier = Formatter.getResolutionMultiplier(voices);
     voices.forEach((voice, voiceIndex) => {
         const ticksUsed = new Fraction(0, resolutionMultiplier);
         voice.getTickables().forEach((tickable) => {
@@ -56,24 +62,7 @@ function getRestLineForNextNoteGroup(notes, currRestLine, currNoteIndex, compare
     }
     return nextRestLine;
 }
-export class Formatter {
-    constructor(options) {
-        this.formatterOptions = Object.assign({ globalSoftmax: false, softmaxFactor: Tables.SOFTMAX_FACTOR, maxIterations: 5 }, options);
-        this.justifyWidth = 0;
-        this.totalCost = 0;
-        this.totalShift = 0;
-        this.durationStats = {};
-        this.minTotalWidth = 0;
-        this.hasMinTotalWidth = false;
-        this.tickContexts = undefined;
-        this.modifierContexts = undefined;
-        this.contextGaps = {
-            total: 0,
-            gaps: [],
-        };
-        this.voices = [];
-        this.lossHistory = [];
-    }
+class Formatter {
     static SimpleFormat(notes, x = 0, { paddingBetween = 10 } = {}) {
         notes.reduce((accumulator, note) => {
             note.addToModifierContext(new ModifierContext());
@@ -154,7 +143,7 @@ export class Formatter {
                 if (currTickable.getTuplet() && !alignTuplets) {
                     return;
                 }
-                const position = currTickable.getGlyph().position.toUpperCase();
+                const position = currTickable.getGlyphProps().position.toUpperCase();
                 if (position !== 'R/4' && position !== 'B/4') {
                     return;
                 }
@@ -180,6 +169,28 @@ export class Formatter {
             }
         });
     }
+    constructor(options) {
+        this.formatterOptions = Object.assign({ globalSoftmax: false, softmaxFactor: Tables.SOFTMAX_FACTOR, maxIterations: 5 }, options);
+        this.justifyWidth = 0;
+        this.totalCost = 0;
+        this.totalShift = 0;
+        this.durationStats = {};
+        this.minTotalWidth = 0;
+        this.hasMinTotalWidth = false;
+        this.tickContexts = {
+            map: {},
+            array: [],
+            list: [],
+            resolutionMultiplier: 0,
+        };
+        this.modifierContexts = [];
+        this.contextGaps = {
+            total: 0,
+            gaps: [],
+        };
+        this.voices = [];
+        this.lossHistory = [];
+    }
     alignRests(voices, alignAllNotes) {
         if (!voices || !voices.length) {
             throw new RuntimeError('BadArgument', 'No voices to format rests');
@@ -195,12 +206,10 @@ export class Formatter {
         const durations = [];
         if (this.hasMinTotalWidth)
             return this.minTotalWidth;
-        if (!this.tickContexts) {
-            if (!voices) {
-                throw new RuntimeError('BadArgument', "'voices' required to run preCalculateMinTotalWidth");
-            }
-            this.createTickContexts(voices);
+        if (!voices) {
+            throw new RuntimeError('BadArgument', "'voices' required to run preCalculateMinTotalWidth");
         }
+        this.createTickContexts(voices);
         const { list: contextList, map: contextMap } = this.tickContexts;
         this.minTotalWidth = 0;
         contextList.forEach((tick) => {
@@ -252,10 +261,34 @@ export class Formatter {
         return resolutionMultiplier;
     }
     createModifierContexts(voices) {
-        const fn = (tickable, context) => tickable.addToModifierContext(context);
-        const contexts = createContexts(voices, () => new ModifierContext(), fn);
-        this.modifierContexts = contexts;
-        return contexts;
+        if (voices.length == 0)
+            return;
+        const resolutionMultiplier = Formatter.getResolutionMultiplier(voices);
+        const tickToContextMap = new Map();
+        const contexts = [];
+        voices.forEach((voice) => {
+            const ticksUsed = new Fraction(0, resolutionMultiplier);
+            voice.getTickables().forEach((tickable) => {
+                const integerTicks = ticksUsed.numerator;
+                let staveTickToContextMap = tickToContextMap.get(tickable.getStave());
+                if (!staveTickToContextMap) {
+                    tickToContextMap.set(tickable.getStave(), {});
+                    staveTickToContextMap = tickToContextMap.get(tickable.getStave());
+                }
+                if (!(staveTickToContextMap ? staveTickToContextMap[integerTicks] : undefined)) {
+                    const newContext = new ModifierContext();
+                    contexts.push(newContext);
+                    staveTickToContextMap[integerTicks] = newContext;
+                }
+                tickable.addToModifierContext(staveTickToContextMap[integerTicks]);
+                ticksUsed.add(tickable.getTicks());
+            });
+        });
+        this.modifierContexts.push({
+            map: tickToContextMap,
+            array: contexts,
+            resolutionMultiplier,
+        });
     }
     createTickContexts(voices) {
         const fn = (tickable, context, voiceIndex) => context.addTickable(tickable, voiceIndex);
@@ -266,6 +299,9 @@ export class Formatter {
             context.tContexts = contextArray;
         });
         return contexts;
+    }
+    getTickContexts() {
+        return this.tickContexts;
     }
     preFormat(justifyWidth = 0, renderingContext, voicesParam, stave) {
         const contexts = this.tickContexts;
@@ -432,8 +468,6 @@ export class Formatter {
         return this.evaluate();
     }
     evaluate() {
-        if (!this.tickContexts)
-            return 0;
         const contexts = this.tickContexts;
         const justifyWidth = this.justifyWidth;
         this.contextGaps = { total: 0, gaps: [] };
@@ -545,11 +579,12 @@ export class Formatter {
         return this.evaluate();
     }
     postFormat() {
-        const postFormatContexts = (contexts) => contexts.list.forEach((tick) => contexts.map[tick].postFormat());
-        if (this.modifierContexts)
-            postFormatContexts(this.modifierContexts);
-        if (this.tickContexts)
-            postFormatContexts(this.tickContexts);
+        this.modifierContexts.forEach((modifierContexts) => {
+            modifierContexts.array.forEach((mc) => mc.postFormat());
+        });
+        this.tickContexts.list.forEach((tick) => {
+            this.tickContexts.map[tick].postFormat();
+        });
         return this;
     }
     joinVoices(voices) {
@@ -583,3 +618,4 @@ export class Formatter {
     }
 }
 Formatter.DEBUG = false;
+export { Formatter };

@@ -9,16 +9,16 @@ import { Tickable } from './tickable';
 import { TickContext } from './tickcontext';
 import { Voice } from './voice';
 export interface KeyProps {
-    stem_down_x_offset: number;
-    stem_up_x_offset: number;
+    stem_down_x_offset?: number;
+    stem_up_x_offset?: number;
     key: string;
     octave: number;
     line: number;
-    int_value: number;
-    accidental: string;
-    code: string;
+    int_value?: number;
+    accidental?: string;
+    code?: string;
     stroke: number;
-    shift_right: number;
+    shift_right?: number;
     displaced: boolean;
 }
 export interface NoteMetrics {
@@ -77,7 +77,7 @@ export declare abstract class Note extends Tickable {
     static plotMetrics(ctx: RenderContext, note: Tickable, yPos: number): void;
     protected static parseDuration(durationString?: string): NoteDuration | undefined;
     protected static parseNoteStruct(noteStruct: NoteStruct): ParsedNote | undefined;
-    glyph?: any;
+    glyphProps: GlyphProps;
     keys: string[];
     keyProps: KeyProps[];
     protected stave?: Stave;
@@ -151,8 +151,12 @@ export declare abstract class Note extends Tickable {
     getLineNumber(isTopNote?: boolean): number;
     /** Get the stave line number for rest. */
     getLineForRest(): number;
-    /** Get the glyph associated with this note. */
+    /**
+     * @deprecated Use `getGlyphProps()` instead.
+     */
     getGlyph(): any;
+    /** Get the glyph associated with this note. */
+    getGlyphProps(): GlyphProps;
     /** Get the glyph width. */
     getGlyphWidth(): number;
     /**
@@ -219,6 +223,8 @@ export declare abstract class Note extends Tickable {
      * looking for the post-formatted x-position.
      */
     getAbsoluteX(): number;
+    /** Get point for notes. */
+    static getPoint(size?: string): number;
     /** Get the direction of the stem. */
     getStemDirection(): number;
     /** Get the top and bottom `y` values of the stem. */

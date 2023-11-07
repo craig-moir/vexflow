@@ -15,7 +15,7 @@ import { TimeSignature } from '../src/timesignature.js';
 const StaveTests = {
     Start() {
         QUnit.module('Stave');
-        test('StaveModifiers SortByCategory', sortByCategory);
+        QUnit.test('StaveModifiers SortByCategory', sortByCategory);
         const run = VexFlowTests.runTests;
         run('Stave Draw Test', draw);
         run('Open Stave Draw Test', drawOpenStave);
@@ -36,7 +36,7 @@ const StaveTests = {
         run('Factory API', factoryAPI);
     },
 };
-function sortByCategory() {
+function sortByCategory(assert) {
     const stave = new Stave(0, 0, 300);
     const clef0 = new Clef('treble');
     const clef1 = new Clef('alto');
@@ -61,7 +61,7 @@ function sortByCategory() {
             if (a[i] !== b[i])
                 isSame = false;
         }
-        ok(isSame, title);
+        assert.ok(isSame, title);
     };
     sortAndCompare('Keep the original order 1', [bar0, bar1, clef0, clef1, key0, key1, time0, time1], [bar0, bar1, clef0, clef1, key0, key1, time0, time1], order0);
     sortAndCompare('Keep the original order 2', [time0, time1, key0, key1, bar0, bar1, clef0, clef1], [time0, time1, key0, key1, bar0, bar1, clef0, clef1], order1);
@@ -74,11 +74,11 @@ function draw(options, contextBuilder) {
     const stave = new Stave(10, 10, 300);
     stave.setContext(ctx);
     stave.draw();
-    equal(stave.getYForNote(0), 100, 'getYForNote(0)');
-    equal(stave.getYForLine(5), 100, 'getYForLine(5)');
-    equal(stave.getYForLine(0), 50, 'getYForLine(0) - Top Line');
-    equal(stave.getYForLine(4), 90, 'getYForLine(4) - Bottom Line');
-    ok(true, 'all pass');
+    options.assert.equal(stave.getYForNote(0), 100, 'getYForNote(0)');
+    options.assert.equal(stave.getYForLine(5), 100, 'getYForLine(5)');
+    options.assert.equal(stave.getYForLine(0), 50, 'getYForLine(0) - Top Line');
+    options.assert.equal(stave.getYForLine(4), 90, 'getYForLine(4) - Bottom Line');
+    options.assert.ok(true, 'all pass');
 }
 function drawOpenStave(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 400, 350);
@@ -88,11 +88,11 @@ function drawOpenStave(options, contextBuilder) {
     stave = new Stave(10, 150, 300, { right_bar: false });
     stave.setContext(ctx);
     stave.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawMultipleMeasures(options, contextBuilder) {
     var _a, _b;
-    expect(0);
+    options.assert.expect(0);
     const ctx = contextBuilder(options.elementId, 550, 200);
     const staveBar1 = new Stave(10, 50, 200);
     staveBar1.setBegBarType(BarlineType.REPEAT_BEGIN);
@@ -130,7 +130,7 @@ function drawMultipleMeasures(options, contextBuilder) {
     beam2.setContext(ctx).draw();
 }
 function drawRepeats(options, contextBuilder) {
-    expect(0);
+    options.assert.expect(0);
     const ctx = contextBuilder(options.elementId, 750, 120);
     const staveBar1 = new Stave(10, 0, 250);
     staveBar1.setBegBarType(BarlineType.REPEAT_BEGIN);
@@ -187,7 +187,7 @@ function drawRepeats(options, contextBuilder) {
     Formatter.FormatAndDraw(ctx, staveBar4, notesBar4);
 }
 function drawEndModifiers(options, contextBuilder) {
-    expect(0);
+    options.assert.expect(0);
     const staveWidth = 230;
     const blockHeight = 80;
     let x = 10;
@@ -262,7 +262,7 @@ function drawEndModifiers(options, contextBuilder) {
     drawStavesInTwoLines(BarlineType.REPEAT_BOTH);
 }
 function drawStaveRepetition(options, contextBuilder) {
-    expect(0);
+    options.assert.expect(0);
     const ctx = contextBuilder(options.elementId, 725, 200);
     const mm1 = new Stave(10, 50, 150);
     mm1.addClef('treble');
@@ -311,7 +311,7 @@ function drawStaveRepetition(options, contextBuilder) {
     Formatter.FormatAndDraw(ctx, mm4, notesmm4);
 }
 function drawVolta(options, contextBuilder) {
-    expect(0);
+    options.assert.expect(0);
     const ctx = contextBuilder(options.elementId, 725, 200);
     const mm1 = new Stave(10, 50, 125);
     mm1.setBegBarType(BarlineType.REPEAT_BEGIN);
@@ -379,7 +379,7 @@ function drawVolta(options, contextBuilder) {
     Formatter.FormatAndDraw(ctx, mm9, notesmm9);
 }
 function drawVoltaModifier(options, contextBuilder) {
-    expect(0);
+    options.assert.expect(0);
     const ctx = contextBuilder(options.elementId, 1100, 200);
     const mm1 = new Stave(10, 50, 175);
     mm1.setBegBarType(BarlineType.REPEAT_BEGIN);
@@ -440,7 +440,7 @@ function drawVoltaModifier(options, contextBuilder) {
     Formatter.FormatAndDraw(ctx, mm6, notesmm6);
 }
 function drawTempo(options, contextBuilder) {
-    expect(0);
+    options.assert.expect(0);
     const ctx = contextBuilder(options.elementId, 725, 350);
     const padding = 10;
     let x = 0;
@@ -502,12 +502,12 @@ function configureSingleLine(options, contextBuilder) {
         .setConfigForLine(4, { visible: true });
     stave.setContext(ctx).draw();
     const config = stave.getConfigForLines();
-    equal(config[0].visible, true, 'getLinesConfiguration() - Line 0');
-    equal(config[1].visible, false, 'getLinesConfiguration() - Line 1');
-    equal(config[2].visible, true, 'getLinesConfiguration() - Line 2');
-    equal(config[3].visible, false, 'getLinesConfiguration() - Line 3');
-    equal(config[4].visible, true, 'getLinesConfiguration() - Line 4');
-    ok(true, 'all pass');
+    options.assert.equal(config[0].visible, true, 'getLinesConfiguration() - Line 0');
+    options.assert.equal(config[1].visible, false, 'getLinesConfiguration() - Line 1');
+    options.assert.equal(config[2].visible, true, 'getLinesConfiguration() - Line 2');
+    options.assert.equal(config[3].visible, false, 'getLinesConfiguration() - Line 3');
+    options.assert.equal(config[4].visible, true, 'getLinesConfiguration() - Line 4');
+    options.assert.ok(true, 'all pass');
 }
 function configureAllLines(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 400, 120);
@@ -517,12 +517,12 @@ function configureAllLines(options, contextBuilder) {
         .setContext(ctx)
         .draw();
     const config = stave.getConfigForLines();
-    equal(config[0].visible, false, 'getLinesConfiguration() - Line 0');
-    equal(config[1].visible, true, 'getLinesConfiguration() - Line 1');
-    equal(config[2].visible, false, 'getLinesConfiguration() - Line 2');
-    equal(config[3].visible, true, 'getLinesConfiguration() - Line 3');
-    equal(config[4].visible, false, 'getLinesConfiguration() - Line 4');
-    ok(true, 'all pass');
+    options.assert.equal(config[0].visible, false, 'getLinesConfiguration() - Line 0');
+    options.assert.equal(config[1].visible, true, 'getLinesConfiguration() - Line 1');
+    options.assert.equal(config[2].visible, false, 'getLinesConfiguration() - Line 2');
+    options.assert.equal(config[3].visible, true, 'getLinesConfiguration() - Line 3');
+    options.assert.equal(config[4].visible, false, 'getLinesConfiguration() - Line 4');
+    options.assert.ok(true, 'all pass');
 }
 function drawStaveText(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 900, 140);
@@ -532,7 +532,7 @@ function drawStaveText(options, contextBuilder) {
     stave.setText('Above Text', Modifier.Position.ABOVE);
     stave.setText('Below Text', Modifier.Position.BELOW);
     stave.setContext(ctx).draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawStaveTextMultiLine(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 900, 200);
@@ -546,7 +546,7 @@ function drawStaveTextMultiLine(options, contextBuilder) {
     stave.setText('Left Below Text', Modifier.Position.BELOW, { shift_y: -10, justification: TextJustification.LEFT });
     stave.setText('Right Below Text', Modifier.Position.BELOW, { shift_y: 10, justification: TextJustification.RIGHT });
     stave.setContext(ctx).draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function factoryAPI(options) {
     const f = VexFlowTests.makeFactory(options, 900, 200);
@@ -554,7 +554,7 @@ function factoryAPI(options) {
     stave.setText('Violin', Modifier.Position.LEFT, { shift_y: -10 });
     stave.setText('2nd line', Modifier.Position.LEFT, { shift_y: 10 });
     f.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 VexFlowTests.register(StaveTests);
 export { StaveTests };

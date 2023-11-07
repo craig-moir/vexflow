@@ -4,11 +4,10 @@ import { Registry } from './registry';
 import { RenderContext } from './rendercontext';
 /** Element attributes. */
 export interface ElementAttributes {
-    [name: string]: any;
+    [name: string]: string | undefined;
     id: string;
-    el?: any;
     type: string;
-    classes: Record<string, boolean>;
+    class: string;
 }
 /** Element style */
 export interface ElementStyle {
@@ -50,6 +49,11 @@ export interface ElementStyle {
 /**
  * Element implements a generic base class for VexFlow, with implementations
  * of general functions and properties that can be inherited by all VexFlow elements.
+ *
+ * The Element is an abstract class that needs to be subclassed to work. It handles
+ * style and text-font properties for the Element and any child elements, along with
+ * working with the Registry to create unique ids, but does not have any tools for
+ * formatting x or y positions or connections to a Stave.
  */
 export declare abstract class Element {
     static get CATEGORY(): string;
@@ -74,6 +78,15 @@ export declare abstract class Element {
      */
     protected textFont?: Required<FontInfo>;
     constructor();
+    /**
+     * Adds a child Element to the Element, which lets it inherit the
+     * same style as the parent when setGroupStyle() is called.
+     *
+     * Examples of children are noteheads and stems.  Modifiers such
+     * as Accidentals are generally not set as children.
+     *
+     * Note that StaveNote calls setGroupStyle() when setStyle() is called.
+     */
     addChildElement(child: Element): this;
     getCategory(): string;
     /**
@@ -98,7 +111,7 @@ export declare abstract class Element {
      * element.drawWithStyle();
      * ```
      */
-    setStyle(style: ElementStyle): this;
+    setStyle(style: ElementStyle | undefined): this;
     /** Set the element & associated children style used for rendering. */
     setGroupStyle(style: ElementStyle): this;
     /** Get the element style used for rendering. */
@@ -109,7 +122,7 @@ export declare abstract class Element {
     restoreStyle(context?: RenderContext | undefined, style?: ElementStyle | undefined): this;
     /**
      * Draw the element and all its sub-elements (ie.: Modifiers in a Stave)
-     * with the element style.
+     * with the element's style (see `getStyle()` and `setStyle()`)
      */
     drawWithStyle(): void;
     /** Draw an element. */
@@ -128,26 +141,33 @@ export declare abstract class Element {
     setRendered(rendered?: boolean): this;
     /** Return the element attributes. */
     getAttributes(): ElementAttributes;
-    /** Return an attribute. */
+    /** Return an attribute, such as 'id', 'type' or 'class'. */
     getAttribute(name: string): any;
-    /** Set an attribute. */
-    setAttribute(name: string, value: any): this;
+    /** Return associated SVGElement. */
+    getSVGElement(suffix?: string): SVGElement | undefined;
+    /** Set an attribute such as 'id', 'class', or 'type'. */
+    setAttribute(name: string, value: string | undefined): this;
     /** Get the boundingBox. */
     getBoundingBox(): BoundingBox | undefined;
-    /** Return the context. */
+    /** Return the context, such as an SVGContext or CanvasContext object. */
     getContext(): RenderContext | undefined;
-    /** Set the context. */
+    /** Set the context to an SVGContext or CanvasContext object */
     setContext(context?: RenderContext): this;
-    /** Validate and return the context. */
+    /** Validate and return the rendering context. */
     checkContext(): RenderContext;
     /**
-     * Provide a CSS compatible font string (e.g., 'bold 16px Arial').
+     * Provide a CSS compatible font string (e.g., 'bold 16px Arial') that will be applied
+     * to text (not glyphs).
      */
     set font(f: string);
-    /** Returns the CSS compatible font string. */
+    /** Returns the CSS compatible font string for the text font. */
     get font(): string;
     /**
-     * Set the element's font family, size, weight, style (e.g., `Arial`, `10pt`, `bold`, `italic`).
+     * Set the element's text font family, size, weight, style
+     * (e.g., `Arial`, `10pt`, `bold`, `italic`).
+     *
+     * This attribute does not determine the font used for musical Glyphs like treble clefs.
+     *
      * @param font is 1) a `FontInfo` object or
      *                2) a string formatted as CSS font shorthand (e.g., 'bold 10pt Arial') or
      *                3) a string representing the font family (at least one of `size`, `weight`, or `style` must also be provided).
@@ -158,6 +178,10 @@ export declare abstract class Element {
      * Each Element subclass may specify its own default by overriding the static `TEXT_FONT` property.
      */
     setFont(font?: string | FontInfo, size?: string | number, weight?: string | number, style?: string): this;
+    /**
+     * Get the css string describing this Element's text font. e.g.,
+     * 'bold 10pt Arial'.
+     */
     getFont(): string;
     /**
      * Reset the text font to the style indicated by the static `TEXT_FONT` property.

@@ -62,7 +62,14 @@ export declare class Stave extends Element {
     setWidth(width: number): this;
     getWidth(): number;
     getStyle(): ElementStyle;
+    /**
+     * Set the measure number of this Stave.
+     */
     setMeasure(measure: number): this;
+    /**
+     * Return the measure number of this Stave.
+     */
+    getMeasure(): number;
     /**
      * Gets the pixels to shift from the beginning of the stave
      * following the modifier at the provided index

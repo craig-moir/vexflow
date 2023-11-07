@@ -17,7 +17,7 @@ function createTest(noteGroup, setupVibratoBracket) {
         setupVibratoBracket(factory, voice.getTickables());
         factory.Formatter().joinVoices([voice]).formatToStave([voice], stave);
         factory.draw();
-        ok(true);
+        options.assert.ok(true);
     };
 }
 const simple = createTest('c4/4, c4, c4, c4', (factory, notes) => {

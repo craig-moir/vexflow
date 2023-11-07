@@ -12,7 +12,7 @@ export interface ModifierContextMetrics {
     width: number;
     spacing: number;
 }
-export declare type ModifierContextMember = Tickable | Modifier | StaveNote | TabNote;
+export type ModifierContextMember = Tickable | Modifier | StaveNote | TabNote;
 export declare class ModifierContext {
     static DEBUG: boolean;
     protected state: ModifierContextState;
@@ -35,6 +35,9 @@ export declare class ModifierContext {
      */
     getModifiers(category: string): ModifierContextMember[];
     getMembers(category: string): ModifierContextMember[];
+    /**
+     * Get the width of the entire
+     */
     getWidth(): number;
     getLeftShift(): number;
     getRightShift(): number;

@@ -16,7 +16,7 @@ function createTest(addItems) {
         const voices = factory.getVoices();
         factory.Formatter().joinVoices(voices).formatToStave(voices, stave);
         factory.draw();
-        ok(true, 'all pass');
+        options.assert.ok(true, 'all pass');
     };
 }
 const basic = createTest((f, score) => {

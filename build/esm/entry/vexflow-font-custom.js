@@ -1,7 +1,7 @@
+import { CommonMetrics } from '../src/fonts/common_metrics.js';
 import { CustomFont } from '../src/fonts/custom_glyphs.js';
-import { CustomMetrics } from '../src/fonts/custom_metrics.js';
 export const Font = {
     data: CustomFont,
-    metrics: CustomMetrics,
+    metrics: CommonMetrics,
 };
 export default Font;

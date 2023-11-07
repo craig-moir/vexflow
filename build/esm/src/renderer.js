@@ -14,48 +14,7 @@ export var RendererLineEndType;
     RendererLineEndType[RendererLineEndType["UP"] = 2] = "UP";
     RendererLineEndType[RendererLineEndType["DOWN"] = 3] = "DOWN";
 })(RendererLineEndType || (RendererLineEndType = {}));
-export class Renderer {
-    constructor(arg0, arg1) {
-        if (isRenderContext(arg0)) {
-            this.ctx = arg0;
-        }
-        else {
-            if (arg1 === undefined) {
-                throw new RuntimeError('InvalidArgument', 'Missing backend argument');
-            }
-            const backend = arg1;
-            let element;
-            if (typeof arg0 == 'string') {
-                const maybeElement = document.getElementById(arg0);
-                if (!maybeElement) {
-                    throw new RuntimeError('BadElementId', `Can't find element with ID "${maybeElement}"`);
-                }
-                element = maybeElement;
-            }
-            else {
-                element = arg0;
-            }
-            if (backend === Renderer.Backends.CANVAS) {
-                if (!isHTMLCanvas(element)) {
-                    throw new RuntimeError('BadElement', 'CANVAS context requires an HTMLCanvasElement.');
-                }
-                const context = element.getContext('2d');
-                if (!context) {
-                    throw new RuntimeError('BadElement', "Can't get canvas context");
-                }
-                this.ctx = new CanvasContext(context);
-            }
-            else if (backend === Renderer.Backends.SVG) {
-                if (!isHTMLDiv(element)) {
-                    throw new RuntimeError('BadElement', 'SVG context requires an HTMLDivElement.');
-                }
-                this.ctx = new SVGContext(element);
-            }
-            else {
-                throw new RuntimeError('InvalidBackend', `No support for backend: ${backend}`);
-            }
-        }
-    }
+class Renderer {
     static buildContext(elementId, backend, width, height, background = '#FFF') {
         const renderer = new Renderer(elementId, backend);
         if (width && height) {
@@ -99,6 +58,47 @@ export class Renderer {
         context.closePath();
         context.stroke();
     }
+    constructor(arg0, arg1) {
+        if (isRenderContext(arg0)) {
+            this.ctx = arg0;
+        }
+        else {
+            if (arg1 === undefined) {
+                throw new RuntimeError('InvalidArgument', 'Missing backend argument');
+            }
+            const backend = arg1;
+            let element;
+            if (typeof arg0 == 'string') {
+                const maybeElement = document.getElementById(arg0);
+                if (!maybeElement) {
+                    throw new RuntimeError('BadElementId', `Can't find element with ID "${maybeElement}"`);
+                }
+                element = maybeElement;
+            }
+            else {
+                element = arg0;
+            }
+            if (backend === Renderer.Backends.CANVAS) {
+                if (!isHTMLCanvas(element)) {
+                    throw new RuntimeError('BadElement', 'CANVAS context requires an HTMLCanvasElement.');
+                }
+                const context = element.getContext('2d', { willReadFrequently: true });
+                if (!context) {
+                    throw new RuntimeError('BadElement', "Can't get canvas context");
+                }
+                this.ctx = new CanvasContext(context);
+            }
+            else if (backend === Renderer.Backends.SVG) {
+                if (!isHTMLDiv(element)) {
+                    throw new RuntimeError('BadElement', 'SVG context requires an HTMLDivElement.');
+                }
+                this.ctx = new SVGContext(element);
+            }
+            else {
+                throw new RuntimeError('InvalidBackend', `No support for backend: ${backend}`);
+            }
+        }
+    }
     resize(width, height) {
         this.ctx.resize(width, height);
         return this;
@@ -110,3 +110,4 @@ export class Renderer {
 Renderer.Backends = RendererBackends;
 Renderer.LineEndType = RendererLineEndType;
 Renderer.lastContext = undefined;
+export { Renderer };

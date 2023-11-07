@@ -11,18 +11,18 @@ export var StaveModifierPosition;
     StaveModifierPosition[StaveModifierPosition["END"] = 6] = "END";
 })(StaveModifierPosition || (StaveModifierPosition = {}));
 export class StaveModifier extends Element {
+    static get CATEGORY() {
+        return "StaveModifier";
+    }
+    static get Position() {
+        return StaveModifierPosition;
+    }
     constructor() {
         super();
         this.width = 0;
         this.x = 0;
         this.padding = 10;
         this.position = StaveModifierPosition.ABOVE;
-    }
-    static get CATEGORY() {
-        return "StaveModifier";
-    }
-    static get Position() {
-        return StaveModifierPosition;
     }
     getPosition() {
         return this.position;

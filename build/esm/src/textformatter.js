@@ -5,23 +5,9 @@ function L(...args) {
         log('Vex.Flow.TextFormatter', args);
 }
 const textWidthCache = {};
+const textHeightCache = {};
 const registry = {};
-export class TextFormatter {
-    constructor(formatterInfo) {
-        this.family = '';
-        this.size = 14;
-        this.resolution = 1000;
-        this.glyphs = {};
-        this.serifs = false;
-        this.monospaced = false;
-        this.italic = false;
-        this.bold = false;
-        this.superscriptOffset = 0;
-        this.subscriptOffset = 0;
-        this.maxSizeGlyph = 'H';
-        this.cacheKey = '';
-        this.updateParams(formatterInfo);
-    }
+class TextFormatter {
     static getFontFamilies() {
         const registeredFonts = [];
         for (const fontFamily in registry) {
@@ -89,6 +75,28 @@ export class TextFormatter {
             registry[fontFamily] = info;
         }
     }
+    constructor(formatterInfo) {
+        this.family = '';
+        this.size = 14;
+        this.resolution = 1000;
+        this.glyphs = {};
+        this.serifs = false;
+        this.monospaced = false;
+        this.italic = false;
+        this.bold = false;
+        this.superscriptOffset = 0;
+        this.subscriptOffset = 0;
+        this.maxSizeGlyph = '@';
+        this.cacheKey = '';
+        this.updateParams(formatterInfo);
+    }
+    get localHeightCache() {
+        var _a;
+        if (textHeightCache[this.cacheKey] === undefined) {
+            textHeightCache[this.cacheKey] = {};
+        }
+        return (_a = textHeightCache[this.cacheKey]) !== null && _a !== void 0 ? _a : {};
+    }
     updateParams(params) {
         if (params.family)
             this.family = params.family;
@@ -142,6 +150,39 @@ export class TextFormatter {
             return advanceWidth / this.resolution;
         }
     }
+    getYForCharacterInPx(c) {
+        const metrics = this.getGlyphMetrics(c);
+        const rv = { yMin: 0, yMax: this.maxHeight, height: this.maxHeight };
+        if (!metrics) {
+            return rv;
+        }
+        else {
+            if (typeof metrics.y_min === 'number') {
+                rv.yMin = (metrics.y_min / this.resolution) * this.fontSizeInPixels;
+            }
+            if (typeof metrics.y_max === 'number') {
+                rv.yMax = (metrics.y_max / this.resolution) * this.fontSizeInPixels;
+            }
+            rv.height = rv.yMax - rv.yMin;
+            return rv;
+        }
+    }
+    getYForStringInPx(str) {
+        const entry = this.localHeightCache;
+        const extent = { yMin: 0, yMax: this.maxHeight, height: this.maxHeight };
+        const cache = entry[str];
+        if (cache !== undefined) {
+            return cache;
+        }
+        for (let i = 0; i < str.length; ++i) {
+            const curY = this.getYForCharacterInPx(str[i]);
+            extent.yMin = Math.min(extent.yMin, curY.yMin);
+            extent.yMax = Math.max(extent.yMax, curY.yMax);
+            extent.height = extent.yMax - extent.yMin;
+        }
+        entry[str] = extent;
+        return extent;
+    }
     getWidthForTextInEm(text) {
         const key = this.cacheKey;
         let cachedWidths = textWidthCache[key];
@@ -175,3 +216,4 @@ export class TextFormatter {
     }
 }
 TextFormatter.DEBUG = false;
+export { TextFormatter };

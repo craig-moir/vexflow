@@ -66,14 +66,13 @@ export declare class StaveNote extends StemmableNote {
     protected dot_shiftY: number;
     protected use_default_head_x: boolean;
     protected ledgerLineStyle: ElementStyle;
-    protected flagStyle?: ElementStyle;
     private _noteHeads;
     private sortedKeyProps;
     constructor(noteStruct: StaveNoteStruct);
     reset(): this;
     setBeam(beam: Beam): this;
     buildStem(): this;
-    buildNoteHeads(): void;
+    buildNoteHeads(): NoteHead[];
     autoStem(): void;
     calculateOptimalStemDirection(): number;
     calculateKeyProps(): void;
@@ -140,7 +139,7 @@ export declare class StaveNote extends StemmableNote {
     /** @deprecated use StaveNote.noteHeads instead. */
     get note_heads(): NoteHead[];
     drawLedgerLines(): void;
-    drawModifiers(): void;
+    drawModifiers(noteheadParam: NoteHead): void;
     shouldDrawFlag(): boolean;
     drawFlag(): void;
     drawNoteHeads(): void;

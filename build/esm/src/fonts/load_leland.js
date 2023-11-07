@@ -1,6 +1,6 @@
 import { Font } from '../font.js';
+import { CommonMetrics } from './common_metrics.js';
 import { LelandFont } from './leland_glyphs.js';
-import { LelandMetrics } from './leland_metrics.js';
 export function loadLeland() {
-    Font.load('Leland', LelandFont, LelandMetrics);
+    Font.load('Leland', LelandFont, CommonMetrics);
 }

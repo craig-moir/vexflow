@@ -31,8 +31,6 @@ function tieNotes(notes, indices, stave, ctx) {
 function setupContext(options, width) {
     const context = options.contextBuilder(options.elementId, 350, 140);
     context.scale(0.9, 0.9);
-    context.fillStyle = '#221';
-    context.strokeStyle = '#221';
     context.font = '10pt Arial';
     const stave = new TabStave(10, 10, width || 350).addTabGlyph().setContext(context).draw();
     return { context, stave };
@@ -45,7 +43,7 @@ function simple(options, contextBuilder) {
         tabNote({ positions: [{ str: 4, fret: 4 }], duration: 'h' }),
         tabNote({ positions: [{ str: 4, fret: 6 }], duration: 'h' }),
     ], [0], stave, context);
-    ok(true, 'Simple Test');
+    options.assert.ok(true, 'Simple Test');
 }
 function multiTest(options, buildTabSlide) {
     const { context, stave } = setupContext(options, 440);
@@ -94,7 +92,7 @@ function multiTest(options, buildTabSlide) {
     })
         .setContext(context)
         .draw();
-    ok(true, 'Single note');
+    options.assert.ok(true, 'Single note');
     buildTabSlide({
         first_note: notes[2],
         last_note: notes[3],
@@ -103,7 +101,7 @@ function multiTest(options, buildTabSlide) {
     })
         .setContext(context)
         .draw();
-    ok(true, 'Chord');
+    options.assert.ok(true, 'Chord');
     buildTabSlide({
         first_note: notes[4],
         last_note: notes[5],
@@ -112,7 +110,7 @@ function multiTest(options, buildTabSlide) {
     })
         .setContext(context)
         .draw();
-    ok(true, 'Single note high-fret');
+    options.assert.ok(true, 'Single note high-fret');
     buildTabSlide({
         first_note: notes[6],
         last_note: notes[7],
@@ -121,7 +119,7 @@ function multiTest(options, buildTabSlide) {
     })
         .setContext(context)
         .draw();
-    ok(true, 'Chord high-fret');
+    options.assert.ok(true, 'Chord high-fret');
 }
 function slideUp(options, contextBuilder) {
     options.contextBuilder = contextBuilder;

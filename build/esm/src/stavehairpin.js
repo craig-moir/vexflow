@@ -1,21 +1,7 @@
 import { Element } from './element.js';
 import { Modifier } from './modifier.js';
 import { RuntimeError } from './util.js';
-export class StaveHairpin extends Element {
-    constructor(notes, type) {
-        super();
-        this.setNotes(notes);
-        this.hairpin = type;
-        this.position = Modifier.Position.BELOW;
-        this.render_options = {
-            height: 10,
-            y_shift: 0,
-            left_shift_px: 0,
-            right_shift_px: 0,
-            right_shift_ticks: 0,
-            left_shift_ticks: 0,
-        };
-    }
+class StaveHairpin extends Element {
     static get CATEGORY() {
         return "StaveHairpin";
     }
@@ -43,6 +29,20 @@ export class StaveHairpin extends Element {
             .setRenderOptions(hairpin_options)
             .setPosition(position)
             .draw();
+    }
+    constructor(notes, type) {
+        super();
+        this.setNotes(notes);
+        this.hairpin = type;
+        this.position = Modifier.Position.BELOW;
+        this.render_options = {
+            height: 10,
+            y_shift: 0,
+            left_shift_px: 0,
+            right_shift_px: 0,
+            right_shift_ticks: 0,
+            left_shift_ticks: 0,
+        };
     }
     setPosition(position) {
         if (position === Modifier.Position.ABOVE || position === Modifier.Position.BELOW) {
@@ -118,3 +118,4 @@ StaveHairpin.type = {
     CRESC: 1,
     DECRESC: 2,
 };
+export { StaveHairpin };

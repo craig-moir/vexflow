@@ -10,13 +10,13 @@ import { Tuplet } from '../src/tuplet.js';
 const EasyScoreTests = {
     Start() {
         QUnit.module('EasyScore');
-        test('Basic', basic);
-        test('Accidentals', accidentals);
-        test('Durations', durations);
-        test('Chords', chords);
-        test('Dots', dots);
-        test('Types', types);
-        test('Options', options);
+        QUnit.test('Basic', basic);
+        QUnit.test('Accidentals', accidentals);
+        QUnit.test('Durations', durations);
+        QUnit.test('Chords', chords);
+        QUnit.test('Dots', dots);
+        QUnit.test('Types', types);
+        QUnit.test('Options', options);
         const run = VexFlowTests.runTests;
         run('Draw Basic', drawBasicTest);
         run('Draw Different KeySignature', drawDiffKeysig);
@@ -43,14 +43,14 @@ function createShortcuts(score) {
         tuplet: score.tuplet.bind(score),
     };
 }
-function basic() {
+function basic(assert) {
     const score = new EasyScore();
     const mustPass = ['c4', 'c#4', 'c4/r', 'c#5', 'c3/m', 'c3//m', 'c3//h', 'c3/s', 'c3//s', 'c3/g', 'c3//g'];
     const mustFail = ['', '()', '7', '(c#4 e5 g6'];
-    mustPass.forEach((line) => equal(score.parse(line).success, true, line));
-    mustFail.forEach((line) => equal(score.parse(line).success, false, line));
+    mustPass.forEach((line) => assert.equal(score.parse(line).success, true, line));
+    mustFail.forEach((line) => assert.equal(score.parse(line).success, false, line));
 }
-function accidentals() {
+function accidentals(assert) {
     const score = new EasyScore();
     const mustPass = [
         'c3',
@@ -101,17 +101,17 @@ function accidentals() {
         'cko7',
         'c#s7',
     ];
-    mustPass.forEach((line) => equal(score.parse(line).success, true, line));
-    mustFail.forEach((line) => equal(score.parse(line).success, false, line));
+    mustPass.forEach((line) => assert.equal(score.parse(line).success, true, line));
+    mustFail.forEach((line) => assert.equal(score.parse(line).success, false, line));
 }
-function durations() {
+function durations(assert) {
     const score = new EasyScore();
     const mustPass = ['c3/4', 'c##3/w, cb3', 'c##3/w, cb3/q', 'c##3/q, cb3/32', '(c##3 cbb3 cn3), cb3'];
     const mustFail = ['Cn3/]', '/', '(cq cbb3 cn3), cb3', '(cdd7 cbb3 cn3), cb3'];
-    mustPass.forEach((line) => equal(score.parse(line).success, true, line));
-    mustFail.forEach((line) => equal(score.parse(line).success, false, line));
+    mustPass.forEach((line) => assert.equal(score.parse(line).success, true, line));
+    mustFail.forEach((line) => assert.equal(score.parse(line).success, false, line));
 }
-function chords() {
+function chords(assert) {
     const score = new EasyScore();
     const mustPass = [
         '(c5)',
@@ -122,10 +122,10 @@ function chords() {
         '(c##4 cbb4 cn4)/m, (c#5 cb2 a3)',
     ];
     const mustFail = ['(c)'];
-    mustPass.forEach((line) => equal(score.parse(line).success, true, line));
-    mustFail.forEach((line) => equal(score.parse(line).success, false, line));
+    mustPass.forEach((line) => assert.equal(score.parse(line).success, true, line));
+    mustFail.forEach((line) => assert.equal(score.parse(line).success, false, line));
 }
-function dots() {
+function dots(assert) {
     const score = new EasyScore();
     const mustPass = [
         'c3/4.',
@@ -137,17 +137,17 @@ function dots() {
         '(c##4 cbb4 cn4)/w.., (c#5 cb2 a3)/32',
     ];
     const mustFail = ['.', 'c.#', 'c#4./4'];
-    mustPass.forEach((line) => equal(score.parse(line).success, true, line));
-    mustFail.forEach((line) => equal(score.parse(line).success, false, line));
+    mustPass.forEach((line) => assert.equal(score.parse(line).success, true, line));
+    mustFail.forEach((line) => assert.equal(score.parse(line).success, false, line));
 }
-function types() {
+function types(assert) {
     const score = new EasyScore();
     const mustPass = ['c3/4/m.', 'c##3//r.., cb3', 'c##3/m.., cb3', 'c##3/r.., cb3', 'd##3/w/s, cb3/q...', 'Fb4'];
     const mustFail = ['c4/q/U', '(c##4, cbb4 cn4)/w.., (c#5 cb2 a3)/32', 'z#3'];
-    mustPass.forEach((line) => equal(score.parse(line).success, true, line));
-    mustFail.forEach((line) => equal(score.parse(line).success, false, line));
+    mustPass.forEach((line) => assert.equal(score.parse(line).success, true, line));
+    mustFail.forEach((line) => assert.equal(score.parse(line).success, false, line));
 }
-function options() {
+function options(assert) {
     const score = new EasyScore();
     const mustPass = [
         'c3/4.[foo="bar"]',
@@ -158,8 +158,8 @@ function options() {
         'c#5[id="foobar"]',
     ];
     const mustFail = ['.[', 'f##3/w[], cb3/q...'];
-    mustPass.forEach((line) => equal(score.parse(line).success, true, line));
-    mustFail.forEach((line) => equal(score.parse(line).success, false, line));
+    mustPass.forEach((line) => assert.equal(score.parse(line).success, true, line));
+    mustFail.forEach((line) => assert.equal(score.parse(line).success, false, line));
 }
 function drawBasicTest(options) {
     const f = VexFlowTests.makeFactory(options, 600, 350);
@@ -181,7 +181,7 @@ function drawBasicTest(options) {
         .addClef('bass');
     system.addConnector().setType(StaveConnector.type.BRACKET);
     f.draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawDiffKeysig(options) {
     const f = VexFlowTests.makeFactory(options, 600, 350);
@@ -206,7 +206,7 @@ function drawDiffKeysig(options) {
         .addTimeSignature('4/4');
     system.addConnector().setType(StaveConnector.type.BRACKET);
     f.draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawBasicMutedTest(options) {
     const f = VexFlowTests.makeFactory(options, 600, 350);
@@ -228,7 +228,7 @@ function drawBasicMutedTest(options) {
         .addClef('bass');
     system.addConnector().setType(StaveConnector.type.BRACKET);
     f.draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawBasicHarmonicTest(options) {
     const f = VexFlowTests.makeFactory(options, 600, 350);
@@ -250,7 +250,7 @@ function drawBasicHarmonicTest(options) {
         .addClef('bass');
     system.addConnector().setType(StaveConnector.type.BRACKET);
     f.draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawBasicSlashTest(options) {
     const f = VexFlowTests.makeFactory(options, 600, 350);
@@ -272,7 +272,7 @@ function drawBasicSlashTest(options) {
         .addClef('bass');
     system.addConnector().setType(StaveConnector.type.BRACKET);
     f.draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawGhostBasicTest(options) {
     const f = VexFlowTests.makeFactory(options, 550);
@@ -291,7 +291,7 @@ function drawGhostBasicTest(options) {
         ],
     });
     f.draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawGhostDottedTest(options) {
     const f = VexFlowTests.makeFactory(options, 550);
@@ -313,7 +313,7 @@ function drawGhostDottedTest(options) {
         ],
     });
     f.draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawParenthesisedTest(options) {
     const f = VexFlowTests.makeFactory(options, 600, 350);
@@ -338,7 +338,7 @@ function drawParenthesisedTest(options) {
         .addClef('bass');
     system.addConnector().setType(StaveConnector.type.BRACKET);
     f.draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawAccidentalsTest(options) {
     const f = VexFlowTests.makeFactory(options, 600, 350);
@@ -360,7 +360,7 @@ function drawAccidentalsTest(options) {
         .addClef('bass');
     system.addConnector().setType(StaveConnector.type.BRACKET);
     f.draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawBeamsTest(options) {
     const f = VexFlowTests.makeFactory(options, 600, 250);
@@ -376,7 +376,7 @@ function drawBeamsTest(options) {
     })
         .addClef('treble');
     f.draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawTupletsTest(options) {
     const f = VexFlowTests.makeFactory(options, 600, 250);
@@ -393,7 +393,7 @@ function drawTupletsTest(options) {
     const v2 = voice([...v2_halfNote, ...v2_tuplet]);
     system.addStave({ voices: [v1, v2] }).addClef('treble');
     f.draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawDotsTest(options) {
     const f = VexFlowTests.makeFactory(options, 600, 250);
@@ -406,7 +406,7 @@ function drawDotsTest(options) {
     })
         .addClef('treble');
     f.draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawOptionsTest(options) {
     const f = VexFlowTests.makeFactory(options, 500, 200);
@@ -420,20 +420,20 @@ function drawOptionsTest(options) {
     const note0_modifier0 = note0.getModifiers()[0];
     const note0_modifier1 = note0.getModifiers()[1];
     const note1_modifier0 = note1.getModifiers()[0];
-    equal(note0.getAttribute('id'), 'foobar');
-    ok(note0.hasClass('red'));
-    ok(note0.hasClass('bold'));
-    equal(note0_modifier0.getCategory(), Articulation.CATEGORY);
-    equal(note0_modifier0.type, 'a.');
-    equal(note0_modifier0.getPosition(), Modifier.Position.BELOW);
-    equal(note0_modifier1.getCategory(), Articulation.CATEGORY);
-    equal(note0_modifier1.type, 'a-');
-    equal(note0_modifier1.getPosition(), Modifier.Position.ABOVE);
-    equal(note0.getStemDirection(), Stem.UP);
-    equal(note1_modifier0.getCategory(), Articulation.CATEGORY);
-    equal(note1_modifier0.type, 'a>');
-    equal(note1_modifier0.getPosition(), Modifier.Position.ABOVE);
-    equal(notes[2].getStemDirection(), Stem.DOWN);
+    options.assert.equal(note0.getAttribute('id'), 'foobar');
+    options.assert.ok(note0.hasClass('red'));
+    options.assert.ok(note0.hasClass('bold'));
+    options.assert.equal(note0_modifier0.getCategory(), Articulation.CATEGORY);
+    options.assert.equal(note0_modifier0.type, 'a.');
+    options.assert.equal(note0_modifier0.getPosition(), Modifier.Position.BELOW);
+    options.assert.equal(note0_modifier1.getCategory(), Articulation.CATEGORY);
+    options.assert.equal(note0_modifier1.type, 'a-');
+    options.assert.equal(note0_modifier1.getPosition(), Modifier.Position.ABOVE);
+    options.assert.equal(note0.getStemDirection(), Stem.UP);
+    options.assert.equal(note1_modifier0.getCategory(), Articulation.CATEGORY);
+    options.assert.equal(note1_modifier0.type, 'a>');
+    options.assert.equal(note1_modifier0.getPosition(), Modifier.Position.ABOVE);
+    options.assert.equal(notes[2].getStemDirection(), Stem.DOWN);
 }
 function drawFingeringsTest(options) {
     const f = VexFlowTests.makeFactory(options, 500, 200);
@@ -443,30 +443,30 @@ function drawFingeringsTest(options) {
     system.addStave({ voices: [score.voice(notes)] });
     f.draw();
     const note0_modifier0 = notes[0].getModifiers()[0];
-    equal(note0_modifier0.getCategory(), FretHandFinger.CATEGORY);
-    equal(note0_modifier0.getFretHandFinger(), '1');
-    equal(note0_modifier0.getPosition(), Modifier.Position.LEFT);
+    options.assert.equal(note0_modifier0.getCategory(), FretHandFinger.CATEGORY);
+    options.assert.equal(note0_modifier0.getFretHandFinger(), '1');
+    options.assert.equal(note0_modifier0.getPosition(), Modifier.Position.LEFT);
     const note1_modifier0 = notes[1].getModifiers()[0];
-    equal(note1_modifier0.getCategory(), FretHandFinger.CATEGORY);
-    equal(note1_modifier0.getFretHandFinger(), '3');
-    equal(note1_modifier0.getPosition(), Modifier.Position.ABOVE);
+    options.assert.equal(note1_modifier0.getCategory(), FretHandFinger.CATEGORY);
+    options.assert.equal(note1_modifier0.getFretHandFinger(), '3');
+    options.assert.equal(note1_modifier0.getPosition(), Modifier.Position.ABOVE);
     const note2_modifier0 = notes[2].getModifiers()[0];
-    equal(note2_modifier0.getCategory(), FretHandFinger.CATEGORY);
-    equal(note2_modifier0.getFretHandFinger(), '5');
-    equal(note2_modifier0.getPosition(), Modifier.Position.BELOW);
+    options.assert.equal(note2_modifier0.getCategory(), FretHandFinger.CATEGORY);
+    options.assert.equal(note2_modifier0.getFretHandFinger(), '5');
+    options.assert.equal(note2_modifier0.getPosition(), Modifier.Position.BELOW);
     const note3_modifiers = notes[3].getModifiers();
     const note3_modifier0 = note3_modifiers[0];
     const note3_modifier1 = note3_modifiers[1];
     const note3_modifier2 = note3_modifiers[2];
-    equal(note3_modifier0.getCategory(), FretHandFinger.CATEGORY);
-    equal(note3_modifier0.getFretHandFinger(), '1');
-    equal(note3_modifier0.getPosition(), Modifier.Position.LEFT);
-    equal(note3_modifier1.getCategory(), FretHandFinger.CATEGORY);
-    equal(note3_modifier1.getFretHandFinger(), '3');
-    equal(note3_modifier1.getPosition(), Modifier.Position.LEFT);
-    equal(note3_modifier2.getCategory(), FretHandFinger.CATEGORY);
-    equal(note3_modifier2.getFretHandFinger(), '5');
-    equal(note3_modifier2.getPosition(), Modifier.Position.LEFT);
+    options.assert.equal(note3_modifier0.getCategory(), FretHandFinger.CATEGORY);
+    options.assert.equal(note3_modifier0.getFretHandFinger(), '1');
+    options.assert.equal(note3_modifier0.getPosition(), Modifier.Position.LEFT);
+    options.assert.equal(note3_modifier1.getCategory(), FretHandFinger.CATEGORY);
+    options.assert.equal(note3_modifier1.getFretHandFinger(), '3');
+    options.assert.equal(note3_modifier1.getPosition(), Modifier.Position.LEFT);
+    options.assert.equal(note3_modifier2.getCategory(), FretHandFinger.CATEGORY);
+    options.assert.equal(note3_modifier2.getFretHandFinger(), '5');
+    options.assert.equal(note3_modifier2.getPosition(), Modifier.Position.LEFT);
 }
 function keys(options) {
     const f = VexFlowTests.makeFactory(options, 700, 200);
@@ -475,13 +475,13 @@ function keys(options) {
     const notes = score.notes('c#3/q, c##3, cb3, cbb3, cn3, c3, cbbs3, cbss3, cbs3, cdb3, cd3, c++-3, c++3, c+-3, c+3, co3, ck3', { clef: 'bass' });
     system.addStave({ voices: [f.Voice().setStrict(false).addTickables(notes)] }).addClef('bass');
     f.draw();
-    equal(notes[0].keys, 'c#/3');
-    equal(notes[1].keys, 'c##/3');
-    equal(notes[2].keys, 'cb/3');
-    equal(notes[3].keys, 'cbb/3');
-    equal(notes[4].keys, 'cn/3');
+    options.assert.equal(notes[0].keys, 'c#/3');
+    options.assert.equal(notes[1].keys, 'c##/3');
+    options.assert.equal(notes[2].keys, 'cb/3');
+    options.assert.equal(notes[3].keys, 'cbb/3');
+    options.assert.equal(notes[4].keys, 'cn/3');
     for (let i = 5; i < notes.length; i++) {
-        equal(notes[i].keys, 'c/3');
+        options.assert.equal(notes[i].keys, 'c/3');
     }
 }
 VexFlowTests.register(EasyScoreTests);

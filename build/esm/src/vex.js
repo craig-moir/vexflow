@@ -1,6 +1,6 @@
 import { Flow } from './flow.js';
 import { log, RuntimeError } from './util.js';
-export class Vex {
+class Vex {
     static sortAndUnique(arr, cmp, eq) {
         if (arr.length > 1) {
             const newArr = [];
@@ -49,3 +49,4 @@ export class Vex {
     }
 }
 Vex.Flow = Flow;
+export { Vex };

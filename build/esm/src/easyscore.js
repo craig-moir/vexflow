@@ -311,7 +311,7 @@ function setClass(options, note) {
         return;
     options.class.split(commaSeparatedRegex).forEach((className) => note.addClass(className));
 }
-export class EasyScore {
+class EasyScore {
     constructor(options = {}) {
         this.defaults = {
             clef: 'treble',
@@ -372,3 +372,4 @@ export class EasyScore {
     }
 }
 EasyScore.DEBUG = false;
+export { EasyScore };

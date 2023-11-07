@@ -1,24 +1,23 @@
 import { Font, FontStyle, FontWeight } from './font.js';
 import { Registry } from './registry.js';
-import { defined } from './util.js';
-export class Element {
-    constructor() {
-        var _a;
-        this.children = [];
-        this.attrs = {
-            id: Element.newID(),
-            el: undefined,
-            type: this.getCategory(),
-            classes: {},
-        };
-        this.rendered = false;
-        (_a = Registry.getDefaultRegistry()) === null || _a === void 0 ? void 0 : _a.register(this);
-    }
+import { defined, prefix } from './util.js';
+class Element {
     static get CATEGORY() {
         return "Element";
     }
     static newID() {
         return `auto${Element.ID++}`;
+    }
+    constructor() {
+        var _a;
+        this.children = [];
+        this.attrs = {
+            id: Element.newID(),
+            type: this.getCategory(),
+            class: '',
+        };
+        this.rendered = false;
+        (_a = Registry.getDefaultRegistry()) === null || _a === void 0 ? void 0 : _a.register(this);
     }
     addChildElement(child) {
         this.children.push(child);
@@ -72,11 +71,19 @@ export class Element {
         this.restoreStyle();
     }
     hasClass(className) {
-        return this.attrs.classes[className] === true;
+        var _a;
+        if (!this.attrs.class)
+            return false;
+        return ((_a = this.attrs.class) === null || _a === void 0 ? void 0 : _a.split(' ').indexOf(className)) != -1;
     }
     addClass(className) {
         var _a;
-        this.attrs.classes[className] = true;
+        if (this.hasClass(className))
+            return this;
+        if (!this.attrs.class)
+            this.attrs.class = `${className}`;
+        else
+            this.attrs.class = `${this.attrs.class} ${className}`;
         (_a = this.registry) === null || _a === void 0 ? void 0 : _a.onUpdate({
             id: this.attrs.id,
             name: 'class',
@@ -86,9 +93,15 @@ export class Element {
         return this;
     }
     removeClass(className) {
-        var _a;
-        delete this.attrs.classes[className];
-        (_a = this.registry) === null || _a === void 0 ? void 0 : _a.onUpdate({
+        var _a, _b;
+        if (!this.hasClass(className))
+            return this;
+        const arr = (_a = this.attrs.class) === null || _a === void 0 ? void 0 : _a.split(' ');
+        if (arr) {
+            arr.splice(arr.indexOf(className));
+            this.attrs.class = arr.join(' ');
+        }
+        (_b = this.registry) === null || _b === void 0 ? void 0 : _b.onUpdate({
             id: this.attrs.id,
             name: 'class',
             value: undefined,
@@ -112,6 +125,12 @@ export class Element {
     }
     getAttribute(name) {
         return this.attrs[name];
+    }
+    getSVGElement(suffix = '') {
+        const id = prefix(this.attrs.id + suffix);
+        const element = document.getElementById(id);
+        if (element)
+            return element;
     }
     setAttribute(name, value) {
         var _a;
@@ -224,3 +243,4 @@ Element.TEXT_FONT = {
     weight: FontWeight.NORMAL,
     style: FontStyle.NORMAL,
 };
+export { Element };

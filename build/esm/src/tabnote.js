@@ -62,9 +62,12 @@ function getPartialStemLines(stem_y, unused_strings, stave, stem_direction) {
     return stem_lines;
 }
 export class TabNote extends StemmableNote {
+    static get CATEGORY() {
+        return "TabNote";
+    }
     constructor(noteStruct, draw_stem = false) {
         super(noteStruct);
-        this.glyphs = [];
+        this.glyphPropsArr = [];
         this.greatestString = () => {
             return this.positions.map((x) => x.str).reduce((a, b) => (a > b ? a : b));
         };
@@ -74,8 +77,8 @@ export class TabNote extends StemmableNote {
         this.ghost = false;
         this.positions = noteStruct.positions || [];
         this.render_options = Object.assign(Object.assign({}, this.render_options), { glyph_font_scale: Tables.TABLATURE_FONT_SCALE, draw_stem, draw_dots: draw_stem, draw_stem_through_stave: false, y_shift: 0, scale: 1.0, font: `${Font.SIZE}pt ${Font.SANS_SERIF}` });
-        this.glyph = Tables.getGlyphProps(this.duration, this.noteType);
-        defined(this.glyph, 'BadArguments', `No glyph found for duration '${this.duration}' and type '${this.noteType}'`);
+        this.glyphProps = Tables.getGlyphProps(this.duration, this.noteType);
+        defined(this.glyphProps, 'BadArguments', `No glyph found for duration '${this.duration}' and type '${this.noteType}'`);
         this.buildStem();
         if (noteStruct.stem_direction) {
             this.setStemDirection(noteStruct.stem_direction);
@@ -85,9 +88,6 @@ export class TabNote extends StemmableNote {
         }
         this.ghost = false;
         this.updateWidth();
-    }
-    static get CATEGORY() {
-        return "TabNote";
     }
     reset() {
         super.reset();
@@ -106,27 +106,29 @@ export class TabNote extends StemmableNote {
         return false;
     }
     getStemExtension() {
-        const glyph = this.getGlyph();
+        const glyphProps = this.getGlyphProps();
         if (this.stem_extension_override != null) {
             return this.stem_extension_override;
         }
-        if (glyph) {
-            return this.getStemDirection() === Stem.UP ? glyph.tabnote_stem_up_extension : glyph.tabnote_stem_down_extension;
+        if (glyphProps) {
+            return this.getStemDirection() === Stem.UP
+                ? glyphProps.tabnote_stem_up_extension
+                : glyphProps.tabnote_stem_down_extension;
         }
         return 0;
     }
     updateWidth() {
-        this.glyphs = [];
+        this.glyphPropsArr = [];
         this.width = 0;
         for (let i = 0; i < this.positions.length; ++i) {
             let fret = this.positions[i].fret;
             if (this.ghost)
                 fret = '(' + fret + ')';
-            const glyph = Tables.tabToGlyph(fret.toString(), this.render_options.scale);
-            this.glyphs.push(glyph);
-            this.width = Math.max(glyph.getWidth(), this.width);
+            const glyphProps = Tables.tabToGlyphProps(fret.toString(), this.render_options.scale);
+            this.glyphPropsArr.push(glyphProps);
+            this.width = Math.max(glyphProps.getWidth(), this.width);
         }
-        this.glyph.getWidth = () => this.width;
+        this.glyphProps.getWidth = () => this.width;
     }
     setStave(stave) {
         super.setStave(stave);
@@ -134,19 +136,19 @@ export class TabNote extends StemmableNote {
         this.setContext(ctx);
         if (ctx) {
             this.width = 0;
-            for (let i = 0; i < this.glyphs.length; ++i) {
-                const glyph = this.glyphs[i];
-                const text = '' + glyph.text;
+            for (let i = 0; i < this.glyphPropsArr.length; ++i) {
+                const glyphProps = this.glyphPropsArr[i];
+                const text = '' + glyphProps.text;
                 if (text.toUpperCase() !== 'X') {
                     ctx.save();
                     ctx.setFont(this.render_options.font);
-                    glyph.width = ctx.measureText(text).width;
+                    glyphProps.width = ctx.measureText(text).width;
                     ctx.restore();
-                    glyph.getWidth = () => glyph.width;
+                    glyphProps.getWidth = () => glyphProps.width;
                 }
-                this.width = Math.max(glyph.getWidth(), this.width);
+                this.width = Math.max(glyphProps.getWidth(), this.width);
             }
-            this.glyph.getWidth = () => this.width;
+            this.glyphProps.getWidth = () => this.width;
         }
         const ys = this.positions.map(({ str: line }) => stave.getYForLine(Number(line) - 1));
         this.setYs(ys);
@@ -173,7 +175,7 @@ export class TabNote extends StemmableNote {
             x = this.width + 2;
         }
         else if (position === Modifier.Position.BELOW || position === Modifier.Position.ABOVE) {
-            const note_glyph_width = this.glyph.getWidth();
+            const note_glyph_width = this.glyphProps.getWidth();
             x = note_glyph_width / 2;
         }
         return {
@@ -206,16 +208,16 @@ export class TabNote extends StemmableNote {
     }
     drawFlag() {
         var _a;
-        const { beam, glyph, render_options: { draw_stem }, } = this;
+        const { beam, glyphProps, render_options: { draw_stem }, } = this;
         const context = this.checkContext();
         const shouldDrawFlag = beam == undefined && draw_stem;
-        if (glyph.flag && shouldDrawFlag) {
+        if (glyphProps.flag && shouldDrawFlag) {
             const flag_x = this.getStemX();
             const flag_y = this.getStemDirection() === Stem.DOWN
                 ?
-                    this.getStemY() - this.checkStem().getHeight() - (this.glyph ? this.glyph.stem_down_extension : 0)
+                    this.getStemY() - this.checkStem().getHeight() - (this.glyphProps ? this.glyphProps.stem_down_extension : 0)
                 :
-                    this.getStemY() - this.checkStem().getHeight() + (this.glyph ? this.glyph.stem_up_extension : 0);
+                    this.getStemY() - this.checkStem().getHeight() + (this.glyphProps ? this.glyphProps.stem_up_extension : 0);
             (_a = this.flag) === null || _a === void 0 ? void 0 : _a.render(context, flag_x, flag_y);
         }
     }
@@ -254,22 +256,23 @@ export class TabNote extends StemmableNote {
         }
     }
     drawPositions() {
+        var _a;
         const ctx = this.checkContext();
         const x = this.getAbsoluteX();
         const ys = this.ys;
         for (let i = 0; i < this.positions.length; ++i) {
             const y = ys[i] + this.render_options.y_shift;
-            const glyph = this.glyphs[i];
-            const note_glyph_width = this.glyph.getWidth();
-            const tab_x = x + note_glyph_width / 2 - glyph.getWidth() / 2;
-            ctx.clearRect(tab_x - 2, y - 3, glyph.getWidth() + 4, 6);
-            if (glyph.code) {
-                Glyph.renderGlyph(ctx, tab_x, y, this.render_options.glyph_font_scale * this.render_options.scale, glyph.code);
+            const glyphProps = this.glyphPropsArr[i];
+            const note_glyph_width = this.glyphProps.getWidth();
+            const tab_x = x + note_glyph_width / 2 - glyphProps.getWidth() / 2;
+            ctx.clearRect(tab_x - 2, y - 3, glyphProps.getWidth() + 4, 6);
+            if (glyphProps.code) {
+                Glyph.renderGlyph(ctx, tab_x, y, this.render_options.glyph_font_scale * this.render_options.scale, glyphProps.code);
             }
             else {
                 ctx.save();
                 ctx.setFont(this.render_options.font);
-                const text = glyph.text.toString();
+                const text = (_a = glyphProps.text) !== null && _a !== void 0 ? _a : '';
                 ctx.fillText(text, tab_x, y + 5 * this.render_options.scale);
                 ctx.restore();
             }
@@ -282,18 +285,18 @@ export class TabNote extends StemmableNote {
         }
         this.setRendered();
         const render_stem = this.beam == undefined && this.render_options.draw_stem;
-        ctx.openGroup('tabnote', undefined, { pointerBBox: true });
+        this.applyStyle();
+        ctx.openGroup('tabnote', this.getAttribute('id'), { pointerBBox: true });
         this.drawPositions();
         this.drawStemThrough();
         if (this.stem && render_stem) {
             const stem_x = this.getStemX();
             this.stem.setNoteHeadXBounds(stem_x, stem_x);
-            ctx.openGroup('stem', undefined, { pointerBBox: true });
             this.stem.setContext(ctx).draw();
-            ctx.closeGroup();
         }
         this.drawFlag();
         this.drawModifiers();
         ctx.closeGroup();
+        this.restoreStyle();
     }
 }

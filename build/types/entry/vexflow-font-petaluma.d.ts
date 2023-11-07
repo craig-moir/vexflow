@@ -801,6 +801,14 @@ export declare const Font: {
                 ha: number;
                 o: string;
             };
+            accidentalBuyukMucennebSharp: {
+                x_min: number;
+                x_max: number;
+                y_min: number;
+                y_max: number;
+                ha: number;
+                o: string;
+            };
             accidentalBakiyeFlat: {
                 x_min: number;
                 x_max: number;
@@ -962,6 +970,22 @@ export declare const Font: {
                 o: string;
             };
             fermataVeryLongBelow: {
+                x_min: number;
+                x_max: number;
+                y_min: number;
+                y_max: number;
+                ha: number;
+                o: string;
+            };
+            fermataVeryShortAbove: {
+                x_min: number;
+                x_max: number;
+                y_min: number;
+                y_max: number;
+                ha: number;
+                o: string;
+            };
+            fermataVeryShortBelow: {
                 x_min: number;
                 x_max: number;
                 y_min: number;
@@ -1615,7 +1639,6 @@ export declare const Font: {
         generatedOn: string;
     };
     metrics: {
-        name: string;
         smufl: boolean;
         stave: {
             padding: number;
@@ -1628,104 +1651,210 @@ export declare const Font: {
             leftPadding: number;
             accidentalSpacing: number;
         };
-        clef: {
-            default: {
-                point: number;
-                width: number;
+        chordSymbol: {
+            global: {
+                superscriptOffset: number;
+                subscriptOffset: number;
+                kerningOffset: number;
+                lowerKerningText: string[];
+                upperKerningText: string[];
+                spacing: number;
+                superSubRatio: number;
             };
-            small: {
-                point: number;
-                width: number;
+            glyphs: {
+                csymDiminished: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
+                csymHalfDiminished: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
+                csymAugmented: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
+                csymParensLeftTall: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
+                csymParensRightTall: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
+                csymBracketLeftTall: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
+                csymBracketRightTall: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
+                csymParensLeftVeryTall: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
+                csymParensRightVeryTall: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
+                csymDiagonalArrangementSlash: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
+                csymMinor: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
+                csymMajorSeventh: {
+                    leftSideBearing: number;
+                    yOffset: number;
+                    advanceWidth: number;
+                };
+                accidentalSharp: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
+                accidentalFlat: {
+                    leftSideBearing: number;
+                    advanceWidth: number;
+                    yOffset: number;
+                };
             };
+        };
+        clef_default: {
+            width: number;
             annotations: {
                 '8va': {
-                    smuflCode: string;
-                    default: {
-                        point: number;
-                        treble: {
-                            line: number;
-                            shiftX: number;
-                        };
-                    };
-                    small: {
-                        point: number;
-                        treble: {
-                            line: number;
-                            shiftX: number;
-                        };
+                    treble: {
+                        line: number;
+                        shiftX: number;
                     };
                 };
                 '8vb': {
-                    smuflCode: string;
-                    default: {
-                        point: number;
-                        treble: {
-                            line: number;
-                            shiftX: number;
-                        };
-                        bass: {
-                            line: number;
-                            shiftX: number;
-                        };
+                    treble: {
+                        line: number;
+                        shiftX: number;
                     };
-                    small: {
-                        point: number;
-                        treble: {
-                            line: number;
-                            shiftX: number;
-                        };
-                        bass: {
-                            line: number;
-                            shiftX: number;
-                        };
+                    bass: {
+                        line: number;
+                        shiftX: number;
                     };
                 };
             };
-            lineCount: {
-                '8': {
-                    point: number;
-                    shiftY: number;
+        };
+        clef_small: {
+            width: number;
+            annotations: {
+                '8va': {
+                    treble: {
+                        line: number;
+                        shiftX: number;
+                    };
                 };
-                '7': {
-                    point: number;
-                    shiftY: number;
+                '8vb': {
+                    treble: {
+                        line: number;
+                        shiftX: number;
+                    };
+                    bass: {
+                        line: number;
+                        shiftX: number;
+                    };
                 };
-                '6': {
-                    point: number;
-                    shiftY: number;
-                };
-                '5': {
-                    point: number;
-                    shiftY: number;
-                };
-                '4': {
-                    point: number;
-                    shiftY: number;
-                };
+            };
+        };
+        ornament: {
+            brassScoop: {
+                xOffset: number;
+                yOffset: number;
+                stemUpYOffset: number;
+                reportedWidth: number;
+            };
+            brassDoitMedium: {
+                xOffset: number;
+                yOffset: number;
+                stemUpYOffset: number;
+                reportedWidth: number;
+            };
+            brassFallLipShort: {
+                xOffset: number;
+                yOffset: number;
+                stemUpYOffset: number;
+                reportedWidth: number;
+            };
+            brassLiftMedium: {
+                xOffset: number;
+                yOffset: number;
+                stemUpYOffset: number;
+                reportedWidth: number;
+            };
+            brassFallRoughMedium: {
+                xOffset: number;
+                yOffset: number;
+                stemUpYOffset: number;
+                reportedWidth: number;
+            };
+            brassBend: {
+                xOffset: number;
+                yOffset: number;
+                stemUpYOffset: number;
+                reportedWidth: number;
+            };
+            brassMuteClosed: {
+                xOffset: number;
+                yOffset: number;
+                stemUpYOffset: number;
+                reportedWidth: number;
+            };
+            brassMuteOpen: {
+                xOffset: number;
+                yOffset: number;
+                stemUpYOffset: number;
+                reportedWidth: number;
+            };
+            brassFlip: {
+                xOffset: number;
+                yOffset: number;
+                stemUpYOffset: number;
+                reportedWidth: number;
+            };
+            brassJazzTurn: {
+                xOffset: number;
+                yOffset: number;
+                stemUpYOffset: number;
+                reportedWidth: number;
+            };
+            brassSmear: {
+                xOffset: number;
+                yOffset: number;
+                stemUpYOffset: number;
+                reportedWidth: number;
             };
         };
         parenthesis: {
             default: {
-                point: number;
                 width: number;
             };
             gracenote: {
-                point: number;
                 width: number;
             };
         };
-        pedalMarking: {
-            up: {
-                point: number;
-            };
-            down: {
-                point: number;
-            };
-        };
+        pedalMarking: {};
         digits: {
             shiftLine: number;
-            point: number;
-            tupletPoint: number;
             shiftY: number;
         };
         articulation: {
@@ -1738,7 +1867,6 @@ export declare const Font: {
         };
         tremolo: {
             default: {
-                point: number;
                 spacing: number;
                 offsetYStemUp: number;
                 offsetYStemDown: number;
@@ -1746,7 +1874,6 @@ export declare const Font: {
                 offsetXStemDown: number;
             };
             grace: {
-                point: number;
                 spacing: number;
                 offsetYStemUp: number;
                 offsetYStemDown: number;
@@ -1768,9 +1895,7 @@ export declare const Font: {
             };
         };
         noteHead: {
-            displaced: {
-                shiftX: number;
-            };
+            minPadding: number;
         };
         stem: {
             heightAdjustmentForFlag: number;
@@ -1800,12 +1925,12 @@ export declare const Font: {
                     offsetYBaseStemDown: number;
                 };
                 noteheadHalf: {
-                    offsetYBaseStemDown: number;
                     offsetYBaseStemUp: number;
+                    offsetYBaseStemDown: number;
                 };
                 noteheadBlack: {
-                    offsetYBaseStemDown: number;
                     offsetYBaseStemUp: number;
+                    offsetYBaseStemDown: number;
                 };
                 noteheadSquareWhite: {
                     offsetYBaseStemDown: number;
@@ -1813,9 +1938,20 @@ export declare const Font: {
                 };
             };
         };
+        stringNumber: {
+            verticalPadding: number;
+            stemPadding: number;
+            leftPadding: number;
+            rightPadding: number;
+        };
+        tuplet: {
+            noteHeadOffset: number;
+            stemOffset: number;
+            bottomLine: number;
+            topModifierOffset: number;
+        };
         glyphs: {
             coda: {
-                point: number;
                 shiftX: number;
                 shiftY: number;
             };
@@ -1824,100 +1960,46 @@ export declare const Font: {
             };
             flag: {
                 shiftX: number;
-                flag16thUp: {
-                    shiftX: number;
-                };
-                flag32ndUp: {
-                    shiftX: number;
-                };
-                flag64thUp: {
-                    shiftX: number;
-                };
-                flag128thUp: {
-                    shiftX: number;
-                };
-                flag16thDown: {
-                    shiftX: number;
-                };
-                flag32ndDown: {
-                    shiftX: number;
-                };
-                flag64thDown: {
-                    shiftX: number;
-                };
-                flag128thDown: {
-                    shiftX: number;
-                };
                 staveTempo: {
                     shiftX: number;
                 };
             };
-            clef: {
+            clef_default: {};
+            clef_small: {
                 gClef: {
-                    default: {
-                        scale: number;
-                        shiftY: number;
-                    };
-                    small: {
-                        shiftY: number;
-                    };
-                };
-                fClef: {
-                    default: {
-                        shiftY: number;
-                    };
+                    shiftY: number;
                 };
             };
-            ornament: {
-                ornamentTurn: {
-                    scale: number;
-                };
-                ornamentTurnSlash: {
-                    scale: number;
-                };
-            };
-            stringNumber: {
-                verticalPadding: number;
-                stemPadding: number;
-                leftPadding: number;
-                rightPadding: number;
-            };
-            stroke: {
+            clefNote_default: {};
+            clefNote_small: {};
+            stroke_straight: {
                 arrowheadBlackDown: {
-                    straight: {
-                        shiftX: number;
-                    };
-                    wiggly: {
-                        shiftX: number;
-                        shiftY: number;
-                    };
+                    shiftX: number;
                 };
                 arrowheadBlackUp: {
-                    straight: {
-                        shiftX: number;
-                    };
-                    wiggly: {
-                        shiftX: number;
-                        shiftY: number;
-                    };
+                    shiftX: number;
+                };
+            };
+            stroke_wiggly: {
+                arrowheadBlackDown: {
+                    shiftX: number;
+                    shiftY: number;
+                };
+                arrowheadBlackUp: {
+                    shiftX: number;
+                    shiftY: number;
                 };
             };
             textNote: {
-                point: number;
                 breathMarkTick: {
-                    point: number;
                     shiftY: number;
                 };
-                breathMarkComma: {
-                    point: number;
-                };
+                breathMarkComma: {};
                 segno: {
-                    point: number;
                     shiftX: number;
                     shiftY: number;
                 };
                 coda: {
-                    point: number;
                     shiftX: number;
                     shiftY: number;
                 };
@@ -1925,6 +2007,8 @@ export declare const Font: {
                     shiftX: number;
                     shiftY: number;
                 };
+                ornamentTurn: {};
+                ornamentTurnSlash: {};
                 ornamentMordent: {
                     shiftX: number;
                 };
@@ -1932,249 +2016,9 @@ export declare const Font: {
                     shiftX: number;
                 };
             };
-            noteHead: {
-                minPadding: number;
-                standard: {
-                    noteheadBlackStemUp: {
-                        shiftX: number;
-                    };
-                    noteheadHalfStemUp: {
-                        shiftX: number;
-                    };
-                    noteheadWholeStemUp: {
-                        shiftX: number;
-                    };
-                };
-                custom: {
-                    noteheadCircleXStemUp: {
-                        shiftX: number;
-                    };
-                    noteheadCircleXStemDown: {
-                        shiftX: number;
-                    };
-                    noteheadDiamondHalfStemUp: {
-                        shiftX: number;
-                    };
-                    noteheadDiamondBlackStemUp: {
-                        shiftX: number;
-                    };
-                    noteheadDiamondWholeStemUp: {
-                        shiftX: number;
-                    };
-                    noteheadXBlackStemUp: {
-                        shiftX: number;
-                    };
-                    noteheadXHalfStemUp: {
-                        shiftX: number;
-                    };
-                    noteheadXHalfStemDown: {
-                        shiftX: number;
-                    };
-                    noteheadXWholeStemUp: {
-                        shiftX: number;
-                    };
-                    noteheadXWholeStemDown: {
-                        shiftX: number;
-                    };
-                    noteheadXDoubleWholeStemUp: {
-                        shiftX: number;
-                    };
-                    noteheadXDoubleWholeStemDown: {
-                        shiftX: number;
-                    };
-                    noteheadSquareWhiteStemDown: {
-                        shiftX: number;
-                    };
-                    noteheadSquareWhiteStemUp: {
-                        shiftX: number;
-                    };
-                    noteheadSquareBlackStemUp: {
-                        shiftX: number;
-                    };
-                    noteheadTriangleUpWholeStemUp: {
-                        shiftX: number;
-                    };
-                };
-            };
+            noteHead: {};
             chordSymbol: {
-                global: {
-                    superscriptOffset: number;
-                    subscriptOffset: number;
-                    kerningOffset: number;
-                    lowerKerningText: string[];
-                    upperKerningText: string[];
-                    spacing: number;
-                    superSubRatio: number;
-                };
-                csymDiminished: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-                csymHalfDiminished: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-                csymAugmented: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-                csymParensLeftTall: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-                csymParensRightTall: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-                csymBracketLeftTall: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-                csymBracketRightTall: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-                csymParensLeftVeryTall: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-                csymParensRightVeryTall: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-                csymDiagonalArrangementSlash: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-                csymMinor: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-                csymMajorSeventh: {
-                    scale: number;
-                    leftSideBearing: number;
-                    yOffset: number;
-                    advanceWidth: number;
-                };
-                accidentalSharp: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-                accidentalFlat: {
-                    scale: number;
-                    leftSideBearing: number;
-                    advanceWidth: number;
-                    yOffset: number;
-                };
-            };
-            jazzOrnaments: {
-                brassScoop: {
-                    scale: number;
-                    xOffset: number;
-                    yOffset: number;
-                    stemUpYOffset: number;
-                    reportedWidth: number;
-                };
-                brassDoitMedium: {
-                    scale: number;
-                    xOffset: number;
-                    yOffset: number;
-                    stemUpYOffset: number;
-                    reportedWidth: number;
-                };
-                brassFallLipShort: {
-                    scale: number;
-                    xOffset: number;
-                    yOffset: number;
-                    stemUpYOffset: number;
-                    reportedWidth: number;
-                };
-                brassLiftMedium: {
-                    scale: number;
-                    xOffset: number;
-                    yOffset: number;
-                    stemUpYOffset: number;
-                    reportedWidth: number;
-                };
-                brassFallRoughMedium: {
-                    scale: number;
-                    xOffset: number;
-                    yOffset: number;
-                    stemUpYOffset: number;
-                    reportedWidth: number;
-                };
-                brassBend: {
-                    scale: number;
-                    xOffset: number;
-                    yOffset: number;
-                    stemUpYOffset: number;
-                    reportedWidth: number;
-                };
-                brassMuteClosed: {
-                    scale: number;
-                    xOffset: number;
-                    yOffset: number;
-                    stemUpYOffset: number;
-                    reportedWidth: number;
-                };
-                brassMuteOpen: {
-                    scale: number;
-                    xOffset: number;
-                    yOffset: number;
-                    stemUpYOffset: number;
-                    reportedWidth: number;
-                };
-                brassFlip: {
-                    scale: number;
-                    xOffset: number;
-                    yOffset: number;
-                    stemUpYOffset: number;
-                    reportedWidth: number;
-                };
-                brassJazzTurn: {
-                    scale: number;
-                    xOffset: number;
-                    yOffset: number;
-                    stemUpYOffset: number;
-                    reportedWidth: number;
-                };
-                brassSmear: {
-                    scale: number;
-                    xOffset: number;
-                    yOffset: number;
-                    stemUpYOffset: number;
-                    reportedWidth: number;
-                };
-            };
-            tuplet: {
-                noteHeadOffset: number;
-                stemOffset: number;
-                bottomLine: number;
-                topModifierOffset: number;
+                scale: number;
             };
         };
     };

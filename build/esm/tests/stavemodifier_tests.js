@@ -15,11 +15,11 @@ function draw(options, contextBuilder) {
     const stave = new Stave(10, 10, 300);
     stave.setContext(ctx);
     stave.draw();
-    equal(stave.getYForNote(0), 100, 'getYForNote(0)');
-    equal(stave.getYForLine(5), 100, 'getYForLine(5)');
-    equal(stave.getYForLine(0), 50, 'getYForLine(0) - Top Line');
-    equal(stave.getYForLine(4), 90, 'getYForLine(4) - Bottom Line');
-    ok(true, 'all pass');
+    options.assert.equal(stave.getYForNote(0), 100, 'getYForNote(0)');
+    options.assert.equal(stave.getYForLine(5), 100, 'getYForLine(5)');
+    options.assert.equal(stave.getYForLine(0), 50, 'getYForLine(0) - Top Line');
+    options.assert.equal(stave.getYForLine(4), 90, 'getYForLine(4) - Bottom Line');
+    options.assert.ok(true, 'all pass');
 }
 function drawBeginAndEnd(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 500, 240);
@@ -45,7 +45,7 @@ function drawBeginAndEnd(options, contextBuilder) {
     stave.setKeySignature('F', undefined, END);
     stave.setEndBarType(BarlineType.SINGLE);
     stave.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 VexFlowTests.register(StaveModifierTests);
 export { StaveModifierTests };

@@ -45,7 +45,10 @@ function L(...args) {
     if (Factory.DEBUG)
         log('Vex.Flow.Factory', args);
 }
-export class Factory {
+class Factory {
+    static newFromElementId(elementId, width = 500, height = 200) {
+        return new Factory({ renderer: { elementId, width, height } });
+    }
     constructor(options = {}) {
         L('New factory: ', options);
         this.options = {
@@ -61,9 +64,6 @@ export class Factory {
             font: Factory.TEXT_FONT,
         };
         this.setOptions(options);
-    }
-    static newFromElementId(elementId, width = 500, height = 200) {
-        return new Factory({ renderer: { elementId, width, height } });
     }
     reset() {
         this.renderQ = [];
@@ -260,9 +260,12 @@ export class Factory {
         return chordSymbol;
     }
     Articulation(params) {
-        const p = Object.assign({ type: 'a.', position: 'above' }, params);
-        const articulation = new Articulation(p.type);
-        articulation.setPosition(p.position);
+        var _a;
+        const articulation = new Articulation((_a = params === null || params === void 0 ? void 0 : params.type) !== null && _a !== void 0 ? _a : 'a.');
+        if ((params === null || params === void 0 ? void 0 : params.position) != undefined)
+            articulation.setPosition(params.position);
+        if ((params === null || params === void 0 ? void 0 : params.betweenLines) != undefined)
+            articulation.setBetweenLines(params.betweenLines);
         articulation.setContext(this.context);
         return articulation;
     }
@@ -461,3 +464,4 @@ export class Factory {
 }
 Factory.DEBUG = false;
 Factory.TEXT_FONT = Object.assign({}, Element.TEXT_FONT);
+export { Factory };

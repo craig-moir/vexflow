@@ -17,6 +17,13 @@ export interface SystemStave {
     spaceBelow?: number;
     debugNoteMetrics?: boolean;
 }
+interface StaveInfo {
+    noJustification: boolean;
+    options: StaveOptions;
+    spaceAbove: number;
+    spaceBelow: number;
+    debugNoteMetrics: boolean;
+}
 /**
  * Formatting for systems created/drawn from factory:
  *
@@ -54,15 +61,29 @@ export declare class System extends Element {
     protected formatter?: Formatter;
     protected startX?: number;
     protected lastY?: number;
-    protected parts: Required<SystemStave>[];
+    protected partStaves: Stave[];
+    protected partStaveInfos: StaveInfo[];
+    protected partVoices: Voice[];
     protected connector?: StaveConnector;
     protected debugNoteMetricsYs?: {
         y: number;
-        voice: Voice;
+        stave: Stave;
     }[];
     constructor(params?: SystemOptions);
     /** Set formatting options. */
     setOptions(options?: SystemOptions): void;
+    /** Get origin X. */
+    getX(): number;
+    /** Set origin X. */
+    setX(x: number): void;
+    /** Get origin y. */
+    getY(): number;
+    /** Set origin y. */
+    setY(y: number): void;
+    /** Get associated staves. */
+    getStaves(): Stave[];
+    /** Get associated voices. */
+    getVoices(): Voice[];
     /** Set associated context. */
     setContext(context: RenderContext): this;
     /**
@@ -85,8 +106,13 @@ export declare class System extends Element {
      * `]});`
      */
     addStave(params: SystemStave): Stave;
+    /**
+     * Add voices to the system with stave already assigned.
+     */
+    addVoices(voices: Voice[]): void;
     /** Format the system. */
     format(): void;
     /** Render the system. */
     draw(): void;
 }
+export {};

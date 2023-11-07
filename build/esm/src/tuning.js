@@ -1,10 +1,6 @@
 import { Tables } from './tables.js';
 import { RuntimeError } from './util.js';
 export class Tuning {
-    constructor(tuningString = 'E/5,B/4,G/4,D/4,A/3,E/3,B/2,E/2') {
-        this.tuningValues = [];
-        this.setTuning(tuningString);
-    }
     static get names() {
         return {
             standard: 'E/5,B/4,G/4,D/4,A/3,E/3',
@@ -14,8 +10,13 @@ export class Tuning {
             standardBanjo: 'D/5,B/4,G/4,D/4,G/5',
         };
     }
+    constructor(tuningString = 'E/5,B/4,G/4,D/4,A/3,E/3,B/2,E/2') {
+        this.tuningValues = [];
+        this.setTuning(tuningString);
+    }
     noteToInteger(noteString) {
-        return Tables.keyProperties(noteString).int_value;
+        var _a;
+        return (_a = Tables.keyProperties(noteString).int_value) !== null && _a !== void 0 ? _a : -1;
     }
     setTuning(tuningString) {
         if (Tuning.names[tuningString]) {

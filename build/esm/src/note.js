@@ -4,48 +4,6 @@ import { Tables } from './tables.js';
 import { Tickable } from './tickable.js';
 import { defined, RuntimeError } from './util.js';
 export class Note extends Tickable {
-    constructor(noteStruct) {
-        super();
-        if (!noteStruct) {
-            throw new RuntimeError('BadArguments', 'Note must have valid initialization data to identify duration and type.');
-        }
-        const parsedNoteStruct = Note.parseNoteStruct(noteStruct);
-        if (!parsedNoteStruct) {
-            throw new RuntimeError('BadArguments', `Invalid note initialization object: ${JSON.stringify(noteStruct)}`);
-        }
-        this.keys = noteStruct.keys || [];
-        this.keyProps = [];
-        this.duration = parsedNoteStruct.duration;
-        this.noteType = parsedNoteStruct.type;
-        this.customTypes = parsedNoteStruct.customTypes;
-        if (noteStruct.duration_override) {
-            this.setDuration(noteStruct.duration_override);
-        }
-        else {
-            this.setIntrinsicTicks(parsedNoteStruct.ticks);
-        }
-        this.modifiers = [];
-        this.glyph = Tables.getGlyphProps(this.duration, this.noteType);
-        this.customGlyphs = this.customTypes.map((t) => Tables.getGlyphProps(this.duration, t));
-        this.playNote = undefined;
-        this.ignore_ticks = false;
-        this.width = 0;
-        this.leftDisplacedHeadPx = 0;
-        this.rightDisplacedHeadPx = 0;
-        this.x_shift = 0;
-        this.ys = [];
-        if (noteStruct.align_center) {
-            this.setCenterAlignment(noteStruct.align_center);
-        }
-        this.render_options = {
-            annotation_spacing: 5,
-            glyph_font_scale: 1,
-            stroke_px: 1,
-            scale: 1,
-            font: '',
-            y_shift: 0,
-        };
-    }
     static get CATEGORY() {
         return "Note";
     }
@@ -145,6 +103,48 @@ export class Note extends Tickable {
             ticks,
         };
     }
+    constructor(noteStruct) {
+        super();
+        if (!noteStruct) {
+            throw new RuntimeError('BadArguments', 'Note must have valid initialization data to identify duration and type.');
+        }
+        const parsedNoteStruct = Note.parseNoteStruct(noteStruct);
+        if (!parsedNoteStruct) {
+            throw new RuntimeError('BadArguments', `Invalid note initialization object: ${JSON.stringify(noteStruct)}`);
+        }
+        this.keys = noteStruct.keys || [];
+        this.keyProps = [];
+        this.duration = parsedNoteStruct.duration;
+        this.noteType = parsedNoteStruct.type;
+        this.customTypes = parsedNoteStruct.customTypes;
+        if (noteStruct.duration_override) {
+            this.setDuration(noteStruct.duration_override);
+        }
+        else {
+            this.setIntrinsicTicks(parsedNoteStruct.ticks);
+        }
+        this.modifiers = [];
+        this.glyphProps = Tables.getGlyphProps(this.duration, this.noteType);
+        this.customGlyphs = this.customTypes.map((t) => Tables.getGlyphProps(this.duration, t));
+        this.playNote = undefined;
+        this.ignore_ticks = false;
+        this.width = 0;
+        this.leftDisplacedHeadPx = 0;
+        this.rightDisplacedHeadPx = 0;
+        this.x_shift = 0;
+        this.ys = [];
+        if (noteStruct.align_center) {
+            this.setCenterAlignment(noteStruct.align_center);
+        }
+        this.render_options = {
+            annotation_spacing: 5,
+            glyph_font_scale: 1,
+            stroke_px: 1,
+            scale: 1,
+            font: '',
+            y_shift: 0,
+        };
+    }
     getPlayNote() {
         return this.playNote;
     }
@@ -198,18 +198,13 @@ export class Note extends Tickable {
         return 0;
     }
     getGlyph() {
-        return this.glyph;
+        return this.glyphProps;
+    }
+    getGlyphProps() {
+        return this.glyphProps;
     }
     getGlyphWidth() {
-        if (this.glyph) {
-            if (this.glyph.getMetrics) {
-                return this.glyph.getMetrics().width;
-            }
-            else if (this.glyph.getWidth) {
-                return this.glyph.getWidth(this.render_options.glyph_font_scale);
-            }
-        }
-        return 0;
+        return this.glyphProps.getWidth(this.render_options.glyph_font_scale);
     }
     setYs(ys) {
         this.ys = ys;
@@ -246,7 +241,7 @@ export class Note extends Tickable {
         return this.duration;
     }
     isDotted() {
-        return this.getModifiersByType('Dot').length > 0;
+        return this.getModifiersByType("Dot").length > 0;
     }
     hasStem() {
         return false;
@@ -342,6 +337,9 @@ export class Note extends Tickable {
         }
         return x;
     }
+    static getPoint(size) {
+        return size == 'default' ? Tables.NOTATION_FONT_SCALE : (Tables.NOTATION_FONT_SCALE / 5) * 3;
+    }
     getStemDirection() {
         throw new RuntimeError('NoStem', 'No stem attached to this note.');
     }
@@ -350,14 +348,14 @@ export class Note extends Tickable {
     }
     getTieRightX() {
         let tieStartX = this.getAbsoluteX();
-        const note_glyph_width = this.glyph.getWidth();
+        const note_glyph_width = this.glyphProps.getWidth();
         tieStartX += note_glyph_width / 2;
         tieStartX += -this.width / 2 + this.width + 2;
         return tieStartX;
     }
     getTieLeftX() {
         let tieEndX = this.getAbsoluteX();
-        const note_glyph_width = this.glyph.getWidth();
+        const note_glyph_width = this.glyphProps.getWidth();
         tieEndX += note_glyph_width / 2;
         tieEndX -= this.width / 2 + 2;
         return tieEndX;

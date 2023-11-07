@@ -13,7 +13,7 @@ export declare abstract class StemmableNote extends Note {
     setStem(stem: Stem): this;
     buildStem(): this;
     buildFlag(category?: string): void;
-    getBaseCustomNoteHeadGlyph(): GlyphProps;
+    getBaseCustomNoteHeadGlyphProps(): GlyphProps;
     getStemLength(): number;
     getBeamCount(): number;
     getStemMinimumLength(): number;

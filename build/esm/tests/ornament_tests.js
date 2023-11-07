@@ -16,13 +16,14 @@ const OrnamentTests = {
         run('Ornaments Vertically Shifted', drawOrnamentsDisplaced);
         run('Ornaments - Delayed turns', drawOrnamentsDelayed);
         run('Ornaments - Delayed turns, Multiple Draws', drawOrnamentsDelayedMultipleDraws);
+        run('Ornaments - Delayed turns, Multiple Voices', drawOrnamentsDelayedMultipleVoices);
         run('Stacked', drawOrnamentsStacked);
         run('With Upper/Lower Accidentals', drawOrnamentsWithAccidentals);
         run('Jazz Ornaments', jazzOrnaments);
     },
 };
 function drawOrnaments(options, contextBuilder) {
-    expect(0);
+    options.assert.expect(0);
     const ctx = contextBuilder(options.elementId, 750, 195);
     const stave = new Stave(10, 30, 700);
     stave.setContext(ctx).draw();
@@ -57,7 +58,7 @@ function drawOrnaments(options, contextBuilder) {
     Formatter.FormatAndDraw(ctx, stave, notes);
 }
 function drawOrnamentsDisplaced(options, contextBuilder) {
-    expect(0);
+    options.assert.expect(0);
     const ctx = contextBuilder(options.elementId, 750, 195);
     const stave = new Stave(10, 30, 700);
     stave.setContext(ctx).draw();
@@ -109,20 +110,51 @@ const addDelayedTurns = (f) => {
     return { context, stave, notes };
 };
 function drawOrnamentsDelayed(options) {
-    expect(0);
+    options.assert.expect(0);
     const f = VexFlowTests.makeFactory(options, 550, 195);
     const { context, stave, notes } = addDelayedTurns(f);
     Formatter.FormatAndDraw(context, stave, notes);
 }
 function drawOrnamentsDelayedMultipleDraws(options) {
-    expect(0);
+    options.assert.expect(0);
     const f = VexFlowTests.makeFactory(options, 550, 195);
     const { context, stave, notes } = addDelayedTurns(f);
     Formatter.FormatAndDraw(context, stave, notes);
     Formatter.FormatAndDraw(context, stave, notes);
 }
+function drawOrnamentsDelayedMultipleVoices(options, contextBuilder) {
+    options.assert.expect(0);
+    const ctx = contextBuilder(options.elementId, 550, 195);
+    const stave = new Stave(10, 30, 500);
+    stave.addClef('treble');
+    stave.addKeySignature('C#');
+    stave.addTimeSignature('4/4');
+    const notes1 = [
+        new StaveNote({ keys: ['f/5'], duration: '2r' }),
+        new StaveNote({ keys: ['c/5'], duration: '2', stem_direction: 1 }),
+    ];
+    const notes2 = [
+        new StaveNote({ keys: ['a/4'], duration: '4', stem_direction: -1 }),
+        new StaveNote({ keys: ['e/4'], duration: '4r' }),
+        new StaveNote({ keys: ['e/4'], duration: '2r' }),
+    ];
+    notes1[1].addModifier(new Ornament('turn_inverted').setDelayed(true), 0);
+    notes2[0].addModifier(new Ornament('turn').setDelayed(true), 0);
+    const voice1 = new Voice({ num_beats: 4, beat_value: 4, });
+    voice1.addTickables(notes1);
+    const voice2 = new Voice({ num_beats: 4, beat_value: 4, });
+    voice2.addTickables(notes2);
+    const formatWidth = stave.getNoteEndX() - stave.getNoteStartX();
+    const formatter = new Formatter();
+    formatter.joinVoices([voice1]);
+    formatter.joinVoices([voice2]);
+    formatter.format([voice1, voice2], formatWidth);
+    stave.setContext(ctx).draw();
+    voice1.draw(ctx, stave);
+    voice2.draw(ctx, stave);
+}
 function drawOrnamentsStacked(options) {
-    expect(0);
+    options.assert.expect(0);
     const f = VexFlowTests.makeFactory(options, 550, 195);
     const ctx = f.getContext();
     const stave = f.Stave({ x: 10, y: 30, width: 500 });
@@ -144,7 +176,7 @@ function drawOrnamentsStacked(options) {
     Formatter.FormatAndDraw(ctx, stave, notes);
 }
 function drawOrnamentsWithAccidentals(options) {
-    expect(0);
+    options.assert.expect(0);
     const f = VexFlowTests.makeFactory(options, 650, 250);
     const ctx = f.getContext();
     const stave = f.Stave({ x: 10, y: 60, width: 600 });
@@ -209,12 +241,10 @@ function jazzOrnaments(options) {
         stave.setContext(ctx).draw();
         voice.draw(ctx, stave);
     }
-    expect(0);
+    options.assert.expect(0);
     const f = VexFlowTests.makeFactory(options, 950, 400);
     const ctx = f.getContext();
     ctx.scale(1, 1);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     const xStart = 10;
     const width = 300;
     const yStart = 50;

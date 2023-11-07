@@ -12,7 +12,7 @@ export interface TabNoteStruct extends StaveNoteStruct {
 export declare class TabNote extends StemmableNote {
     static get CATEGORY(): string;
     protected ghost: boolean;
-    protected glyphs: GlyphProps[];
+    protected glyphPropsArr: GlyphProps[];
     protected positions: TabNotePosition[];
     constructor(noteStruct: TabNoteStruct, draw_stem?: boolean);
     greatestString: () => number;

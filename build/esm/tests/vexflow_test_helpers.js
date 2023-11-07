@@ -66,11 +66,23 @@ const CANVAS_TEST_CONFIG = {
     testType: 'Canvas',
     fontStacks: ['Bravura'],
 };
+const CANVAS_TEXT_CONFIG = {
+    backend: Renderer.Backends.CANVAS,
+    tagName: 'canvas',
+    testType: 'Canvas',
+    fontStacks: ['Bravura'],
+};
 const SVG_TEST_CONFIG = {
     backend: Renderer.Backends.SVG,
     tagName: 'div',
     testType: 'SVG',
     fontStacks: ['Bravura', 'Gonville', 'Petaluma', 'Leland'],
+};
+const SVG_TEXT_CONFIG = {
+    backend: Renderer.Backends.SVG,
+    tagName: 'div',
+    testType: 'SVG',
+    fontStacks: ['Bravura'],
 };
 const NODE_TEST_CONFIG = {
     backend: Renderer.Backends.CANVAS,
@@ -78,7 +90,7 @@ const NODE_TEST_CONFIG = {
     testType: 'NodeCanvas',
     fontStacks: ['Bravura', 'Gonville', 'Petaluma', 'Leland'],
 };
-export class VexFlowTests {
+class VexFlowTests {
     static register(test) {
         VexFlowTests.tests.push(test);
     }
@@ -122,12 +134,16 @@ export class VexFlowTests {
         VexFlowTests.runSVGTest(name, testFunc, params);
         VexFlowTests.runNodeTest(name, testFunc, params);
     }
+    static runTextTests(name, testFunc, params) {
+        VexFlowTests.runCanvasText(name, testFunc, params);
+        VexFlowTests.runSVGText(name, testFunc, params);
+    }
     static createTest(elementId, testTitle, tagName, titleId = '') {
         const anchorTestTitle = `<a href="#${titleId}">${testTitle}</a>`;
         const title = $('<div/>').addClass('name').attr('id', titleId).html(anchorTestTitle).get(0);
         const vexOutput = $(`<${tagName}/>`).addClass('vex-tabdiv').attr('id', elementId).get(0);
         const container = $('<div/>').addClass('testcanvas').append(title, vexOutput).get(0);
-        $('#vexflow_testoutput').append(container);
+        $('#qunit-tests').append(container);
         return vexOutput;
     }
     static makeFactory(options, width = 450, height = 140) {
@@ -140,10 +156,22 @@ export class VexFlowTests {
             VexFlowTests.runWithParams(Object.assign(Object.assign({}, CANVAS_TEST_CONFIG), { name, testFunc, params, helper }));
         }
     }
+    static runCanvasText(name, testFunc, params) {
+        if (VexFlowTests.RUN_CANVAS_TESTS) {
+            const helper = null;
+            VexFlowTests.runWithParams(Object.assign(Object.assign({}, CANVAS_TEXT_CONFIG), { name, testFunc, params, helper }));
+        }
+    }
     static runSVGTest(name, testFunc, params) {
         if (VexFlowTests.RUN_SVG_TESTS) {
             const helper = null;
             VexFlowTests.runWithParams(Object.assign(Object.assign({}, SVG_TEST_CONFIG), { name, testFunc, params, helper }));
+        }
+    }
+    static runSVGText(name, testFunc, params) {
+        if (VexFlowTests.RUN_SVG_TESTS) {
+            const helper = null;
+            VexFlowTests.runWithParams(Object.assign(Object.assign({}, SVG_TEXT_CONFIG), { name, testFunc, params, helper }));
         }
     }
     static runNodeTest(name, testFunc, params) {
@@ -154,8 +182,8 @@ export class VexFlowTests {
     }
     static runNodeTestHelper(fontName, element) {
         if (Renderer.lastContext !== undefined) {
-            const moduleName = sanitizeName(QUnit.current_module);
-            const testName = sanitizeName(QUnit.current_test);
+            const moduleName = sanitizeName(QUnit.module.name);
+            const testName = sanitizeName(QUnit.test.name);
             const onlyBravura = NODE_TEST_CONFIG.fontStacks.length === 1 && fontName === 'Bravura';
             const fontInfo = onlyBravura ? '' : `.${fontName}`;
             const fileName = `${VexFlowTests.NODE_IMAGEDIR}/${moduleName}.${testName}${fontInfo}.png`;
@@ -223,12 +251,13 @@ VexFlowTests.RUN_SVG_TESTS = true;
 VexFlowTests.RUN_NODE_TESTS = false;
 VexFlowTests.Font = { size: 10 };
 VexFlowTests.FONT_STACKS = {
-    Bravura: ['Bravura', 'Gonville', 'Custom'],
+    Bravura: ['Bravura', 'Custom'],
     Gonville: ['Gonville', 'Bravura', 'Custom'],
     Petaluma: ['Petaluma', 'Gonville', 'Bravura', 'Custom'],
-    Leland: ['Leland', 'Bravura', 'Gonville', 'Custom'],
+    Leland: ['Leland', 'Bravura', 'Custom'],
 };
 VexFlowTests.NEXT_TEST_ID = 0;
+export { VexFlowTests };
 export const concat = (a, b) => a.concat(b);
 export const MAJOR_KEYS = [
     'C',

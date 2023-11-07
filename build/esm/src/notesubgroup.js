@@ -3,6 +3,21 @@ import { Modifier } from './modifier.js';
 import { Tables } from './tables.js';
 import { Voice } from './voice.js';
 export class NoteSubGroup extends Modifier {
+    static get CATEGORY() {
+        return "NoteSubGroup";
+    }
+    static format(groups, state) {
+        if (!groups || groups.length === 0)
+            return false;
+        let width = 0;
+        for (let i = 0; i < groups.length; ++i) {
+            const group = groups[i];
+            group.preFormat();
+            width += group.getWidth();
+        }
+        state.left_shift += width;
+        return true;
+    }
     constructor(subNotes) {
         super();
         this.preFormatted = false;
@@ -19,21 +34,6 @@ export class NoteSubGroup extends Modifier {
             resolution: Tables.RESOLUTION,
         }).setStrict(false);
         this.voice.addTickables(this.subNotes);
-    }
-    static get CATEGORY() {
-        return "NoteSubGroup";
-    }
-    static format(groups, state) {
-        if (!groups || groups.length === 0)
-            return false;
-        let width = 0;
-        for (let i = 0; i < groups.length; ++i) {
-            const group = groups[i];
-            group.preFormat();
-            width += group.getWidth();
-        }
-        state.left_shift += width;
-        return true;
     }
     preFormat() {
         if (this.preFormatted)

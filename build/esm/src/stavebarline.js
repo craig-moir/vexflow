@@ -11,6 +11,23 @@ export var BarlineType;
     BarlineType[BarlineType["NONE"] = 7] = "NONE";
 })(BarlineType || (BarlineType = {}));
 export class Barline extends StaveModifier {
+    static get CATEGORY() {
+        return "Barline";
+    }
+    static get type() {
+        return BarlineType;
+    }
+    static get typeString() {
+        return {
+            single: BarlineType.SINGLE,
+            double: BarlineType.DOUBLE,
+            end: BarlineType.END,
+            repeatBegin: BarlineType.REPEAT_BEGIN,
+            repeatEnd: BarlineType.REPEAT_END,
+            repeatBoth: BarlineType.REPEAT_BOTH,
+            none: BarlineType.NONE,
+        };
+    }
     constructor(type) {
         super();
         this.thickness = Tables.STAVE_LINE_THICKNESS;
@@ -77,23 +94,6 @@ export class Barline extends StaveModifier {
         this.setPosition(StaveModifierPosition.BEGIN);
         this.setType(type);
     }
-    static get CATEGORY() {
-        return "Barline";
-    }
-    static get type() {
-        return BarlineType;
-    }
-    static get typeString() {
-        return {
-            single: BarlineType.SINGLE,
-            double: BarlineType.DOUBLE,
-            end: BarlineType.END,
-            repeatBegin: BarlineType.REPEAT_BEGIN,
-            repeatEnd: BarlineType.REPEAT_END,
-            repeatBoth: BarlineType.REPEAT_BOTH,
-            none: BarlineType.NONE,
-        };
-    }
     getType() {
         return this.type;
     }
@@ -105,8 +105,10 @@ export class Barline extends StaveModifier {
         return this;
     }
     draw(stave) {
-        stave.checkContext();
+        const ctx = stave.checkContext();
         this.setRendered();
+        this.applyStyle(ctx);
+        ctx.openGroup('stavebarline', this.getAttribute('id'));
         switch (this.type) {
             case BarlineType.SINGLE:
                 this.drawVerticalBar(stave, this.x, false);
@@ -133,6 +135,8 @@ export class Barline extends StaveModifier {
             default:
                 break;
         }
+        ctx.closeGroup();
+        this.restoreStyle(ctx);
     }
     drawVerticalBar(stave, x, double_bar) {
         const staveCtx = stave.checkContext();

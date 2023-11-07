@@ -29,64 +29,6 @@ export const BEAM_LEFT = 'L';
 export const BEAM_RIGHT = 'R';
 export const BEAM_BOTH = 'B';
 export class Beam extends Element {
-    constructor(notes, auto_stem = false) {
-        super();
-        this.slope = 0;
-        this.y_shift = 0;
-        this.forcedPartialDirections = {};
-        if (!notes || notes.length === 0) {
-            throw new RuntimeError('BadArguments', 'No notes provided for beam.');
-        }
-        if (notes.length === 1) {
-            throw new RuntimeError('BadArguments', 'Too few notes for beam.');
-        }
-        this.ticks = notes[0].getIntrinsicTicks();
-        if (this.ticks >= Tables.durationToTicks('4')) {
-            throw new RuntimeError('BadArguments', 'Beams can only be applied to notes shorter than a quarter note.');
-        }
-        let i;
-        let note;
-        this.stem_direction = Stem.UP;
-        for (i = 0; i < notes.length; ++i) {
-            note = notes[i];
-            if (note.hasStem()) {
-                this.stem_direction = note.getStemDirection();
-                break;
-            }
-        }
-        let stem_direction = this.stem_direction;
-        if (auto_stem && isStaveNote(notes[0])) {
-            stem_direction = calculateStemDirection(notes);
-        }
-        else if (auto_stem && isTabNote(notes[0])) {
-            const stem_weight = notes.reduce((memo, note) => memo + note.getStemDirection(), 0);
-            stem_direction = stem_weight > -1 ? Stem.UP : Stem.DOWN;
-        }
-        for (i = 0; i < notes.length; ++i) {
-            note = notes[i];
-            if (auto_stem) {
-                note.setStemDirection(stem_direction);
-                this.stem_direction = stem_direction;
-            }
-            note.setBeam(this);
-        }
-        this.postFormatted = false;
-        this.notes = notes;
-        this.beam_count = this.getBeamCount();
-        this.break_on_indices = [];
-        this.render_options = {
-            beam_width: 5,
-            max_slope: 0.25,
-            min_slope: -0.25,
-            slope_iterations: 20,
-            slope_cost: 100,
-            show_stemlets: false,
-            stemlet_extension: 7,
-            partial_beam_length: 10,
-            flat_beams: false,
-            min_flat_beam_offset: 15,
-        };
-    }
     static get CATEGORY() {
         return "Beam";
     }
@@ -332,11 +274,62 @@ export class Beam extends Element {
         });
         return beams;
     }
+    constructor(notes, auto_stem = false) {
+        super();
+        this.slope = 0;
+        this.y_shift = 0;
+        this.forcedPartialDirections = {};
+        if (!notes || notes.length === 0) {
+            throw new RuntimeError('BadArguments', 'No notes provided for beam.');
+        }
+        if (notes.length === 1) {
+            throw new RuntimeError('BadArguments', 'Too few notes for beam.');
+        }
+        this.ticks = notes[0].getIntrinsicTicks();
+        if (this.ticks >= Tables.durationToTicks('4')) {
+            throw new RuntimeError('BadArguments', 'Beams can only be applied to notes shorter than a quarter note.');
+        }
+        let i;
+        let note;
+        this.stem_direction = notes[0].getStemDirection();
+        let stem_direction = this.stem_direction;
+        if (auto_stem && isStaveNote(notes[0])) {
+            stem_direction = calculateStemDirection(notes);
+        }
+        else if (auto_stem && isTabNote(notes[0])) {
+            const stem_weight = notes.reduce((memo, note) => memo + note.getStemDirection(), 0);
+            stem_direction = stem_weight > -1 ? Stem.UP : Stem.DOWN;
+        }
+        for (i = 0; i < notes.length; ++i) {
+            note = notes[i];
+            if (auto_stem) {
+                note.setStemDirection(stem_direction);
+                this.stem_direction = stem_direction;
+            }
+            note.setBeam(this);
+        }
+        this.postFormatted = false;
+        this.notes = notes;
+        this.beam_count = this.getBeamCount();
+        this.break_on_indices = [];
+        this.render_options = {
+            beam_width: 5,
+            max_slope: 0.25,
+            min_slope: -0.25,
+            slope_iterations: 20,
+            slope_cost: 100,
+            show_stemlets: false,
+            stemlet_extension: 7,
+            partial_beam_length: 10,
+            flat_beams: false,
+            min_flat_beam_offset: 15,
+        };
+    }
     getNotes() {
         return this.notes;
     }
     getBeamCount() {
-        const beamCounts = this.notes.map((note) => note.getGlyph().beam_count);
+        const beamCounts = this.notes.map((note) => note.getGlyphProps().beam_count);
         const maxBeamCount = beamCounts.reduce((max, beamCount) => (beamCount > max ? beamCount : max));
         return maxBeamCount;
     }
@@ -446,7 +439,7 @@ export class Beam extends Element {
         return beamY;
     }
     applyStemExtensions() {
-        const { notes, slope, y_shift, stem_direction, beam_count, render_options: { show_stemlets, stemlet_extension, beam_width }, } = this;
+        const { notes, slope, y_shift, beam_count, render_options: { show_stemlets, stemlet_extension, beam_width }, } = this;
         const firstNote = notes[0];
         const firstStemTipY = this.getBeamYToDraw();
         const firstStemX = firstNote.getStemX();
@@ -458,8 +451,13 @@ export class Beam extends Element {
                 const { topY: stemTipY } = note.getStemExtents();
                 const beamedStemTipY = this.getSlopeY(stemX, firstStemX, firstStemTipY, slope) + y_shift;
                 const preBeamExtension = stem.getExtension();
-                const beamExtension = stem_direction === Stem.UP ? stemTipY - beamedStemTipY : beamedStemTipY - stemTipY;
-                stem.setExtension(preBeamExtension + beamExtension);
+                const beamExtension = note.getStemDirection() === Stem.UP ? stemTipY - beamedStemTipY : beamedStemTipY - stemTipY;
+                let crossStemExtension = 0;
+                if (note.getStemDirection() !== this.stem_direction) {
+                    const beamCount = note.getGlyphProps().beam_count;
+                    crossStemExtension = (1 + (beamCount - 1) * 1.5) * this.render_options.beam_width;
+                }
+                stem.setExtension(preBeamExtension + beamExtension + crossStemExtension);
                 stem.adjustHeightForBeam();
                 if (note.isRest() && show_stemlets) {
                     const beamWidth = beam_width;
@@ -576,9 +574,7 @@ export class Beam extends Element {
             if (stem) {
                 const stem_x = note.getStemX();
                 stem.setNoteHeadXBounds(stem_x, stem_x);
-                ctx.openGroup('stem', note.getAttribute('id') + '-stem');
                 stem.setContext(ctx).draw();
-                ctx.closeGroup();
             }
         }, this);
     }
@@ -598,7 +594,6 @@ export class Beam extends Element {
                 const lastBeamX = beam_line.end;
                 if (lastBeamX) {
                     const lastBeamY = this.getSlopeY(lastBeamX, firstStemX, beamY, this.slope);
-                    this.setAttribute('el', ctx.openGroup('beam'));
                     ctx.beginPath();
                     ctx.moveTo(startBeamX, startBeamY);
                     ctx.lineTo(startBeamX, startBeamY + beamThickness);
@@ -606,7 +601,6 @@ export class Beam extends Element {
                     ctx.lineTo(lastBeamX + 1, lastBeamY);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.closeGroup();
                 }
                 else {
                     throw new RuntimeError('NoLastBeamX', 'lastBeamX undefined.');
@@ -640,7 +634,9 @@ export class Beam extends Element {
         }
         this.drawStems(ctx);
         this.applyStyle();
+        ctx.openGroup('beam', this.getAttribute('id'));
         this.drawBeamLines(ctx);
+        ctx.closeGroup();
         this.restoreStyle();
     }
 }

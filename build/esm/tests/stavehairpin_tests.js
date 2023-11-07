@@ -37,7 +37,7 @@ function createTest(drawTwoHairpins) {
         factory.Formatter().joinVoices([voice]).formatToStave([voice], stave);
         factory.draw();
         drawTwoHairpins(ctx, notes);
-        ok(true, 'Simple Test');
+        options.assert.ok(true, 'Simple Test');
     };
 }
 const simple = createTest((ctx, notes) => {

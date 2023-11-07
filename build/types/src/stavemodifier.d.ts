@@ -35,6 +35,15 @@ export declare class StaveModifier extends Element {
     setWidth(width: number): this;
     getX(): number;
     setX(x: number): this;
+    /**
+     * Runs setYShift() for the Glyph object so that it matches the position of line for
+     * the Stave provided.  A `customShift` can also be given (measured in the same units
+     * as `setYShift` not in lines) and this will be added after all other positions are
+     * calculated from the Stave.
+     *
+     * Note that this routine only sets the yShift; it does not actually "place" (meaning
+     * draw) the Glyph on the Stave.  Call .draw() afterwards to do that.
+     */
     placeGlyphOnLine(glyph: Glyph, stave: Stave, line?: number, customShift?: number): void;
     getPadding(index: number): number;
     setPadding(padding: number): this;

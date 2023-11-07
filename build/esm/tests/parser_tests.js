@@ -3,10 +3,10 @@ import { Parser } from '../src/parser.js';
 const ParserTests = {
     Start() {
         QUnit.module('Parser');
-        test('Basic', basic);
-        test('Advanced', advanced);
-        test('Mixed', mixed);
-        test('Micro Score', microscore);
+        QUnit.test('Basic', basic);
+        QUnit.test('Advanced', advanced);
+        QUnit.test('Mixed', mixed);
+        QUnit.test('Micro Score', microscore);
     },
 };
 class TestGrammar {
@@ -65,42 +65,42 @@ class MicroScoreGrammar {
         return () => ({ expect: [this.ITEM, this.MAYBE_MORE_ITEMS, this.EOL] });
     }
 }
-function fails(result, expectedErrorPos, msg) {
-    notOk(result.success, msg);
-    equal(result.errorPos, expectedErrorPos, msg);
+function fails(assert, result, expectedErrorPos, msg) {
+    assert.notOk(result.success, msg);
+    assert.equal(result.errorPos, expectedErrorPos, msg);
 }
-function basic() {
+function basic(assert) {
     const grammar = new TestGrammar();
     grammar.expect = [grammar.LITTLELINE, grammar.EOL];
     const parser = new Parser(grammar);
     const mustPass = ['first, second', 'first,second', 'first', 'first,second, third'];
-    mustPass.forEach((line) => equal(parser.parse(line).success, true, line));
-    fails(parser.parse(''), 0);
-    fails(parser.parse('first second'), 6);
-    fails(parser.parse('first,,'), 5);
-    fails(parser.parse('first,'), 5);
-    fails(parser.parse(',,'), 0);
+    mustPass.forEach((line) => assert.equal(parser.parse(line).success, true, line));
+    fails(assert, parser.parse(''), 0);
+    fails(assert, parser.parse('first second'), 6);
+    fails(assert, parser.parse('first,,'), 5);
+    fails(assert, parser.parse('first,'), 5);
+    fails(assert, parser.parse(',,'), 0);
 }
-function advanced() {
+function advanced(assert) {
     const grammar = new TestGrammar();
     grammar.expect = [grammar.BIGLINE, grammar.EOL];
     const parser = new Parser(grammar);
     const mustPass = ['{first}', '{first!}', '{first,second}', '{first,second!}', '{first,second,third!}'];
-    mustPass.forEach((line) => equal(parser.parse(line).success, true, line));
-    fails(parser.parse('{first,second,third,}'), 19);
-    fails(parser.parse('first,second,third'), 0);
-    fails(parser.parse('{first,second,third'), 19);
-    fails(parser.parse('{!}'), 1);
+    mustPass.forEach((line) => assert.equal(parser.parse(line).success, true, line));
+    fails(assert, parser.parse('{first,second,third,}'), 19);
+    fails(assert, parser.parse('first,second,third'), 0);
+    fails(assert, parser.parse('{first,second,third'), 19);
+    fails(assert, parser.parse('{!}'), 1);
 }
-function mixed() {
+function mixed(assert) {
     const grammar = new TestGrammar();
     grammar.expect = [grammar.BIGORLITTLE, grammar.EOL];
     const parser = new Parser(grammar);
     const mustPass = ['{first,second,third!}', 'first, second'];
-    mustPass.forEach((line) => equal(parser.parse(line).success, true, line));
-    fails(parser.parse('first second'), 6);
+    mustPass.forEach((line) => assert.equal(parser.parse(line).success, true, line));
+    fails(assert, parser.parse('first second'), 6);
 }
-function microscore() {
+function microscore(assert) {
     const grammar = new MicroScoreGrammar();
     const parser = new Parser(grammar);
     const mustPass = [
@@ -111,12 +111,12 @@ function microscore() {
     mustPass.forEach((line) => {
         var _a;
         const result = parser.parse(line);
-        equal(result.success, true, line);
-        equal((_a = result.matches) === null || _a === void 0 ? void 0 : _a.length, 3, line);
+        assert.equal(result.success, true, line);
+        assert.equal((_a = result.matches) === null || _a === void 0 ? void 0 : _a.length, 3, line);
     });
-    fails(parser.parse('40 42 44 45 47 49 5A 52'), 19);
-    fails(parser.parse('40.44.47] [45.49.52] [47.51.54] [49.52.56]'), 2);
-    fails(parser.parse('40 [40] 45 47 [44.47.51]'), 3);
+    fails(assert, parser.parse('40 42 44 45 47 49 5A 52'), 19);
+    fails(assert, parser.parse('40.44.47] [45.49.52] [47.51.54] [49.52.56]'), 2);
+    fails(assert, parser.parse('40 [40] 45 47 [44.47.51]'), 3);
 }
 VexFlowTests.register(ParserTests);
 export { ParserTests };

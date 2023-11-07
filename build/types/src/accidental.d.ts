@@ -3,10 +3,18 @@ import { Modifier } from './modifier';
 import { ModifierContextState } from './modifiercontext';
 import { Note } from './note';
 import { Voice } from './voice';
-export declare type Line = {
+type StaveLineAccidentalLayoutMetrics = {
     column: number;
     line: number;
+    /**
+     * A flat line needs more clearance above than below. This is
+     * set to true if the accidental is either a flat or double flat.
+     */
     flatLine: boolean;
+    /**
+     * Double sharps need less clearance above and below than other
+     * accidentals.
+     */
     dblSharpLine: boolean;
     numAcc: number;
     width: number;
@@ -41,7 +49,7 @@ export declare class Accidental extends Modifier {
     /** Arrange accidentals inside a ModifierContext. */
     static format(accidentals: Accidental[], state: ModifierContextState): void;
     /** Helper function to determine whether two lines of accidentals collide vertically */
-    static checkCollision(line1: Line, line2: Line): boolean;
+    static checkCollision(line1: StaveLineAccidentalLayoutMetrics, line2: StaveLineAccidentalLayoutMetrics): boolean;
     /**
      * Use this method to automatically apply accidentals to a set of `voices`.
      * The accidentals will be remembered between all the voices provided.
@@ -64,3 +72,4 @@ export declare class Accidental extends Modifier {
     /** Render accidental onto canvas. */
     draw(): void;
 }
+export {};

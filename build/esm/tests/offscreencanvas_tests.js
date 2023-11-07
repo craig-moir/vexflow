@@ -11,10 +11,10 @@ const OffscreenCanvasTests = {
             return;
         }
         QUnit.module('OffscreenCanvas');
-        test('Simple Test', simpleTest);
+        QUnit.test('Simple Test', simpleTest);
     },
 };
-function simpleTest() {
+function simpleTest(assert) {
     const offscreenCanvas = new OffscreenCanvas(550, 200);
     const offscreenCtx = offscreenCanvas.getContext('2d');
     if (offscreenCtx == null) {
@@ -41,7 +41,7 @@ function simpleTest() {
     }
     canvasCtx.drawImage(imgBmp, 0, 0);
     document.body.appendChild(canvas);
-    ok(true, 'all pass');
+    assert.ok(true, 'all pass');
 }
 VexFlowTests.register(OffscreenCanvasTests);
 export { OffscreenCanvasTests };

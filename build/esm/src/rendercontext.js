@@ -17,7 +17,7 @@ export function drawDot(ctx, x, y, color = '#F55') {
     ctx.save();
     ctx.setFillStyle(color);
     ctx.beginPath();
-    ctx.arc(x, y, 3, 0, Math.PI * 2, true);
+    ctx.arc(x, y, 3, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fill();
     ctx.restore();

@@ -9,15 +9,6 @@ export var ModifierPosition;
     ModifierPosition[ModifierPosition["BELOW"] = 4] = "BELOW";
 })(ModifierPosition || (ModifierPosition = {}));
 export class Modifier extends Element {
-    constructor() {
-        super();
-        this.width = 0;
-        this.text_line = 0;
-        this.position = Modifier.Position.LEFT;
-        this.x_shift = 0;
-        this.y_shift = 0;
-        this.spacingFromNextModifier = 0;
-    }
     static get CATEGORY() {
         return "Modifier";
     }
@@ -32,6 +23,15 @@ export class Modifier extends Element {
             left: ModifierPosition.LEFT,
             right: ModifierPosition.RIGHT,
         };
+    }
+    constructor() {
+        super();
+        this.width = 0;
+        this.text_line = 0;
+        this.position = Modifier.Position.LEFT;
+        this.x_shift = 0;
+        this.y_shift = 0;
+        this.spacingFromNextModifier = 0;
     }
     reset() {
     }

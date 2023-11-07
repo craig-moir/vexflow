@@ -79,10 +79,10 @@ export declare abstract class Tickable extends Element {
     setVoice(voice: Voice): void;
     /** Get the tuplet. */
     getTuplet(): Tuplet | undefined;
-    /** Return the intrinsic ticks. */
+    /** Return a list of Tuplets. */
     getTupletStack(): Tuplet[];
     /**
-     * Reset the specific Tuplet if this is not provided, all tuplets are reset.
+     * Reset the specific Tuplet (if this is not provided, all tuplets are reset).
      * Remove any prior tuplets from the tick calculation and
      * reset the intrinsic tick value.
      */

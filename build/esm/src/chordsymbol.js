@@ -4,7 +4,7 @@ import { Modifier } from './modifier.js';
 import { Tables } from './tables.js';
 import { TextFormatter } from './textformatter.js';
 import { isStemmableNote } from './typeguard.js';
-import { log } from './util.js';
+import { log, RuntimeError } from './util.js';
 function L(...args) {
     if (ChordSymbol.DEBUG)
         log('Vex.Flow.ChordSymbol', args);
@@ -33,16 +33,7 @@ export var SymbolModifiers;
     SymbolModifiers[SymbolModifiers["SUBSCRIPT"] = 2] = "SUBSCRIPT";
     SymbolModifiers[SymbolModifiers["SUPERSCRIPT"] = 3] = "SUPERSCRIPT";
 })(SymbolModifiers || (SymbolModifiers = {}));
-export class ChordSymbol extends Modifier {
-    constructor() {
-        super();
-        this.symbolBlocks = [];
-        this.horizontal = ChordSymbolHorizontalJustify.LEFT;
-        this.vertical = ChordSymbolVerticalJustify.TOP;
-        this.useKerning = true;
-        this.reportWidth = true;
-        this.resetFont();
-    }
+class ChordSymbol extends Modifier {
     static get CATEGORY() {
         return "ChordSymbol";
     }
@@ -56,8 +47,8 @@ export class ChordSymbol extends Modifier {
         return ChordSymbol.noFormat;
     }
     static getMetricForGlyph(glyphCode) {
-        if (ChordSymbol.metrics[glyphCode]) {
-            return ChordSymbol.metrics[glyphCode];
+        if (ChordSymbol.metrics.glyphs[glyphCode]) {
+            return ChordSymbol.metrics.glyphs[glyphCode];
         }
         return undefined;
     }
@@ -98,7 +89,10 @@ export class ChordSymbol extends Modifier {
         return ChordSymbol.metrics.global.kerningOffset / ChordSymbol.engravingFontResolution;
     }
     static get metrics() {
-        return Tables.currentMusicFont().getMetrics().glyphs.chordSymbol;
+        const chordSymbol = Tables.currentMusicFont().getMetrics().chordSymbol;
+        if (!chordSymbol)
+            throw new RuntimeError('BadMetrics', `chordSymbol missing`);
+        return chordSymbol;
     }
     static get lowerKerningText() {
         return ChordSymbol.metrics.global.lowerKerningText;
@@ -114,7 +108,7 @@ export class ChordSymbol extends Modifier {
     }
     static get minPadding() {
         const musicFont = Tables.currentMusicFont();
-        return musicFont.lookupMetric('glyphs.noteHead.minPadding');
+        return musicFont.lookupMetric('noteHead.minPadding');
     }
     static format(symbols, state) {
         var _a;
@@ -192,7 +186,7 @@ export class ChordSymbol extends Modifier {
                 state.text_line += lineSpaces + 1;
             }
             if (symbol.getReportWidth() && isStemmableNote(note)) {
-                const glyphWidth = note.getGlyph().getWidth();
+                const glyphWidth = note.getGlyphProps().getWidth();
                 if (symbol.getHorizontal() === ChordSymbolHorizontalJustify.LEFT) {
                     maxLeftGlyphWidth = Math.max(glyphWidth, maxLeftGlyphWidth);
                     leftWidth = Math.max(leftWidth, symbolWidth) + ChordSymbol.minPadding;
@@ -215,6 +209,15 @@ export class ChordSymbol extends Modifier {
         state.left_shift += leftOverlap;
         state.right_shift += rightOverlap;
         return true;
+    }
+    constructor() {
+        super();
+        this.symbolBlocks = [];
+        this.horizontal = ChordSymbolHorizontalJustify.LEFT;
+        this.vertical = ChordSymbolVerticalJustify.TOP;
+        this.useKerning = true;
+        this.reportWidth = true;
+        this.resetFont();
     }
     static get TEXT_FONT() {
         let family = 'Roboto Slab, Times, serif';
@@ -432,8 +435,8 @@ export class ChordSymbol extends Modifier {
         const note = this.checkAttachedNote();
         this.setRendered();
         ctx.save();
-        const classString = Object.keys(this.getAttribute('classes')).join(' ');
-        ctx.openGroup(classString, this.getAttribute('id'));
+        this.applyStyle();
+        ctx.openGroup('chordsymbol', this.getAttribute('id'));
         const start = note.getModifierStartXY(Modifier.Position.ABOVE, this.index);
         ctx.setFont(this.textFont);
         let y;
@@ -449,7 +452,8 @@ export class ChordSymbol extends Modifier {
             }
         }
         else {
-            y = Math.min(stave.getYForTopText(this.text_line), note.getYs()[0] - 10);
+            const topY = Math.min(...note.getYs());
+            y = Math.min(stave.getYForTopText(this.text_line), topY - 10);
             if (hasStem) {
                 const stem_ext = note.checkStem().getExtents();
                 const spacing = stave.getSpacingBetweenLines();
@@ -517,6 +521,7 @@ export class ChordSymbol extends Modifier {
             }
         });
         ctx.closeGroup();
+        this.restoreStyle();
         ctx.restore();
     }
 }
@@ -600,3 +605,4 @@ ChordSymbol.glyphs = {
 ChordSymbol.symbolTypes = SymbolTypes;
 ChordSymbol.symbolModifiers = SymbolModifiers;
 ChordSymbol.noFormat = false;
+export { ChordSymbol };

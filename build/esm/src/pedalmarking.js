@@ -10,24 +10,9 @@ function L(...args) {
 function drawPedalGlyph(name, context, x, y, point) {
     const glyph_data = PedalMarking.GLYPHS[name];
     const glyph = new Glyph(glyph_data.code, point, { category: 'pedalMarking' });
-    glyph.render(context, x + glyph_data.x_shift, y + glyph_data.y_shift);
+    glyph.render(context, x - (glyph.getMetrics().width - Tables.STAVE_LINE_DISTANCE) / 2, y);
 }
-export class PedalMarking extends Element {
-    constructor(notes) {
-        super();
-        this.notes = notes;
-        this.type = PedalMarking.type.TEXT;
-        this.line = 0;
-        this.custom_depress_text = '';
-        this.custom_release_text = '';
-        this.resetFont();
-        this.render_options = {
-            bracket_height: 10,
-            text_margin_right: 6,
-            bracket_line_width: 1,
-            color: 'black',
-        };
-    }
+class PedalMarking extends Element {
     static get CATEGORY() {
         return "PedalMarking";
     }
@@ -46,6 +31,21 @@ export class PedalMarking extends Element {
         pedal.setType(PedalMarking.type.TEXT);
         pedal.setCustomText('una corda', 'tre corda');
         return pedal;
+    }
+    constructor(notes) {
+        super();
+        this.notes = notes;
+        this.type = PedalMarking.type.TEXT;
+        this.line = 0;
+        this.custom_depress_text = '';
+        this.custom_release_text = '';
+        this.resetFont();
+        this.render_options = {
+            bracket_height: 10,
+            text_margin_right: 6,
+            bracket_line_width: 1,
+            color: 'black',
+        };
     }
     setType(type) {
         type = typeof type === 'string' ? PedalMarking.typeString[type] : type;
@@ -69,6 +69,7 @@ export class PedalMarking extends Element {
         let prev_x;
         let prev_y;
         this.notes.forEach((note, index, notes) => {
+            var _a;
             is_pedal_depressed = !is_pedal_depressed;
             const x = note.getAbsoluteX();
             const y = note.checkStave().getYForBottomText(this.line + 3);
@@ -78,7 +79,7 @@ export class PedalMarking extends Element {
             const next_is_same = notes[index + 1] === note;
             const prev_is_same = notes[index - 1] === note;
             let x_shift = 0;
-            const point = Tables.currentMusicFont().lookupMetric(`pedalMarking.${is_pedal_depressed ? 'down' : 'up'}.point`);
+            const point = (_a = Tables.currentMusicFont().lookupMetric(`pedalMarking.${is_pedal_depressed ? 'down' : 'up'}.point`)) !== null && _a !== void 0 ? _a : Tables.NOTATION_FONT_SCALE;
             if (is_pedal_depressed) {
                 x_shift = prev_is_same ? 5 : 0;
                 if (this.type === PedalMarking.type.MIXED && !prev_is_same) {
@@ -117,11 +118,12 @@ export class PedalMarking extends Element {
         const ctx = this.checkContext();
         let is_pedal_depressed = false;
         this.notes.forEach((note) => {
+            var _a;
             is_pedal_depressed = !is_pedal_depressed;
             const stave = note.checkStave();
             const x = note.getAbsoluteX();
             const y = stave.getYForBottomText(this.line + 3);
-            const point = Tables.currentMusicFont().lookupMetric(`pedalMarking.${is_pedal_depressed ? 'down' : 'up'}.point`);
+            const point = (_a = Tables.currentMusicFont().lookupMetric(`pedalMarking.${is_pedal_depressed ? 'down' : 'up'}.point`)) !== null && _a !== void 0 ? _a : Tables.NOTATION_FONT_SCALE;
             let text_width = 0;
             if (is_pedal_depressed) {
                 if (this.custom_depress_text) {
@@ -171,13 +173,9 @@ PedalMarking.TEXT_FONT = {
 PedalMarking.GLYPHS = {
     pedal_depress: {
         code: 'keyboardPedalPed',
-        x_shift: -10,
-        y_shift: 0,
     },
     pedal_release: {
         code: 'keyboardPedalUp',
-        x_shift: -2,
-        y_shift: 3,
     },
 };
 PedalMarking.type = {
@@ -190,3 +188,4 @@ PedalMarking.typeString = {
     bracket: PedalMarking.type.BRACKET,
     mixed: PedalMarking.type.MIXED,
 };
+export { PedalMarking };

@@ -50,7 +50,7 @@ export declare class CanvasContext extends RenderContext {
     setLineCap(capType: CanvasLineCap): this;
     setLineDash(dash: number[]): this;
     scale(x: number, y: number): this;
-    resize(width: number, height: number): this;
+    resize(width: number, height: number, devicePixelRatio?: number): this;
     rect(x: number, y: number, width: number, height: number): this;
     fillRect(x: number, y: number, width: number, height: number): this;
     /**

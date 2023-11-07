@@ -53,10 +53,16 @@ export declare class Articulation extends Modifier {
     }, note: StemmableNote, builder: Builder): void;
     /**
      * Create a new articulation.
-     * @param type entry in `Vex.Flow.articulationCodes` in `tables.ts`
+     * @param type entry in `Vex.Flow.articulationCodes` in `tables.ts` or Glyph code.
+     *
+     * Notes (by default):
+     * - Glyph codes ending with 'Above' will be positioned ABOVE
+     * - Glyph codes ending with 'Below' will be positioned BELOW
      */
     constructor(type: string);
     protected reset(): void;
+    /** Set if articulation should be rendered between lines. */
+    setBetweenLines(betweenLines?: boolean): this;
     /** Render articulation in position next to note. */
     draw(): void;
 }

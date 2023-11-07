@@ -800,6 +800,14 @@ export declare const BravuraFont: {
             ha: number;
             o: string;
         };
+        accidentalBuyukMucennebSharp: {
+            x_min: number;
+            x_max: number;
+            y_min: number;
+            y_max: number;
+            ha: number;
+            o: string;
+        };
         accidentalBakiyeFlat: {
             x_min: number;
             x_max: number;
@@ -961,6 +969,22 @@ export declare const BravuraFont: {
             o: string;
         };
         fermataVeryLongBelow: {
+            x_min: number;
+            x_max: number;
+            y_min: number;
+            y_max: number;
+            ha: number;
+            o: string;
+        };
+        fermataVeryShortAbove: {
+            x_min: number;
+            x_max: number;
+            y_min: number;
+            y_max: number;
+            ha: number;
+            o: string;
+        };
+        fermataVeryShortBelow: {
             x_min: number;
             x_max: number;
             y_min: number;

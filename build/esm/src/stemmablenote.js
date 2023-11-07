@@ -4,11 +4,11 @@ import { Stem } from './stem.js';
 import { Tables } from './tables.js';
 import { RuntimeError } from './util.js';
 export class StemmableNote extends Note {
-    constructor(noteStruct) {
-        super(noteStruct);
-    }
     static get CATEGORY() {
         return "StemmableNote";
+    }
+    constructor(noteStruct) {
+        super(noteStruct);
     }
     getStem() {
         return this.stem;
@@ -30,13 +30,14 @@ export class StemmableNote extends Note {
         return this;
     }
     buildFlag(category = 'flag') {
-        const { glyph } = this;
+        const { glyphProps } = this;
         if (this.hasFlag()) {
-            const flagCode = this.getStemDirection() === Stem.DOWN ? glyph.code_flag_downstem : glyph.code_flag_upstem;
-            this.flag = new Glyph(flagCode, this.render_options.glyph_font_scale, { category });
+            const flagCode = this.getStemDirection() === Stem.DOWN ? glyphProps.code_flag_downstem : glyphProps.code_flag_upstem;
+            if (flagCode)
+                this.flag = new Glyph(flagCode, this.render_options.glyph_font_scale, { category });
         }
     }
-    getBaseCustomNoteHeadGlyph() {
+    getBaseCustomNoteHeadGlyphProps() {
         if (this.getStemDirection() === Stem.DOWN) {
             return this.customGlyphs[this.customGlyphs.length - 1];
         }
@@ -48,9 +49,9 @@ export class StemmableNote extends Note {
         return Stem.HEIGHT + this.getStemExtension();
     }
     getBeamCount() {
-        const glyph = this.getGlyph();
-        if (glyph) {
-            return glyph.beam_count;
+        const glyphProps = this.getGlyphProps();
+        if (glyphProps) {
+            return glyphProps.beam_count;
         }
         else {
             return 0;
@@ -101,8 +102,8 @@ export class StemmableNote extends Note {
         if (this.stem) {
             this.stem.setDirection(direction);
             this.stem.setExtension(this.getStemExtension());
-            const glyph = this.getBaseCustomNoteHeadGlyph() || this.getGlyph();
-            const offsets = Tables.currentMusicFont().lookupMetric(`stem.noteHead.${glyph.code_head}`, {
+            const glyphProps = this.getBaseCustomNoteHeadGlyphProps() || this.getGlyphProps();
+            const offsets = Tables.currentMusicFont().lookupMetric(`stem.noteHead.${glyphProps.code_head}`, {
                 offsetYBaseStemUp: 0,
                 offsetYTopStemUp: 0,
                 offsetYBaseStemDown: 0,
@@ -130,15 +131,15 @@ export class StemmableNote extends Note {
         return this.getAbsoluteX() + this.x_shift + this.getGlyphWidth() / 2;
     }
     getStemExtension() {
-        const glyph = this.getGlyph();
+        const glyphProps = this.getGlyphProps();
         if (this.stem_extension_override != undefined) {
             return this.stem_extension_override;
         }
         if (this.beam) {
-            return glyph.stem_beam_extension;
+            return glyphProps.stem_beam_extension;
         }
-        if (glyph) {
-            return this.getStemDirection() === Stem.UP ? glyph.stem_up_extension : glyph.stem_down_extension;
+        if (glyphProps) {
+            return this.getStemDirection() === Stem.UP ? glyphProps.stem_up_extension : glyphProps.stem_down_extension;
         }
         return 0;
     }
@@ -176,7 +177,7 @@ export class StemmableNote extends Note {
         }
     }
     hasFlag() {
-        return Tables.getGlyphProps(this.duration).flag && !this.beam;
+        return Tables.getGlyphProps(this.duration).flag == true && !this.beam;
     }
     postFormat() {
         var _a;

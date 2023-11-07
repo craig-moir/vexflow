@@ -55,5 +55,9 @@ export declare class StaveTie extends Element {
         first_ys: number[];
     }): void;
     renderText(first_x_px: number, last_x_px: number): void;
+    /**
+     * Returns the TieNotes structure of the first and last note this tie connects.
+     */
+    getNotes(): TieNotes;
     draw(): boolean;
 }

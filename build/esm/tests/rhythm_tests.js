@@ -106,7 +106,7 @@ function drawBasic(options, contextBuilder) {
         }),
     ];
     Formatter.FormatAndDraw(ctx, staveBar4, notesBar4);
-    expect(0);
+    options.assert.expect(0);
 }
 function drawBeamedSlashNotes(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 800, 150);
@@ -167,7 +167,7 @@ function drawBeamedSlashNotes(options, contextBuilder) {
     Formatter.FormatAndDraw(ctx, staveBar1, notesBar1);
     beam1.setContext(ctx).draw();
     beam2.setContext(ctx).draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawSlashAndBeamAndRests(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 800, 150);
@@ -233,7 +233,7 @@ function drawSlashAndBeamAndRests(options, contextBuilder) {
     ];
     notesBar2[0].addModifier(new Annotation('F').setFont('Times', VexFlowTests.Font.size + 2), 0);
     Formatter.FormatAndDraw(ctx, staveBar2, notesBar2);
-    expect(0);
+    options.assert.expect(0);
 }
 function drawSixtenthWithScratches(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 800, 150);
@@ -294,7 +294,7 @@ function drawSixtenthWithScratches(options, contextBuilder) {
     Formatter.FormatAndDraw(ctx, staveBar1, notesBar1_part1.concat(notesBar1_part2));
     beam1.setContext(ctx).draw();
     beam2.setContext(ctx).draw();
-    expect(0);
+    options.assert.expect(0);
 }
 function drawThirtySecondWithScratches(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 800, 150);
@@ -351,7 +351,7 @@ function drawThirtySecondWithScratches(options, contextBuilder) {
     const beam1 = new Beam(notesBar1_part1);
     Formatter.FormatAndDraw(ctx, staveBar1, notesBar1_part1);
     beam1.setContext(ctx).draw();
-    expect(0);
+    options.assert.expect(0);
 }
 VexFlowTests.register(RhythmTests);
 export { RhythmTests };

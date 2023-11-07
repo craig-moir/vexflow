@@ -1,7 +1,10 @@
 import { ArticulationStruct } from './articulation';
 import { Font } from './font';
 import { Fraction } from './fraction';
+import { GlyphProps } from './glyph';
+import { KeyProps } from './note';
 export declare class Tables {
+    static UNISON: boolean;
     static SOFTMAX_FACTOR: number;
     static STEM_WIDTH: number;
     static STEM_HEIGHT: number;
@@ -32,14 +35,9 @@ export declare class Tables {
      */
     static keyProperties(keyOctaveGlyph: string, clef?: string, params?: {
         octave_shift?: number;
-    }): any;
+    }): KeyProps;
     static integerToNote(integer?: number): string;
-    static tabToGlyph(fret: string, scale?: number): {
-        text: string;
-        code?: string;
-        getWidth: () => number;
-        shift_y: number;
-    };
+    static tabToGlyphProps(fret: string, scale?: number): GlyphProps;
     static textWidth(text: string): number;
     static articulationCodes(artic: string): ArticulationStruct;
     static accidentalMap: Record<string, {
@@ -87,7 +85,7 @@ export declare class Tables {
     static durationToNumber(duration: string): number;
     static durationToTicks(duration: string): number;
     static codeNoteHead(type: string, duration: string): string;
-    static getGlyphProps(duration: string, type?: string): any | undefined;
+    static getGlyphProps(duration: string, type?: string): GlyphProps;
     static validTypes: Record<string, {
         name: string;
     }>;

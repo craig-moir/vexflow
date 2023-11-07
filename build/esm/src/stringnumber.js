@@ -5,29 +5,18 @@ import { Stem } from './stem.js';
 import { Tables } from './tables.js';
 import { isStaveNote, isStemmableNote } from './typeguard.js';
 import { RuntimeError } from './util.js';
-export class StringNumber extends Modifier {
-    constructor(number) {
-        super();
-        this.string_number = number;
-        this.position = Modifier.Position.ABOVE;
-        this.x_shift = 0;
-        this.y_shift = 0;
-        this.text_line = 0;
-        this.stem_offset = 0;
-        this.x_offset = 0;
-        this.y_offset = 0;
-        this.dashed = true;
-        this.leg = Renderer.LineEndType.NONE;
-        this.radius = 8;
-        this.drawCircle = true;
-        this.setWidth(this.radius * 2 + 4);
-        this.resetFont();
-    }
+class StringNumber extends Modifier {
     static get CATEGORY() {
         return "StringNumber";
     }
     static get metrics() {
-        return Tables.currentMusicFont().getMetrics().glyphs.stringNumber;
+        var _a;
+        return ((_a = Tables.currentMusicFont().getMetrics().stringNumber) !== null && _a !== void 0 ? _a : {
+            verticalPadding: 0,
+            stemPadding: 0,
+            leftPadding: 0,
+            rightPadding: 0,
+        });
     }
     static format(nums, state) {
         const left_shift = state.left_shift;
@@ -37,7 +26,7 @@ export class StringNumber extends Modifier {
             return false;
         const nums_list = [];
         let prev_note = null;
-        let shift_left = 0;
+        let extraXSpaceForDisplacedNotehead = 0;
         let shift_right = 0;
         const modLines = 0;
         for (let i = 0; i < nums.length; ++i) {
@@ -63,8 +52,8 @@ export class StringNumber extends Modifier {
             }
             if (note !== prev_note) {
                 for (let n = 0; n < note.keys.length; ++n) {
-                    if (left_shift === 0) {
-                        shift_left = Math.max(note.getLeftDisplacedHeadPx(), shift_left);
+                    if (pos === Modifier.Position.LEFT) {
+                        extraXSpaceForDisplacedNotehead = Math.max(note.getLeftDisplacedHeadPx(), extraXSpaceForDisplacedNotehead);
                     }
                     if (right_shift === 0) {
                         shift_right = Math.max(note.getRightDisplacedHeadPx(), shift_right);
@@ -78,7 +67,7 @@ export class StringNumber extends Modifier {
                 note,
                 num,
                 line: glyphLine,
-                shiftL: shift_left,
+                shiftL: extraXSpaceForDisplacedNotehead,
                 shiftR: shift_right,
             });
         }
@@ -89,7 +78,6 @@ export class StringNumber extends Modifier {
         let last_line = null;
         let last_note = null;
         for (let i = 0; i < nums_list.length; ++i) {
-            let num_shift = 0;
             const note = nums_list[i].note;
             const pos = nums_list[i].pos;
             const num = nums_list[i].num;
@@ -99,15 +87,16 @@ export class StringNumber extends Modifier {
                 num_shiftR = right_shift + shiftR;
             }
             const num_width = num.getWidth() + num_spacing;
+            let num_x_shift = 0;
             if (pos === Modifier.Position.LEFT) {
-                num.setXShift(left_shift);
-                num_shift = shift_left + num_width;
-                x_widthL = num_shift > x_widthL ? num_shift : x_widthL;
+                num.setXShift(left_shift + extraXSpaceForDisplacedNotehead);
+                num_x_shift = num_width;
+                x_widthL = Math.max(num_x_shift, x_widthL);
             }
             else if (pos === Modifier.Position.RIGHT) {
                 num.setXShift(num_shiftR);
-                num_shift += num_width;
-                x_widthR = num_shift > x_widthR ? num_shift : x_widthR;
+                num_x_shift += num_width;
+                x_widthR = num_x_shift > x_widthR ? num_x_shift : x_widthR;
             }
             last_line = line;
             last_note = note;
@@ -115,6 +104,23 @@ export class StringNumber extends Modifier {
         state.left_shift += x_widthL;
         state.right_shift += x_widthR;
         return true;
+    }
+    constructor(number) {
+        super();
+        this.string_number = number;
+        this.position = Modifier.Position.ABOVE;
+        this.x_shift = 0;
+        this.y_shift = 0;
+        this.text_line = 0;
+        this.stem_offset = 0;
+        this.x_offset = 0;
+        this.y_offset = 0;
+        this.dashed = true;
+        this.leg = Renderer.LineEndType.NONE;
+        this.radius = 8;
+        this.drawCircle = true;
+        this.setWidth(this.radius * 2 + 4);
+        this.resetFont();
     }
     setLineEndType(leg) {
         if (leg >= Renderer.LineEndType.NONE && leg <= Renderer.LineEndType.DOWN) {
@@ -236,3 +242,4 @@ StringNumber.TEXT_FONT = {
     weight: FontWeight.BOLD,
     style: FontStyle.NORMAL,
 };
+export { StringNumber };

@@ -9,30 +9,30 @@ import { MockTickable } from './mocks.js';
 const VoiceTests = {
     Start() {
         QUnit.module('Voice');
-        test('Strict Test', strict);
-        test('Ignore Test', ignore);
+        QUnit.test('Strict Test', strict);
+        QUnit.test('Ignore Test', ignore);
         VexFlowTests.runTests('Full Voice Mode Test', full);
     },
 };
 const BEAT = (1 * Flow.RESOLUTION) / 4;
 const createTickable = () => new MockTickable().setTicks(BEAT);
-function strict() {
-    expect(8);
+function strict(assert) {
+    assert.expect(8);
     const tickables = [createTickable(), createTickable(), createTickable()];
     const voice = new Voice(Flow.TIME4_4);
-    equal(voice.getTotalTicks().value(), BEAT * 4, '4/4 Voice has 4 beats');
-    equal(voice.getTicksUsed().value(), BEAT * 0, 'No beats in voice');
+    assert.equal(voice.getTotalTicks().value(), BEAT * 4, '4/4 Voice has 4 beats');
+    assert.equal(voice.getTicksUsed().value(), BEAT * 0, 'No beats in voice');
     voice.addTickables(tickables);
-    equal(voice.getTicksUsed().value(), BEAT * 3, 'Three beats in voice');
+    assert.equal(voice.getTicksUsed().value(), BEAT * 3, 'Three beats in voice');
     voice.addTickable(createTickable());
-    equal(voice.getTicksUsed().value(), BEAT * 4, 'Four beats in voice');
-    equal(voice.isComplete(), true, 'Voice is complete');
+    assert.equal(voice.getTicksUsed().value(), BEAT * 4, 'Four beats in voice');
+    assert.equal(voice.isComplete(), true, 'Voice is complete');
     const numeratorBeforeException = voice.getTicksUsed().numerator;
-    throws(() => voice.addTickable(createTickable()), /BadArgument/, '"Too many ticks" exception');
-    equal(voice.getTicksUsed().numerator, numeratorBeforeException, 'Revert `ticksUsed` after a "Too many ticks" exception');
-    equal(voice.getSmallestTickCount().value(), BEAT, 'Smallest tick count is BEAT');
+    assert.throws(() => voice.addTickable(createTickable()), /BadArgument/, '"Too many ticks" exception');
+    assert.equal(voice.getTicksUsed().numerator, numeratorBeforeException, 'Revert `ticksUsed` after a "Too many ticks" exception');
+    assert.equal(voice.getSmallestTickCount().value(), BEAT, 'Smallest tick count is BEAT');
 }
-function ignore() {
+function ignore(assert) {
     const tickables = [
         createTickable(),
         createTickable(),
@@ -43,7 +43,7 @@ function ignore() {
     ];
     const voice = new Voice(Flow.TIME4_4);
     voice.addTickables(tickables);
-    ok(true, 'all pass');
+    assert.ok(true, 'all pass');
 }
 function full(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 550, 200);
@@ -63,7 +63,7 @@ function full(options, contextBuilder) {
         ctx.rect(bb.getX(), bb.getY(), bb.getW(), bb.getH());
     }
     ctx.stroke();
-    throws(() => voice.addTickable(new StaveNote({ keys: ['c/4'], duration: '2' })), /BadArgument/, 'Voice cannot exceed full amount of ticks');
+    options.assert.throws(() => voice.addTickable(new StaveNote({ keys: ['c/4'], duration: '2' })), /BadArgument/, 'Voice cannot exceed full amount of ticks');
 }
 VexFlowTests.register(VoiceTests);
 export { VoiceTests };

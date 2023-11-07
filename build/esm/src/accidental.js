@@ -9,22 +9,7 @@ function L(...args) {
     if (Accidental.DEBUG)
         log('Vex.Flow.Accidental', args);
 }
-export class Accidental extends Modifier {
-    constructor(type) {
-        super();
-        L('New accidental: ', type);
-        this.type = type;
-        this.position = Modifier.Position.LEFT;
-        this.render_options = {
-            font_scale: 38,
-            parenLeftPadding: 2,
-            parenRightPadding: 2,
-        };
-        this.accidental = Tables.accidentalCodes(this.type);
-        defined(this.accidental, 'ArgumentError', `Unknown accidental type: ${type}`);
-        this.cautionary = false;
-        this.reset();
-    }
+class Accidental extends Modifier {
     static get CATEGORY() {
         return "Accidental";
     }
@@ -36,9 +21,9 @@ export class Accidental extends Modifier {
         const leftShift = state.left_shift + noteheadAccidentalPadding;
         const accidentalSpacing = musicFont.lookupMetric('accidental.accidentalSpacing');
         const additionalPadding = musicFont.lookupMetric('accidental.leftPadding');
-        const accList = [];
+        const accidentalLinePositionsAndSpaceNeeds = [];
         let prevNote = undefined;
-        let shiftL = 0;
+        let extraXSpaceNeededForLeftDisplacedNotehead = 0;
         for (let i = 0; i < accidentals.length; ++i) {
             const acc = accidentals[i];
             const note = acc.getNote();
@@ -47,7 +32,7 @@ export class Accidental extends Modifier {
             const props = note.getKeyProps()[index];
             if (note !== prevNote) {
                 for (let n = 0; n < note.keys.length; ++n) {
-                    shiftL = Math.max(note.getLeftDisplacedHeadPx() - note.getXShift(), shiftL);
+                    extraXSpaceNeededForLeftDisplacedNotehead = Math.max(note.getLeftDisplacedHeadPx() - note.getXShift(), extraXSpaceNeededForLeftDisplacedNotehead);
                 }
                 prevNote = note;
             }
@@ -55,53 +40,68 @@ export class Accidental extends Modifier {
                 const lineSpace = stave.getSpacingBetweenLines();
                 const y = stave.getYForLine(props.line);
                 const accLine = Math.round((y / lineSpace) * 2) / 2;
-                accList.push({ y, line: accLine, shift: shiftL, acc, lineSpace });
+                accidentalLinePositionsAndSpaceNeeds.push({
+                    y,
+                    line: accLine,
+                    extraXSpaceNeeded: extraXSpaceNeededForLeftDisplacedNotehead,
+                    acc,
+                    spacingBetweenStaveLines: lineSpace,
+                });
             }
             else {
-                accList.push({ line: props.line, shift: shiftL, acc });
+                accidentalLinePositionsAndSpaceNeeds.push({
+                    line: props.line,
+                    extraXSpaceNeeded: extraXSpaceNeededForLeftDisplacedNotehead,
+                    acc,
+                });
             }
         }
-        accList.sort((a, b) => b.line - a.line);
-        const lineList = [];
-        let accShift = 0;
-        let previousLine = undefined;
-        for (let i = 0; i < accList.length; i++) {
-            const acc = accList[i];
-            if (previousLine === undefined || previousLine !== acc.line) {
-                lineList.push({
-                    line: acc.line,
+        accidentalLinePositionsAndSpaceNeeds.sort((a, b) => b.line - a.line);
+        const staveLineAccidentalLayoutMetrics = [];
+        let maxExtraXSpaceNeeded = 0;
+        for (let i = 0; i < accidentalLinePositionsAndSpaceNeeds.length; i++) {
+            const accidentalLinePositionAndSpaceNeeds = accidentalLinePositionsAndSpaceNeeds[i];
+            const priorLineMetric = staveLineAccidentalLayoutMetrics[staveLineAccidentalLayoutMetrics.length - 1];
+            let currentLineMetric;
+            if (!priorLineMetric || (priorLineMetric === null || priorLineMetric === void 0 ? void 0 : priorLineMetric.line) !== accidentalLinePositionAndSpaceNeeds.line) {
+                currentLineMetric = {
+                    line: accidentalLinePositionAndSpaceNeeds.line,
                     flatLine: true,
                     dblSharpLine: true,
                     numAcc: 0,
                     width: 0,
                     column: 0,
-                });
+                };
+                staveLineAccidentalLayoutMetrics.push(currentLineMetric);
             }
-            if (acc.acc.type !== 'b' && acc.acc.type !== 'bb') {
-                lineList[lineList.length - 1].flatLine = false;
+            else {
+                currentLineMetric = priorLineMetric;
             }
-            if (acc.acc.type !== '##') {
-                lineList[lineList.length - 1].dblSharpLine = false;
+            if (accidentalLinePositionAndSpaceNeeds.acc.type !== 'b' &&
+                accidentalLinePositionAndSpaceNeeds.acc.type !== 'bb') {
+                currentLineMetric.flatLine = false;
             }
-            lineList[lineList.length - 1].numAcc++;
-            lineList[lineList.length - 1].width += acc.acc.getWidth() + accidentalSpacing;
-            accShift = acc.shift > accShift ? acc.shift : accShift;
-            previousLine = acc.line;
+            if (accidentalLinePositionAndSpaceNeeds.acc.type !== '##') {
+                currentLineMetric.dblSharpLine = false;
+            }
+            currentLineMetric.numAcc++;
+            currentLineMetric.width += accidentalLinePositionAndSpaceNeeds.acc.getWidth() + accidentalSpacing;
+            maxExtraXSpaceNeeded = Math.max(accidentalLinePositionAndSpaceNeeds.extraXSpaceNeeded, maxExtraXSpaceNeeded);
         }
         let totalColumns = 0;
-        for (let i = 0; i < lineList.length; i++) {
+        for (let i = 0; i < staveLineAccidentalLayoutMetrics.length; i++) {
             let noFurtherConflicts = false;
             const groupStart = i;
             let groupEnd = i;
-            while (groupEnd + 1 < lineList.length && !noFurtherConflicts) {
-                if (this.checkCollision(lineList[groupEnd], lineList[groupEnd + 1])) {
+            while (groupEnd + 1 < staveLineAccidentalLayoutMetrics.length && !noFurtherConflicts) {
+                if (this.checkCollision(staveLineAccidentalLayoutMetrics[groupEnd], staveLineAccidentalLayoutMetrics[groupEnd + 1])) {
                     groupEnd++;
                 }
                 else {
                     noFurtherConflicts = true;
                 }
             }
-            const getGroupLine = (index) => lineList[groupStart + index];
+            const getGroupLine = (index) => staveLineAccidentalLayoutMetrics[groupStart + index];
             const getGroupLines = (indexes) => indexes.map(getGroupLine);
             const lineDifference = (indexA, indexB) => {
                 const [a, b] = getGroupLines([indexA, indexB]).map((item) => item.line);
@@ -109,7 +109,9 @@ export class Accidental extends Modifier {
             };
             const notColliding = (...indexPairs) => indexPairs.map(getGroupLines).every(([line1, line2]) => !this.checkCollision(line1, line2));
             const groupLength = groupEnd - groupStart + 1;
-            let endCase = this.checkCollision(lineList[groupStart], lineList[groupEnd]) ? 'a' : 'b';
+            let endCase = this.checkCollision(staveLineAccidentalLayoutMetrics[groupStart], staveLineAccidentalLayoutMetrics[groupEnd])
+                ? 'a'
+                : 'b';
             switch (groupLength) {
                 case 3:
                     if (endCase === 'a' && lineDifference(1, 2) === 0.5 && lineDifference(0, 1) !== 0.5) {
@@ -147,8 +149,8 @@ export class Accidental extends Modifier {
                 let collisionDetected = true;
                 while (collisionDetected === true) {
                     collisionDetected = false;
-                    for (let line = 0; line + patternLength < lineList.length; line++) {
-                        if (this.checkCollision(lineList[line], lineList[line + patternLength])) {
+                    for (let line = 0; line + patternLength < staveLineAccidentalLayoutMetrics.length; line++) {
+                        if (this.checkCollision(staveLineAccidentalLayoutMetrics[line], staveLineAccidentalLayoutMetrics[line + patternLength])) {
                             collisionDetected = true;
                             patternLength++;
                             break;
@@ -157,14 +159,14 @@ export class Accidental extends Modifier {
                 }
                 for (groupMember = i; groupMember <= groupEnd; groupMember++) {
                     column = ((groupMember - i) % patternLength) + 1;
-                    lineList[groupMember].column = column;
+                    staveLineAccidentalLayoutMetrics[groupMember].column = column;
                     totalColumns = totalColumns > column ? totalColumns : column;
                 }
             }
             else {
                 for (groupMember = i; groupMember <= groupEnd; groupMember++) {
                     column = Tables.accidentalColumnsTable[groupLength][endCase][groupMember - i];
-                    lineList[groupMember].column = column;
+                    staveLineAccidentalLayoutMetrics[groupMember].column = column;
                     totalColumns = totalColumns > column ? totalColumns : column;
                 }
             }
@@ -176,9 +178,9 @@ export class Accidental extends Modifier {
             columnWidths[i] = 0;
             columnXOffsets[i] = 0;
         }
-        columnWidths[0] = accShift + leftShift;
-        columnXOffsets[0] = accShift + leftShift;
-        lineList.forEach((line) => {
+        columnWidths[0] = leftShift + maxExtraXSpaceNeeded;
+        columnXOffsets[0] = leftShift;
+        staveLineAccidentalLayoutMetrics.forEach((line) => {
             if (line.width > columnWidths[line.column])
                 columnWidths[line.column] = line.width;
         });
@@ -187,17 +189,17 @@ export class Accidental extends Modifier {
         }
         const totalShift = columnXOffsets[columnXOffsets.length - 1];
         let accCount = 0;
-        lineList.forEach((line) => {
+        staveLineAccidentalLayoutMetrics.forEach((line) => {
             let lineWidth = 0;
             const lastAccOnLine = accCount + line.numAcc;
             for (accCount; accCount < lastAccOnLine; accCount++) {
-                const xShift = columnXOffsets[line.column - 1] + lineWidth;
-                accList[accCount].acc.setXShift(xShift);
-                lineWidth += accList[accCount].acc.getWidth() + accidentalSpacing;
+                const xShift = columnXOffsets[line.column - 1] + lineWidth + maxExtraXSpaceNeeded;
+                accidentalLinePositionsAndSpaceNeeds[accCount].acc.setXShift(xShift);
+                lineWidth += accidentalLinePositionsAndSpaceNeeds[accCount].acc.getWidth() + accidentalSpacing;
                 L('Line, accCount, shift: ', line.line, accCount, xShift);
             }
         });
-        state.left_shift += totalShift + additionalPadding;
+        state.left_shift = totalShift + additionalPadding;
     }
     static checkCollision(line1, line2) {
         let clearance = line2.line - line1.line;
@@ -279,6 +281,21 @@ export class Accidental extends Modifier {
             tickables.forEach(processNote);
         });
     }
+    constructor(type) {
+        super();
+        L('New accidental: ', type);
+        this.type = type;
+        this.position = Modifier.Position.LEFT;
+        this.render_options = {
+            font_scale: Tables.NOTATION_FONT_SCALE,
+            parenLeftPadding: 2,
+            parenRightPadding: 2,
+        };
+        this.accidental = Tables.accidentalCodes(this.type);
+        defined(this.accidental, 'ArgumentError', `Unknown accidental type: ${type}`);
+        this.cautionary = false;
+        this.reset();
+    }
     reset() {
         const fontScale = this.render_options.font_scale;
         this.glyph = new Glyph(this.accidental.code, fontScale);
@@ -346,3 +363,4 @@ export class Accidental extends Modifier {
     }
 }
 Accidental.DEBUG = false;
+export { Accidental };

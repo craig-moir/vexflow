@@ -82,7 +82,7 @@ function simple(options) {
     const metrics = context.measureText(str);
     context.fillText(str, xs.left + (xs.right - xs.left) * 0.5 - metrics.width * 0.5, strY);
     context.restore();
-    ok(true, 'Simple Test');
+    options.assert.ok(true, 'Simple Test');
 }
 function staveWithModifiers(options) {
     const width = 910;
@@ -135,7 +135,7 @@ function staveWithModifiers(options) {
         return f.MultiMeasureRest(mmrestParams).setStave(stave);
     });
     f.draw();
-    ok(true, 'Stave with modifiers Test');
+    options.assert.ok(true, 'Stave with modifiers Test');
 }
 VexFlowTests.register(MultiMeasureRestTests);
 export { MultiMeasureRestTests };

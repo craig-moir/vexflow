@@ -3,13 +3,6 @@ import { Stem } from './stem.js';
 import { Tables } from './tables.js';
 import { RuntimeError } from './util.js';
 export class GraceNote extends StaveNote {
-    constructor(noteStruct) {
-        super(Object.assign({ glyph_font_scale: Tables.NOTATION_FONT_SCALE * GraceNote.SCALE, stroke_px: GraceNote.LEDGER_LINE_OFFSET }, noteStruct));
-        this.slash = noteStruct.slash || false;
-        this.slur = true;
-        this.buildNoteHeads();
-        this.width = 0;
-    }
     static get CATEGORY() {
         return "GraceNote";
     }
@@ -19,14 +12,21 @@ export class GraceNote extends StaveNote {
     static get SCALE() {
         return 0.45;
     }
+    constructor(noteStruct) {
+        super(Object.assign({ glyph_font_scale: Tables.NOTATION_FONT_SCALE * GraceNote.SCALE, stroke_px: GraceNote.LEDGER_LINE_OFFSET }, noteStruct));
+        this.slash = noteStruct.slash || false;
+        this.slur = true;
+        this.buildNoteHeads();
+        this.width = 0;
+    }
     getStemExtension() {
         if (this.stem_extension_override) {
             return this.stem_extension_override;
         }
-        const glyph = this.getGlyph();
-        if (glyph) {
+        const glyphProps = this.getGlyphProps();
+        if (glyphProps) {
             let ret = super.getStemExtension();
-            if (glyph.stem) {
+            if (glyphProps.stem) {
                 const staveNoteScale = this.getStaveNoteScale();
                 ret = (Stem.HEIGHT + ret) * staveNoteScale - Stem.HEIGHT;
             }
@@ -63,7 +63,7 @@ export class GraceNote extends StaveNote {
                 let y = stem_direction === Stem.DOWN
                     ? noteHeadBounds.y_top - noteStemHeight
                     : noteHeadBounds.y_bottom - noteStemHeight;
-                const defaultStemExtention = stem_direction === Stem.DOWN ? this.glyph.stem_down_extension : this.glyph.stem_up_extension;
+                const defaultStemExtention = stem_direction === Stem.DOWN ? this.glyphProps.stem_down_extension : this.glyphProps.stem_up_extension;
                 let defaultOffsetY = Tables.STEM_HEIGHT;
                 defaultOffsetY -= defaultOffsetY / 2.8;
                 defaultOffsetY += defaultStemExtention;

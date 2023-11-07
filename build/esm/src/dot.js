@@ -2,13 +2,6 @@ import { Modifier } from './modifier.js';
 import { isGraceNote, isStaveNote, isTabNote } from './typeguard.js';
 import { RuntimeError } from './util.js';
 export class Dot extends Modifier {
-    constructor() {
-        super();
-        this.position = Modifier.Position.RIGHT;
-        this.radius = 2;
-        this.setWidth(5);
-        this.dot_shiftY = 0;
-    }
     static get CATEGORY() {
         return "Dot";
     }
@@ -20,18 +13,18 @@ export class Dot extends Modifier {
             if (options === null || options === void 0 ? void 0 : options.all) {
                 for (let i = 0; i < note.keys.length; i++) {
                     const dot = new Dot();
-                    dot.setDotShiftY(note.glyph.dot_shiftY);
+                    dot.setDotShiftY(note.glyphProps.dot_shiftY);
                     note.addModifier(dot, i);
                 }
             }
             else if ((options === null || options === void 0 ? void 0 : options.index) != undefined) {
                 const dot = new Dot();
-                dot.setDotShiftY(note.glyph.dot_shiftY);
+                dot.setDotShiftY(note.glyphProps.dot_shiftY);
                 note.addModifier(dot, options === null || options === void 0 ? void 0 : options.index);
             }
             else {
                 const dot = new Dot();
-                dot.setDotShiftY(note.glyph.dot_shiftY);
+                dot.setDotShiftY(note.glyphProps.dot_shiftY);
                 note.addModifier(dot, 0);
             }
         }
@@ -105,6 +98,13 @@ export class Dot extends Modifier {
         }
         state.right_shift += x_width;
         return true;
+    }
+    constructor() {
+        super();
+        this.position = Modifier.Position.RIGHT;
+        this.radius = 2;
+        this.setWidth(5);
+        this.dot_shiftY = 0;
     }
     setNote(note) {
         this.note = note;

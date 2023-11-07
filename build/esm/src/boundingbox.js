@@ -1,12 +1,12 @@
 export class BoundingBox {
+    static copy(that) {
+        return new BoundingBox(that.x, that.y, that.w, that.h);
+    }
     constructor(x, y, w, h) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
-    }
-    static copy(that) {
-        return new BoundingBox(that.x, that.y, that.w, that.h);
     }
     getX() {
         return this.x;

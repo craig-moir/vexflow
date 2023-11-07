@@ -48,7 +48,7 @@ function basic(options) {
     f.draw();
     notes.forEach((note) => Note.plotMetrics(ctx, note, 150));
     VexFlowTests.plotLegendForNoteWidth(ctx, 620, 120);
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function multiVoiceSingleDraw(options) {
     multiVoiceHelper(options, 1);
@@ -93,7 +93,7 @@ function multiVoiceHelper(options, numDraws) {
         f.draw();
     }
     notes1.forEach((note) => Note.plotMetrics(ctx, note, 150));
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function multiStaff(options) {
     const f = VexFlowTests.makeFactory(options, 550, 400);
@@ -143,7 +143,7 @@ function multiStaff(options) {
     const voice3 = f.Voice().addTickables(notes3);
     f.Formatter().joinVoices([voice1, voice2]).joinVoices([voice3]).formatToStave([voice1, voice2, voice3], stave1);
     f.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 VexFlowTests.register(NoteSubGroupTests);
 export { NoteSubGroupTests };

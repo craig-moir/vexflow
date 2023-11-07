@@ -59,12 +59,15 @@ function keys(options, contextBuilder) {
             keySig = new KeySignature(keys[sharp]);
             keySig.addToStave(staves[i + clefs.length]);
         }
+    }
+    Stave.formatBegModifiers(staves);
+    for (i = 0; i < clefs.length; i++) {
         staves[i].setContext(ctx);
         staves[i].draw();
         staves[i + clefs.length].setContext(ctx);
         staves[i + clefs.length].draw();
     }
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function staveHelper(options, contextBuilder) {
     const w = fontWidths();
@@ -97,7 +100,7 @@ function staveHelper(options, contextBuilder) {
     stave3.draw();
     stave4.setContext(ctx);
     stave4.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 VexFlowTests.register(ClefKeySignatureTests);
 export { ClefKeySignatureTests };

@@ -18,7 +18,7 @@ function L(...args) {
     if (ModifierContext.DEBUG)
         log('Vex.Flow.ModifierContext', args);
 }
-export class ModifierContext {
+class ModifierContext {
     constructor() {
         this.state = {
             left_shift: 0,
@@ -108,3 +108,4 @@ export class ModifierContext {
     }
 }
 ModifierContext.DEBUG = false;
+export { ModifierContext };

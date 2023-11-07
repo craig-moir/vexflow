@@ -20,10 +20,7 @@ export var FontStyle;
 })(FontStyle || (FontStyle = {}));
 let fontParser;
 const Fonts = {};
-export class Font {
-    constructor(fontName) {
-        this.name = fontName;
-    }
+class Font {
     static convertSizeToPixelValue(fontSize = Font.SIZE) {
         var _a;
         if (typeof fontSize === 'number') {
@@ -202,6 +199,9 @@ export class Font {
         }
         return font;
     }
+    constructor(fontName) {
+        this.name = fontName;
+    }
     getName() {
         return this.name;
     }
@@ -260,3 +260,4 @@ Font.WEB_FONT_FILES = {
     'Roboto Slab': 'robotoslab/RobotoSlab-Medium_2.001.woff',
     PetalumaScript: 'petaluma/PetalumaScript_1.10_FS.woff',
 };
+export { Font };

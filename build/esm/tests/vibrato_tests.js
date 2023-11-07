@@ -13,8 +13,6 @@ const tabNote = (noteStruct) => new TabNote(noteStruct);
 function simple(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 500, 240);
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     ctx.font = '10pt Arial';
     const stave = new TabStave(10, 10, 450).addTabGlyph().setContext(ctx).draw();
     const notes = [
@@ -31,13 +29,11 @@ function simple(options, contextBuilder) {
         }).addModifier(new Vibrato(), 0),
     ];
     Formatter.FormatAndDraw(ctx, stave, notes);
-    ok(true, 'Simple Vibrato');
+    options.assert.ok(true, 'Simple Vibrato');
 }
 function harsh(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 500, 240);
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     ctx.font = '10pt Arial';
     const stave = new TabStave(10, 10, 450).addTabGlyph().setContext(ctx).draw();
     const notes = [
@@ -54,13 +50,11 @@ function harsh(options, contextBuilder) {
         }).addModifier(new Vibrato().setHarsh(true), 0),
     ];
     Formatter.FormatAndDraw(ctx, stave, notes);
-    ok(true, 'Harsh Vibrato');
+    options.assert.ok(true, 'Harsh Vibrato');
 }
 function withBend(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 500, 240);
     ctx.scale(1.3, 1.3);
-    ctx.setFillStyle('#221');
-    ctx.setStrokeStyle('#221');
     ctx.setFont(Font.SANS_SERIF, VexFlowTests.Font.size);
     const stave = new TabStave(10, 10, 450).addTabGlyph().setContext(ctx).draw();
     const notes = [
@@ -86,7 +80,7 @@ function withBend(options, contextBuilder) {
         }).addModifier(new Vibrato().setVibratoWidth(120).setHarsh(true), 0),
     ];
     Formatter.FormatAndDraw(ctx, stave, notes);
-    ok(true, 'Vibrato with Bend');
+    options.assert.ok(true, 'Vibrato with Bend');
 }
 VexFlowTests.register(VibratoTests);
 export { VibratoTests };

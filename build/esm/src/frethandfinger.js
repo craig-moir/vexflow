@@ -3,18 +3,7 @@ import { Modifier, ModifierPosition } from './modifier.js';
 import { Tables } from './tables.js';
 import { TextFormatter } from './textformatter.js';
 import { RuntimeError } from './util.js';
-export class FretHandFinger extends Modifier {
-    constructor(finger) {
-        super();
-        this.finger = finger;
-        this.width = 7;
-        this.position = Modifier.Position.LEFT;
-        this.x_shift = 0;
-        this.y_shift = 0;
-        this.x_offset = 0;
-        this.y_offset = 0;
-        this.resetFont();
-    }
+class FretHandFinger extends Modifier {
     static get CATEGORY() {
         return "FretHandFinger";
     }
@@ -102,6 +91,17 @@ export class FretHandFinger extends Modifier {
             return builder.getFactory().Fingering(params);
         }).map((fingering, index) => note.addModifier(fingering, index));
     }
+    constructor(finger) {
+        super();
+        this.finger = finger;
+        this.width = 7;
+        this.position = Modifier.Position.LEFT;
+        this.x_shift = 0;
+        this.y_shift = 0;
+        this.x_offset = 0;
+        this.y_offset = 0;
+        this.resetFont();
+    }
     setFretHandFinger(finger) {
         this.finger = finger;
         return this;
@@ -154,3 +154,4 @@ FretHandFinger.TEXT_FONT = {
     weight: FontWeight.BOLD,
     style: FontStyle.NORMAL,
 };
+export { FretHandFinger };

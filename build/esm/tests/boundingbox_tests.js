@@ -3,20 +3,20 @@ import { BoundingBox } from '../src/index.js';
 const BoundingBoxTests = {
     Start() {
         QUnit.module('BoundingBox');
-        test('Initialization Test', initialization);
-        test('Merging Text', merging);
+        QUnit.test('Initialization Test', initialization);
+        QUnit.test('Merging Text', merging);
     },
 };
-function initialization() {
+function initialization(assert) {
     const bb = new BoundingBox(4, 5, 6, 7);
-    equal(bb.getX(), 4, 'Bad X');
-    equal(bb.getY(), 5, 'Bad Y');
-    equal(bb.getW(), 6, 'Bad W');
-    equal(bb.getH(), 7, 'Bad H');
+    assert.equal(bb.getX(), 4, 'Bad X');
+    assert.equal(bb.getY(), 5, 'Bad Y');
+    assert.equal(bb.getW(), 6, 'Bad W');
+    assert.equal(bb.getH(), 7, 'Bad H');
     bb.setX(5);
-    equal(bb.getX(), 5, 'Bad X');
+    assert.equal(bb.getX(), 5, 'Bad X');
 }
-function merging() {
+function merging(assert) {
     const tests = [
         {
             type: 'Intersection',
@@ -43,10 +43,10 @@ function merging() {
         const bb2 = test.bb2;
         const merged = test.merged;
         bb1.mergeWith(bb2);
-        equal(bb1.getX(), merged.getX(), type + ' - Bad X');
-        equal(bb1.getY(), merged.getY(), type + ' - Bad Y');
-        equal(bb1.getW(), merged.getW(), type + ' - Bad W');
-        equal(bb1.getH(), merged.getH(), type + ' - Bad H');
+        assert.equal(bb1.getX(), merged.getX(), type + ' - Bad X');
+        assert.equal(bb1.getY(), merged.getY(), type + ' - Bad Y');
+        assert.equal(bb1.getW(), merged.getW(), type + ' - Bad W');
+        assert.equal(bb1.getH(), merged.getH(), type + ' - Bad H');
     });
 }
 VexFlowTests.register(BoundingBoxTests);

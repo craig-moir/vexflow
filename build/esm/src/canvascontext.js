@@ -3,20 +3,6 @@ import { RenderContext } from './rendercontext.js';
 import { globalObject, warn } from './util.js';
 import { isHTMLCanvas } from './web.js';
 export class CanvasContext extends RenderContext {
-    constructor(context) {
-        super();
-        this.textHeight = 0;
-        this.context2D = context;
-        if (!context.canvas) {
-            this.canvas = {
-                width: CanvasContext.WIDTH,
-                height: CanvasContext.HEIGHT,
-            };
-        }
-        else {
-            this.canvas = context.canvas;
-        }
-    }
     static get WIDTH() {
         return 600;
     }
@@ -38,6 +24,20 @@ export class CanvasContext extends RenderContext {
             }
         }
         return [width, height];
+    }
+    constructor(context) {
+        super();
+        this.textHeight = 0;
+        this.context2D = context;
+        if (!context.canvas) {
+            this.canvas = {
+                width: CanvasContext.WIDTH,
+                height: CanvasContext.HEIGHT,
+            };
+        }
+        else {
+            this.canvas = context.canvas;
+        }
     }
     clear() {
         this.context2D.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -85,19 +85,20 @@ export class CanvasContext extends RenderContext {
         this.context2D.scale(x, y);
         return this;
     }
-    resize(width, height) {
+    resize(width, height, devicePixelRatio) {
+        var _a;
         const canvas = this.context2D.canvas;
-        const devicePixelRatio = globalObject().devicePixelRatio || 1;
-        [width, height] = CanvasContext.sanitizeCanvasDims(width * devicePixelRatio, height * devicePixelRatio);
-        width = (width / devicePixelRatio) | 0;
-        height = (height / devicePixelRatio) | 0;
-        canvas.width = width * devicePixelRatio;
-        canvas.height = height * devicePixelRatio;
+        const dpr = (_a = devicePixelRatio !== null && devicePixelRatio !== void 0 ? devicePixelRatio : globalObject().devicePixelRatio) !== null && _a !== void 0 ? _a : 1;
+        [width, height] = CanvasContext.sanitizeCanvasDims(width * dpr, height * dpr);
+        width = (width / dpr) | 0;
+        height = (height / dpr) | 0;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
         if (isHTMLCanvas(canvas)) {
             canvas.style.width = width + 'px';
             canvas.style.height = height + 'px';
         }
-        return this.scale(devicePixelRatio, devicePixelRatio);
+        return this.scale(dpr, dpr);
     }
     rect(x, y, width, height) {
         this.context2D.rect(x, y, width, height);

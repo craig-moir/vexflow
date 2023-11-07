@@ -1,14 +1,9 @@
 import { Glyph } from './glyph.js';
 import { Modifier, ModifierPosition } from './modifier.js';
+import { Note } from './note.js';
 import { Tables } from './tables.js';
 import { isGraceNote } from './typeguard.js';
 export class Parenthesis extends Modifier {
-    constructor(position) {
-        super();
-        this.position = position !== null && position !== void 0 ? position : Modifier.Position.LEFT;
-        this.point = Tables.currentMusicFont().lookupMetric('parenthesis.default.point');
-        this.setWidth(Tables.currentMusicFont().lookupMetric('parenthesis.default.width'));
-    }
     static get CATEGORY() {
         return "Parenthesis";
     }
@@ -45,12 +40,20 @@ export class Parenthesis extends Modifier {
         state.right_shift += x_widthR;
         return true;
     }
+    constructor(position) {
+        var _a;
+        super();
+        this.position = position !== null && position !== void 0 ? position : Modifier.Position.LEFT;
+        this.point = (_a = Tables.currentMusicFont().lookupMetric('parenthesis.default.point')) !== null && _a !== void 0 ? _a : Note.getPoint('default');
+        this.setWidth(Tables.currentMusicFont().lookupMetric('parenthesis.default.width'));
+    }
     setNote(note) {
+        var _a, _b;
         this.note = note;
-        this.point = Tables.currentMusicFont().lookupMetric('parenthesis.default.point');
+        this.point = (_a = Tables.currentMusicFont().lookupMetric('parenthesis.default.point')) !== null && _a !== void 0 ? _a : Note.getPoint('default');
         this.setWidth(Tables.currentMusicFont().lookupMetric('parenthesis.default.width'));
         if (isGraceNote(note)) {
-            this.point = Tables.currentMusicFont().lookupMetric('parenthesis.gracenote.point');
+            this.point = (_b = Tables.currentMusicFont().lookupMetric('parenthesis.gracenote.point')) !== null && _b !== void 0 ? _b : Note.getPoint('gracenote');
             this.setWidth(Tables.currentMusicFont().lookupMetric('parenthesis.gracenote.width'));
         }
         return this;

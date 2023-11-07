@@ -1,6 +1,6 @@
-export declare type Match = string | Match[] | null;
-export declare type RuleFunction = () => Rule;
-export declare type TriggerFunction = (state?: {
+export type Match = string | Match[] | null;
+export type RuleFunction = () => Rule;
+export type TriggerFunction = (state?: {
     matches: Match[];
 }) => void;
 export interface Rule {
@@ -23,7 +23,7 @@ export interface Result {
     results?: GroupedResults;
     errorPos?: number;
 }
-export declare type GroupedResults = (Result | Result[])[];
+export type GroupedResults = (Result | Result[])[];
 export interface Grammar {
     begin(): RuleFunction;
 }

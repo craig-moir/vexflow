@@ -127,16 +127,7 @@ function getInitialOffset(note, position) {
         }
     }
 }
-export class Articulation extends Modifier {
-    constructor(type) {
-        super();
-        this.type = type;
-        this.position = BELOW;
-        this.render_options = {
-            font_scale: 38,
-        };
-        this.reset();
-    }
+class Articulation extends Modifier {
     static get CATEGORY() {
         return "Articulation";
     }
@@ -148,7 +139,7 @@ export class Articulation extends Modifier {
         const getIncrement = (articulation, line, position) => roundToNearestHalf(getRoundingFunction(line, position), defined(articulation.glyph.getMetrics().height) / 10 + margin);
         articulations.forEach((articulation) => {
             const note = articulation.checkAttachedNote();
-            maxGlyphWidth = Math.max(note.getGlyph().getWidth(), maxGlyphWidth);
+            maxGlyphWidth = Math.max(note.getGlyphProps().getWidth(), maxGlyphWidth);
             let lines = 5;
             const stemDirection = note.hasStem() ? note.getStemDirection() : Stem.UP;
             let stemHeight = 0;
@@ -216,12 +207,32 @@ export class Articulation extends Modifier {
         })
             .map((artic) => note.addModifier(artic, 0));
     }
+    constructor(type) {
+        super();
+        this.type = type;
+        this.position = ABOVE;
+        this.render_options = {
+            font_scale: Tables.NOTATION_FONT_SCALE,
+        };
+        this.reset();
+    }
     reset() {
         this.articulation = Tables.articulationCodes(this.type);
-        const articulation = defined(this.articulation, 'ArgumentError', `Articulation not found: ${this.type}`);
-        const code = (this.position === ABOVE ? articulation.aboveCode : articulation.belowCode) || articulation.code;
+        if (!this.articulation) {
+            this.articulation = { code: this.type, between_lines: false };
+            if (this.type.endsWith('Above'))
+                this.position = ABOVE;
+            if (this.type.endsWith('Below'))
+                this.position = BELOW;
+        }
+        const code = (this.position === ABOVE ? this.articulation.aboveCode : this.articulation.belowCode) || this.articulation.code;
         this.glyph = new Glyph(code !== null && code !== void 0 ? code : '', this.render_options.font_scale);
+        defined(this.glyph, 'ArgumentError', `Articulation not found: ${this.type}`);
         this.setWidth(defined(this.glyph.getMetrics().width));
+    }
+    setBetweenLines(betweenLines = true) {
+        this.articulation.between_lines = betweenLines;
+        return this;
     }
     draw() {
         const ctx = this.checkContext();
@@ -265,3 +276,4 @@ export class Articulation extends Modifier {
 }
 Articulation.DEBUG = false;
 Articulation.INITIAL_OFFSET = -0.5;
+export { Articulation };

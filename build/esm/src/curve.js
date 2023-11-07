@@ -6,15 +6,6 @@ export var CurvePosition;
     CurvePosition[CurvePosition["NEAR_TOP"] = 2] = "NEAR_TOP";
 })(CurvePosition || (CurvePosition = {}));
 export class Curve extends Element {
-    constructor(from, to, options) {
-        super();
-        this.render_options = Object.assign({ thickness: 2, x_shift: 0, y_shift: 10, position: CurvePosition.NEAR_HEAD, position_end: CurvePosition.NEAR_HEAD, invert: false, cps: [
-                { x: 0, y: 10 },
-                { x: 0, y: 10 },
-            ] }, options);
-        this.from = from;
-        this.to = to;
-    }
     static get CATEGORY() {
         return "Curve";
     }
@@ -26,6 +17,15 @@ export class Curve extends Element {
             nearHead: CurvePosition.NEAR_HEAD,
             nearTop: CurvePosition.NEAR_TOP,
         };
+    }
+    constructor(from, to, options) {
+        super();
+        this.render_options = Object.assign({ thickness: 2, x_shift: 0, y_shift: 10, position: CurvePosition.NEAR_HEAD, position_end: CurvePosition.NEAR_HEAD, invert: false, cps: [
+                { x: 0, y: 10 },
+                { x: 0, y: 10 },
+            ] }, options);
+        this.from = from;
+        this.to = to;
     }
     setNotes(from, to) {
         if (!from && !to) {

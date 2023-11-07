@@ -1,7 +1,7 @@
-import { GonvilleFont } from '../src/fonts/gonville_glyphs.js';
-import { GonvilleMetrics } from '../src/fonts/gonville_metrics.js';
+import { CommonMetrics } from '../src/fonts/common_metrics.js';
+import { GonvilleSmuflFont } from '../src/fonts/gonville_glyphs.js';
 export const Font = {
-    data: GonvilleFont,
-    metrics: GonvilleMetrics,
+    data: GonvilleSmuflFont,
+    metrics: CommonMetrics,
 };
 export default Font;

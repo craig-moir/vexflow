@@ -13,6 +13,7 @@ const StringNumberTests = {
         run('Fret Hand Finger In Notation', drawFretHandFingers);
         run('Multi Voice With Strokes, String & Finger Numbers', multi);
         run('Complex Measure With String & Finger Numbers', drawAccidentals);
+        run('Shifted Notehead, Multiple Modifiers', shiftedNoteheadMultipleModifiers);
     },
 };
 function drawMultipleMeasures(options) {
@@ -80,7 +81,7 @@ function drawMultipleMeasures(options) {
     const voice3 = score.voice(notesBar3, { time: '6/4' });
     f.Formatter().joinVoices([voice3]).formatToStave([voice3], stave3);
     f.draw();
-    ok(true, 'String Number');
+    options.assert.ok(true, 'String Number');
 }
 function drawFretHandFingers(options) {
     const f = VexFlowTests.makeFactory(options, 725, 200);
@@ -145,7 +146,7 @@ function drawFretHandFingers(options) {
     const voice2 = score.voice(notes2);
     f.Formatter().joinVoices([voice2]).formatToStave([voice2], stave2);
     f.draw();
-    ok(true, 'String Number');
+    options.assert.ok(true, 'String Number');
 }
 function multi(options) {
     const f = VexFlowTests.makeFactory(options, 700, 200);
@@ -189,7 +190,7 @@ function multi(options) {
     f.Beam({ notes: notes2.slice(0, 4) });
     f.Beam({ notes: notes2.slice(4, 8) });
     f.draw();
-    ok(true, 'Strokes Test Multi Voice');
+    options.assert.ok(true, 'Strokes Test Multi Voice');
 }
 function drawAccidentals(options) {
     const f = VexFlowTests.makeFactory(options, 750);
@@ -258,7 +259,25 @@ function drawAccidentals(options) {
         .addClef('treble')
         .draw();
     voice.draw(ctx, stave);
-    ok(true, 'String Number');
+    options.assert.ok(true, 'String Number');
+}
+function shiftedNoteheadMultipleModifiers(options) {
+    const f = VexFlowTests.makeFactory(options, 900, 150);
+    const score = f.EasyScore();
+    score.set({ time: '6/4' });
+    const stave = f.Stave({ width: 900 }).setEndBarType(BarlineType.END).addClef('treble');
+    const notes = ['A4 B4', 'B4 C5', 'A4 B#4', 'B4 C#5', 'A#4 B#4', 'B#4 C#5']
+        .map((keys) => score.notes(`(${keys})/q`))
+        .flat();
+    notes.forEach((note) => {
+        note
+            .addModifier(f.StringNumber({ number: '2', position: 'left' }, true), 1)
+            .addModifier(f.StringNumber({ number: '2', position: 'right' }, true), 1);
+    });
+    const voice = score.voice(notes);
+    f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
+    f.draw();
+    options.assert.ok(true, 'String Number');
 }
 VexFlowTests.register(StringNumberTests);
 export { StringNumberTests };

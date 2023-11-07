@@ -2,7 +2,10 @@ import { Font, FontStyle, FontWeight } from './font.js';
 import { StaveModifier, StaveModifierPosition } from './stavemodifier.js';
 import { TextJustification, TextNote } from './textnote.js';
 import { RuntimeError } from './util.js';
-export class StaveText extends StaveModifier {
+class StaveText extends StaveModifier {
+    static get CATEGORY() {
+        return "StaveText";
+    }
     constructor(text, position, options = {}) {
         super();
         this.setWidth(16);
@@ -10,9 +13,6 @@ export class StaveText extends StaveModifier {
         this.position = position;
         this.options = Object.assign({ shift_x: 0, shift_y: 0, justification: TextNote.Justification.CENTER }, options);
         this.resetFont();
-    }
-    static get CATEGORY() {
-        return "StaveText";
     }
     setStaveText(text) {
         this.text = text;
@@ -80,3 +80,4 @@ StaveText.TEXT_FONT = {
     weight: FontWeight.NORMAL,
     style: FontStyle.NORMAL,
 };
+export { StaveText };

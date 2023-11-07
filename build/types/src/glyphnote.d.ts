@@ -8,10 +8,13 @@ export interface GlyphNoteOptions {
 export declare class GlyphNote extends Note {
     static get CATEGORY(): string;
     protected options: Required<GlyphNoteOptions>;
-    constructor(glyph: Glyph | undefined, noteStruct: NoteStruct, options?: GlyphNoteOptions);
+    protected glyph: Glyph;
+    constructor(glyph: Glyph, noteStruct: NoteStruct, options?: GlyphNoteOptions);
     setGlyph(glyph: Glyph): this;
-    getBoundingBox(): BoundingBox;
+    getBoundingBox(): BoundingBox | undefined;
     preFormat(): this;
     drawModifiers(): void;
+    /** Get the glyph width. */
+    getGlyphWidth(): number;
     draw(): void;
 }

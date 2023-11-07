@@ -1,7 +1,22 @@
 import { Font, FontStyle, FontWeight } from './font.js';
 import { TabTie } from './tabtie.js';
 import { RuntimeError } from './util.js';
-export class TabSlide extends TabTie {
+class TabSlide extends TabTie {
+    static get CATEGORY() {
+        return "TabSlide";
+    }
+    static get SLIDE_UP() {
+        return 1;
+    }
+    static get SLIDE_DOWN() {
+        return -1;
+    }
+    static createSlideUp(notes) {
+        return new TabSlide(notes, TabSlide.SLIDE_UP);
+    }
+    static createSlideDown(notes) {
+        return new TabSlide(notes, TabSlide.SLIDE_DOWN);
+    }
     constructor(notes, direction) {
         super(notes, 'sl.');
         if (!direction) {
@@ -25,21 +40,6 @@ export class TabSlide extends TabTie {
         this.render_options.cp2 = 14;
         this.render_options.y_shift = 0.5;
         this.resetFont();
-    }
-    static get CATEGORY() {
-        return "TabSlide";
-    }
-    static get SLIDE_UP() {
-        return 1;
-    }
-    static get SLIDE_DOWN() {
-        return -1;
-    }
-    static createSlideUp(notes) {
-        return new TabSlide(notes, TabSlide.SLIDE_UP);
-    }
-    static createSlideDown(notes) {
-        return new TabSlide(notes, TabSlide.SLIDE_DOWN);
     }
     renderTie(params) {
         if (params.first_ys.length === 0 || params.last_ys.length === 0) {
@@ -74,3 +74,4 @@ TabSlide.TEXT_FONT = {
     weight: FontWeight.BOLD,
     style: FontStyle.ITALIC,
 };
+export { TabSlide };

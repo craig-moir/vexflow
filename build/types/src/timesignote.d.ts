@@ -1,9 +1,9 @@
 import { ModifierContext } from './modifiercontext';
 import { Note } from './note';
-import { TimeSignatureInfo } from './timesignature';
+import { TimeSignature } from './timesignature';
 export declare class TimeSigNote extends Note {
     static get CATEGORY(): string;
-    protected timeSigInfo: TimeSignatureInfo;
+    protected timeSig: TimeSignature;
     constructor(timeSpec: string, customPadding?: number);
     addToModifierContext(mc: ModifierContext): this;
     preFormat(): this;

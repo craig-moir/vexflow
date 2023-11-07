@@ -51,7 +51,7 @@ function simpleAuto(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beaming Applicator Test');
+    options.assert.ok(true, 'Auto Beaming Applicator Test');
 }
 function simpleAutoWithOverflowGroup(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -64,7 +64,7 @@ function simpleAutoWithOverflowGroup(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beaming Applicator Test');
+    options.assert.ok(true, 'Auto Beaming Applicator Test');
 }
 function evenGroupStemDirections(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -75,13 +75,13 @@ function evenGroupStemDirections(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    equal(beams[0].getStemDirection(), Stem.UP);
-    equal(beams[1].getStemDirection(), Stem.UP);
-    equal(beams[2].getStemDirection(), Stem.UP);
-    equal(beams[3].getStemDirection(), Stem.UP);
-    equal(beams[4].getStemDirection(), Stem.DOWN);
-    equal(beams[5].getStemDirection(), Stem.DOWN);
-    ok(true, 'Auto Beaming Applicator Test');
+    options.assert.equal(beams[0].getStemDirection(), Stem.UP);
+    options.assert.equal(beams[1].getStemDirection(), Stem.UP);
+    options.assert.equal(beams[2].getStemDirection(), Stem.UP);
+    options.assert.equal(beams[3].getStemDirection(), Stem.UP);
+    options.assert.equal(beams[4].getStemDirection(), Stem.DOWN);
+    options.assert.equal(beams[5].getStemDirection(), Stem.DOWN);
+    options.assert.ok(true, 'Auto Beaming Applicator Test');
 }
 function oddGroupStemDirections(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -92,14 +92,14 @@ function oddGroupStemDirections(options) {
     });
     const groups = [new Fraction(3, 8)];
     const beams = Beam.applyAndGetBeams(voice, undefined, groups);
-    equal(beams[0].getStemDirection(), Stem.DOWN, 'Notes are equidistant from middle line');
-    equal(beams[1].getStemDirection(), Stem.DOWN);
-    equal(beams[2].getStemDirection(), Stem.UP);
-    equal(beams[3].getStemDirection(), Stem.DOWN, 'Notes are equidistant from middle line');
+    options.assert.equal(beams[0].getStemDirection(), Stem.DOWN, 'Notes are equidistant from middle line');
+    options.assert.equal(beams[1].getStemDirection(), Stem.DOWN);
+    options.assert.equal(beams[2].getStemDirection(), Stem.UP);
+    options.assert.equal(beams[3].getStemDirection(), Stem.DOWN, 'Notes are equidistant from middle line');
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beaming Applicator Test');
+    options.assert.ok(true, 'Auto Beaming Applicator Test');
 }
 function oddBeamGroups(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -111,7 +111,7 @@ function oddBeamGroups(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function moreSimple0(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -122,7 +122,7 @@ function moreSimple0(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function moreSimple1(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -133,7 +133,7 @@ function moreSimple1(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function breakBeamsOnRests(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -146,7 +146,7 @@ function breakBeamsOnRests(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function beamAcrossAllRestsWithStemlets(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -160,7 +160,7 @@ function beamAcrossAllRestsWithStemlets(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function beamAcrossAllRests(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -173,7 +173,7 @@ function beamAcrossAllRests(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function beamAcrossMiddleRests(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -187,7 +187,7 @@ function beamAcrossMiddleRests(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function maintainStemDirections(options) {
     const f = VexFlowTests.makeFactory(options, 450, 200);
@@ -206,7 +206,7 @@ function maintainStemDirections(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function maintainStemDirectionsBeamAcrossRests(options) {
     const f = VexFlowTests.makeFactory(options, 450, 200);
@@ -225,7 +225,7 @@ function maintainStemDirectionsBeamAcrossRests(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function groupWithUnbeamableNote(options) {
     const f = VexFlowTests.makeFactory(options, 450, 200);
@@ -240,7 +240,7 @@ function groupWithUnbeamableNote(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function groupWithUnbeamableNote1(options) {
     const f = VexFlowTests.makeFactory(options, 450, 200);
@@ -255,7 +255,7 @@ function groupWithUnbeamableNote1(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function autoOddBeamGroups(options) {
     const f = VexFlowTests.makeFactory(options, 450, 400);
@@ -277,7 +277,7 @@ function autoOddBeamGroups(options) {
     Stave.formatBegModifiers([stave1, stave2, stave3]);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function customBeamGroups(options) {
     const f = VexFlowTests.makeFactory(options, 450, 400);
@@ -300,7 +300,7 @@ function customBeamGroups(options) {
     Stave.formatBegModifiers([stave1, stave2, stave3]);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function createShortcuts(score) {
     return {
@@ -322,7 +322,7 @@ function simpleTuplets(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function moreSimpleTuplets(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -334,7 +334,7 @@ function moreSimpleTuplets(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function moreBeaming(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -345,7 +345,7 @@ function moreBeaming(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function beamingWithSeveralGroups1(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -356,7 +356,7 @@ function beamingWithSeveralGroups1(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function beamingWithSeveralGroupsOverflow(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -367,7 +367,7 @@ function beamingWithSeveralGroupsOverflow(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function beamingWithSeveralGroupsOverflow2(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -380,7 +380,7 @@ function beamingWithSeveralGroupsOverflow2(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function beamingWithSeveralGroupsOverflow3(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -391,7 +391,7 @@ function beamingWithSeveralGroupsOverflow3(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Auto Beam Applicator Test');
+    options.assert.ok(true, 'Auto Beam Applicator Test');
 }
 function secondaryBreaks1(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -407,7 +407,7 @@ function secondaryBreaks1(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Duration-Based Secondary Breaks Test');
+    options.assert.ok(true, 'Duration-Based Secondary Breaks Test');
 }
 function secondaryBreaks2(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -427,7 +427,7 @@ function secondaryBreaks2(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Duration-Based Secondary Breaks Test');
+    options.assert.ok(true, 'Duration-Based Secondary Breaks Test');
 }
 function flatBeamsUp(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -447,7 +447,7 @@ function flatBeamsUp(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Flat Beams Up Test');
+    options.assert.ok(true, 'Flat Beams Up Test');
 }
 function flatBeamsDown(options) {
     const f = VexFlowTests.makeFactory(options, 450, 200);
@@ -461,7 +461,7 @@ function flatBeamsDown(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Flat Beams Down Test');
+    options.assert.ok(true, 'Flat Beams Down Test');
 }
 function flatBeamsMixed(options) {
     const f = VexFlowTests.makeFactory(options, 450, 200);
@@ -472,7 +472,7 @@ function flatBeamsMixed(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Flat Beams Mixed Direction Test');
+    options.assert.ok(true, 'Flat Beams Mixed Direction Test');
 }
 function flatBeamsUpUniform(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -491,7 +491,7 @@ function flatBeamsUpUniform(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Flat Beams Up (uniform) Test');
+    options.assert.ok(true, 'Flat Beams Up (uniform) Test');
 }
 function flatBeamsDownUniform(options) {
     const f = VexFlowTests.makeFactory(options, 450, 200);
@@ -506,7 +506,7 @@ function flatBeamsDownUniform(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Flat Beams Down (uniform) Test');
+    options.assert.ok(true, 'Flat Beams Down (uniform) Test');
 }
 function flatBeamsUpBounds(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -525,7 +525,7 @@ function flatBeamsUpBounds(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Flat Beams Up (uniform) Test');
+    options.assert.ok(true, 'Flat Beams Up (uniform) Test');
 }
 function flatBeamsDownBounds(options) {
     const f = VexFlowTests.makeFactory(options, 450, 200);
@@ -545,7 +545,7 @@ function flatBeamsDownBounds(options) {
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
     beams.forEach((beam) => beam.setContext(f.getContext()).draw());
-    ok(true, 'Flat Beams Down (uniform) Test');
+    options.assert.ok(true, 'Flat Beams Down (uniform) Test');
 }
 VexFlowTests.register(AutoBeamFormattingTests);
 export { AutoBeamFormattingTests };

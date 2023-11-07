@@ -16,7 +16,7 @@ function flattenMatches(r) {
         return null;
     return results.map(flattenMatches);
 }
-export class Parser {
+class Parser {
     constructor(grammar) {
         this.grammar = grammar;
         this.line = '';
@@ -162,3 +162,4 @@ export class Parser {
     }
 }
 Parser.DEBUG = false;
+export { Parser };

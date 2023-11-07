@@ -3,17 +3,17 @@ import { Barline, BarlineType } from '../src/stavebarline.js';
 const BarlineTests = {
     Start() {
         QUnit.module('Barline');
-        test('Enums', enums);
+        QUnit.test('Enums', enums);
         const run = VexFlowTests.runTests;
         run('Simple BarNotes', simple);
         run('Style BarNotes', style);
     },
 };
-function enums() {
-    equal(Barline.type, BarlineType);
+function enums(assert) {
+    assert.equal(Barline.type, BarlineType);
     const a = BarlineType['DOUBLE'];
     const b = BarlineType.DOUBLE;
-    equal(a, b);
+    assert.equal(a, b);
 }
 function simple(options) {
     const f = VexFlowTests.makeFactory(options, 380, 160);
@@ -29,7 +29,7 @@ function simple(options) {
     const voice = f.Voice().addTickables(notes);
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'Simple Test');
+    options.assert.ok(true, 'Simple Test');
 }
 function style(options) {
     const f = VexFlowTests.makeFactory(options, 380, 160);
@@ -46,7 +46,7 @@ function style(options) {
     const voice = f.Voice().addTickables(notes);
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'Style');
+    options.assert.ok(true, 'Style');
 }
 VexFlowTests.register(BarlineTests);
 export { BarlineTests };

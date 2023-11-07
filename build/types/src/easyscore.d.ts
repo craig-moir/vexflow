@@ -7,7 +7,7 @@ import { RenderContext } from './rendercontext';
 import { StemmableNote } from './stemmablenote';
 import { TupletOptions } from './tuplet';
 import { Voice } from './voice';
-export declare type CommitHook = (obj: any, note: StemmableNote, builder: Builder) => void;
+export type CommitHook = (obj: any, note: StemmableNote, builder: Builder) => void;
 export declare class EasyScoreGrammar implements Grammar {
     builder: Builder;
     constructor(builder: Builder);

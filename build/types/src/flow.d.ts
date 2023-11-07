@@ -217,6 +217,7 @@ export declare class Flow {
      */
     static fetchMusicFont(fontName: string, fontModuleOrPath?: string | FontModule): Promise<void>;
     static getMusicFont(): string[];
+    static getMusicFontStack(): Font[];
     static get RENDER_PRECISION_PLACES(): number;
     static set RENDER_PRECISION_PLACES(precision: number);
     static get SOFTMAX_FACTOR(): number;

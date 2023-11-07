@@ -24,7 +24,7 @@ import { MockTickable } from './mocks.js';
 const FormatterTests = {
     Start() {
         QUnit.module('Formatter');
-        test('TickContext Building', buildTickContexts);
+        QUnit.test('TickContext Building', buildTickContexts);
         const run = VexFlowTests.runTests;
         run('Penultimate Note Padding', penultimateNote);
         run('Whitespace and justify', rightJustify);
@@ -54,7 +54,7 @@ function getGlyphWidth(glyphName) {
     const widthInEm = (glyph.x_max - glyph.x_min) / musicFont.getResolution();
     return widthInEm * 38 * Font.scaleToPxFrom.pt;
 }
-function buildTickContexts() {
+function buildTickContexts(assert) {
     function createTickable(beat) {
         return new MockTickable().setTicks(beat);
     }
@@ -75,15 +75,15 @@ function buildTickContexts() {
     voice2.addTickables(tickables2);
     const formatter = new Formatter();
     const tContexts = formatter.createTickContexts([voice1, voice2]);
-    equal(tContexts.list.length, 4, 'Voices should have four tick contexts');
-    throws(() => formatter.getMinTotalWidth(), /NoMinTotalWidth/, 'Expected to throw exception');
-    ok(formatter.preCalculateMinTotalWidth([voice1, voice2]), 'Successfully runs preCalculateMinTotalWidth');
-    equal(formatter.getMinTotalWidth(), 88, 'Get minimum total width without passing voices');
+    assert.equal(tContexts.list.length, 4, 'Voices should have four tick contexts');
+    assert.throws(() => formatter.getMinTotalWidth(), /NoMinTotalWidth/, 'Expected to throw exception');
+    assert.ok(formatter.preCalculateMinTotalWidth([voice1, voice2]), 'Successfully runs preCalculateMinTotalWidth');
+    assert.equal(formatter.getMinTotalWidth(), 88, 'Get minimum total width without passing voices');
     formatter.preFormat();
-    equal(formatter.getMinTotalWidth(), 88, 'Minimum total width');
-    equal(tickables1[0].getX(), tickables2[0].getX(), 'First notes of both voices have the same X');
-    equal(tickables1[2].getX(), tickables2[2].getX(), 'Last notes of both voices have the same X');
-    ok(tickables1[1].getX() < tickables2[1].getX(), 'Second note of voice 2 is to the right of the second note of voice 1');
+    assert.equal(formatter.getMinTotalWidth(), 88, 'Minimum total width');
+    assert.equal(tickables1[0].getX(), tickables2[0].getX(), 'First notes of both voices have the same X');
+    assert.equal(tickables1[2].getX(), tickables2[2].getX(), 'Last notes of both voices have the same X');
+    assert.ok(tickables1[1].getX() < tickables2[1].getX(), 'Second note of voice 2 is to the right of the second note of voice 1');
 }
 function rightJustify(options) {
     const f = VexFlowTests.makeFactory(options, 1200, 150);
@@ -108,7 +108,7 @@ function rightJustify(options) {
     renderTest({ num_beats: 4, beat_value: 4, resolution: 4 * 4096 }, 1, 'w', 'w', 310, 300);
     renderTest({ num_beats: 3, beat_value: 4, resolution: 4 * 4096 }, 3, '4', '4', 610, 300);
     renderTest({ num_beats: 3, beat_value: 4, resolution: 4 * 4096 }, 6, '8', '8', 910, 300);
-    ok(true);
+    options.assert.ok(true);
 }
 function penultimateNote(options) {
     const f = VexFlowTests.makeFactory(options, 500, 550);
@@ -151,12 +151,12 @@ function penultimateNote(options) {
         f.getContext().fillText(`softmax: ${softmax.toString()}`, staffWidth + 20, y + 50);
         y += 100;
     };
-    draw(100);
+    draw(15);
     draw(10);
     draw(5);
     draw(2);
-    draw(1.5);
-    ok(true);
+    draw(1);
+    options.assert.ok(true);
 }
 function noteHeadPadding(options) {
     const registry = new Registry();
@@ -182,7 +182,7 @@ function noteHeadPadding(options) {
     voice1.draw(f.getContext(), stave1);
     voice2.draw(f.getContext(), stave2);
     beams.forEach((b) => b.setContext(f.getContext()).draw());
-    ok(true);
+    options.assert.ok(true);
 }
 function longMeasureProblems(options) {
     const registry = new Registry();
@@ -205,7 +205,7 @@ function longMeasureProblems(options) {
     stave2.draw();
     voice1.draw(f.getContext(), stave1);
     voice2.draw(f.getContext(), stave2);
-    ok(true);
+    options.assert.ok(true);
 }
 function accidentalJustification(options) {
     const f = VexFlowTests.makeFactory(options, 600, 300);
@@ -217,7 +217,7 @@ function accidentalJustification(options) {
     let beams = Beam.generateBeams(notes11.slice(2));
     beams = beams.concat(beams, Beam.generateBeams(notes21.slice(1, 3)));
     beams = beams.concat(Beam.generateBeams(notes21.slice(3)));
-    const formatter = f.Formatter({ softmaxFactor: 100 }).joinVoices([voice11]).joinVoices([voice21]);
+    const formatter = f.Formatter({}).joinVoices([voice11]).joinVoices([voice21]);
     const width = formatter.preCalculateMinTotalWidth([voice11, voice21]);
     const stave11 = f.Stave({ y: 20, width: width + Stave.defaultPadding });
     const stave21 = f.Stave({ y: 130, width: width + Stave.defaultPadding });
@@ -228,7 +228,7 @@ function accidentalJustification(options) {
     voice11.draw(ctx, stave11);
     voice21.draw(ctx, stave21);
     beams.forEach((b) => b.setContext(ctx).draw());
-    ok(true);
+    options.assert.ok(true);
 }
 function unalignedNoteDurations1(options) {
     const f = VexFlowTests.makeFactory(options, 600, 250);
@@ -262,7 +262,7 @@ function unalignedNoteDurations1(options) {
     voice21.draw(ctx, stave21);
     beams21.forEach((b) => b.setContext(ctx).draw());
     beams11.forEach((b) => b.setContext(ctx).draw());
-    ok(voice11.getTickables()[1].getX() > voice21.getTickables()[1].getX());
+    options.assert.ok(voice11.getTickables()[1].getX() > voice21.getTickables()[1].getX());
 }
 function unalignedNoteDurations2(options) {
     const notes1 = [
@@ -295,7 +295,7 @@ function unalignedNoteDurations2(options) {
     voice1.addTickables(notes1);
     const voice2 = new Voice({ num_beats: 4, beat_value: 4 });
     voice2.addTickables(notes2);
-    const formatter = new Formatter({ softmaxFactor: 100, globalSoftmax: options.params.globalSoftmax });
+    const formatter = new Formatter({ globalSoftmax: options.params.globalSoftmax });
     formatter.joinVoices([voice1]);
     formatter.joinVoices([voice2]);
     const width = formatter.preCalculateMinTotalWidth([voice1, voice2]);
@@ -306,7 +306,7 @@ function unalignedNoteDurations2(options) {
     stave2.setContext(context).draw();
     voice1.draw(context, stave1);
     voice2.draw(context, stave2);
-    ok(voice1.getTickables()[1].getX() > voice2.getTickables()[1].getX());
+    options.assert.ok(voice1.getTickables()[1].getX() > voice2.getTickables()[1].getX());
 }
 function alignedMixedElements(options) {
     const f = VexFlowTests.makeFactory(options, 800, 500);
@@ -358,7 +358,7 @@ function alignedMixedElements(options) {
     stave2.setContext(context).draw();
     tuplet.setContext(context).draw();
     tuplet2.setContext(context).draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function justifyStaveNotes(options) {
     const f = VexFlowTests.makeFactory(options, 520, 280);
@@ -380,7 +380,7 @@ function justifyStaveNotes(options) {
     }
     justifyToWidth(520);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function notesWithTab(options) {
     const f = VexFlowTests.makeFactory(options, 420, 580);
@@ -418,7 +418,7 @@ function notesWithTab(options) {
     justifyToWidth(0);
     justifyToWidth(300);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function multiStaves(options) {
     const f = VexFlowTests.makeFactory(options, 600, 400);
@@ -488,7 +488,7 @@ function multiStaves(options) {
         voices[i].getTickables().forEach((note) => Note.plotMetrics(ctx, note, staveYs[i] - 20));
     }
     beams.forEach((beam) => beam.setContext(ctx).draw());
-    ok(true);
+    options.assert.ok(true);
 }
 function proportional(options) {
     const debug = options.params.debug;
@@ -519,7 +519,7 @@ function proportional(options) {
     system.addConnector().setType(StaveConnector.type.BRACKET);
     f.draw();
     Registry.disableDefaultRegistry();
-    ok(true);
+    options.assert.ok(true);
 }
 function softMax(options) {
     const f = VexFlowTests.makeFactory(options, 550, 500);
@@ -546,20 +546,20 @@ function softMax(options) {
             .addTimeSignature('5/4');
         f.draw();
         f.getContext().fillText(`softmax: ${factor.toString()}`, textX, y + 50);
-        ok(true);
+        options.assert.ok(true);
     }
     draw(50, 1);
     draw(150, 2);
-    draw(250, 10);
-    draw(350, 20);
-    draw(450, 200);
+    draw(250, 5);
+    draw(350, 10);
+    draw(450, 15);
 }
 function mixTime(options) {
     const f = VexFlowTests.makeFactory(options, 400 + Stave.defaultPadding, 250);
     f.getContext().scale(0.8, 0.8);
     const score = f.EasyScore();
     const system = f.System({
-        details: { softmaxFactor: 100 },
+        details: {},
         autoWidth: true,
         debugFormatter: true,
     });
@@ -576,7 +576,7 @@ function mixTime(options) {
         .addClef('treble')
         .addTimeSignature('4/4');
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function tightNotes1(options) {
     const f = VexFlowTests.makeFactory(options, 440, 250);
@@ -604,7 +604,7 @@ function tightNotes1(options) {
         .addClef('treble')
         .addTimeSignature('4/4');
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function tightNotes2(options) {
     const f = VexFlowTests.makeFactory(options, 440, 250);
@@ -629,7 +629,7 @@ function tightNotes2(options) {
         .addClef('treble')
         .addTimeSignature('4/4');
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function annotations(options) {
     const pageWidth = 916;
@@ -646,22 +646,22 @@ function annotations(options) {
             title: '550px,softMax:5',
         },
         {
-            sm: 10,
-            width: 550,
-            lyrics: lyrics2,
-            title: '550px,softmax:10,different word order',
-        },
-        {
             sm: 5,
             width: 550,
             lyrics: lyrics2,
-            title: '550px,softmax:5',
+            title: '550px,softmax:5,different word order',
         },
         {
-            sm: 100,
+            sm: 10,
             width: 550,
             lyrics: lyrics2,
-            title: '550px,softmax:100',
+            title: '550px,softmax:10',
+        },
+        {
+            sm: 15,
+            width: 550,
+            lyrics: lyrics2,
+            title: '550px,softmax:15',
         },
     ];
     const rowSize = 140;
@@ -715,7 +715,7 @@ function annotations(options) {
         voice1.draw(context, stave);
         beams.forEach((b) => b.setContext(context).draw());
     });
-    ok(true);
+    options.assert.ok(true);
 }
 VexFlowTests.register(FormatterTests);
 export { FormatterTests };

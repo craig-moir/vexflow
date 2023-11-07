@@ -12,6 +12,14 @@ export interface TextFormatterInfo extends Record<string, unknown> {
     subscriptOffset?: number;
     description: string;
 }
+/**
+ * Y information, 0 is baseline, yMin is lowest point.
+ */
+export interface yExtent {
+    yMin: number;
+    yMax: number;
+    height: number;
+}
 export declare class TextFormatter {
     /** To enable logging for this class. Set `Vex.Flow.TextFormatter.DEBUG` to `true`. */
     static DEBUG: boolean;
@@ -77,6 +85,7 @@ export declare class TextFormatter {
      * registered via `TextFormatter.registerInfo(info)`.
      */
     private constructor();
+    get localHeightCache(): Record<string, yExtent | undefined>;
     updateParams(params: TextFormatterInfo): void;
     /** Create a hash with the current font data, so we can cache computed widths. */
     updateCacheKey(): void;
@@ -93,6 +102,11 @@ export declare class TextFormatter {
      *   robotoslab_glyphs.ts:     509 advanceWidth in the 2048 unitsPerEm font returns 0.2485.
      */
     getWidthForCharacterInEm(c: string): number;
+    /**
+     * Retrieve the character's y bounds (ymin, ymax) and height.
+     */
+    getYForCharacterInPx(c: string): yExtent;
+    getYForStringInPx(str: string): yExtent;
     /**
      * Retrieve the total width of `text` in `em` units.
      */

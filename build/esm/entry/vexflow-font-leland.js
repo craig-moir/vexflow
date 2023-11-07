@@ -1,7 +1,7 @@
+import { CommonMetrics } from '../src/fonts/common_metrics.js';
 import { LelandFont } from '../src/fonts/leland_glyphs.js';
-import { LelandMetrics } from '../src/fonts/leland_metrics.js';
 export const Font = {
     data: LelandFont,
-    metrics: LelandMetrics,
+    metrics: CommonMetrics,
 };
 export default Font;

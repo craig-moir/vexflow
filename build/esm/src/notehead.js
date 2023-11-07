@@ -3,7 +3,7 @@ import { Glyph } from './glyph.js';
 import { Note } from './note.js';
 import { Stem } from './stem.js';
 import { Tables } from './tables.js';
-import { defined, log, RuntimeError } from './util.js';
+import { defined, log } from './util.js';
 function L(...args) {
     if (NoteHead.DEBUG)
         log('Vex.Flow.NoteHead', args);
@@ -42,7 +42,10 @@ function drawSlashNoteHead(ctx, duration, x, y, stem_direction, staveSpace) {
     }
     ctx.restore();
 }
-export class NoteHead extends Note {
+class NoteHead extends Note {
+    static get CATEGORY() {
+        return "NoteHead";
+    }
     constructor(noteStruct) {
         super(noteStruct);
         this.custom_glyph = false;
@@ -56,12 +59,12 @@ export class NoteHead extends Note {
         this.displaced = noteStruct.displaced || false;
         this.stem_direction = noteStruct.stem_direction || Stem.UP;
         this.line = noteStruct.line || 0;
-        this.glyph = Tables.getGlyphProps(this.duration, this.noteType);
-        defined(this.glyph, 'BadArguments', `No glyph found for duration '${this.duration}' and type '${this.noteType}'`);
-        if ((this.line > 5 || this.line < 0) && this.glyph.leger_code_head) {
-            this.glyph.code_head = this.glyph.leger_code_head;
+        this.glyphProps = Tables.getGlyphProps(this.duration, this.noteType);
+        defined(this.glyphProps, 'BadArguments', `No glyph found for duration '${this.duration}' and type '${this.noteType}'`);
+        if ((this.line > 5 || this.line < 0) && this.glyphProps.ledger_code_head) {
+            this.glyphProps.code_head = this.glyphProps.ledger_code_head;
         }
-        this.glyph_code = this.glyph.code_head;
+        this.glyph_code = this.glyphProps.code_head;
         this.x_shift = noteStruct.x_shift || 0;
         if (noteStruct.custom_glyph_code) {
             this.custom_glyph = true;
@@ -69,22 +72,20 @@ export class NoteHead extends Note {
             this.stem_up_x_offset = noteStruct.stem_up_x_offset || 0;
             this.stem_down_x_offset = noteStruct.stem_down_x_offset || 0;
         }
-        this.style = noteStruct.style;
+        this.setStyle(noteStruct.style);
         this.slashed = noteStruct.slashed || false;
         this.render_options = Object.assign(Object.assign({}, this.render_options), { glyph_font_scale: noteStruct.glyph_font_scale || Tables.NOTATION_FONT_SCALE });
-        this.setWidth(this.glyph.getWidth(this.render_options.glyph_font_scale));
-    }
-    static get CATEGORY() {
-        return "NoteHead";
+        this.setWidth(this.custom_glyph &&
+            !this.glyph_code.startsWith('noteheadSlashed') &&
+            !this.glyph_code.startsWith('noteheadCircled')
+            ? Glyph.getWidth(this.glyph_code, this.render_options.glyph_font_scale)
+            : this.glyphProps.getWidth(this.render_options.glyph_font_scale));
     }
     getWidth() {
         return this.width;
     }
     isDisplaced() {
         return this.displaced === true;
-    }
-    getGlyph() {
-        return this.glyph;
     }
     setX(x) {
         this.x = x;
@@ -109,15 +110,12 @@ export class NoteHead extends Note {
         const displacementStemAdjustment = Stem.WIDTH / 2;
         const musicFont = Tables.currentMusicFont();
         const fontShift = musicFont.lookupMetric('notehead.shiftX', 0) * this.stem_direction;
-        const displacedFontShift = musicFont.lookupMetric('noteHead.displaced.shiftX', 0) * this.stem_direction;
+        const displacedFontShift = musicFont.lookupMetric('noteHead.displacedShiftX', 0) * this.stem_direction;
         return (x +
             fontShift +
             (this.displaced ? (this.width - displacementStemAdjustment) * this.stem_direction + displacedFontShift : 0));
     }
     getBoundingBox() {
-        if (!this.preFormatted) {
-            throw new RuntimeError('UnformattedNote', "Can't call getBoundingBox on an unformatted note.");
-        }
         const spacing = this.checkStave().getSpacingBetweenLines();
         const half_spacing = spacing / 2;
         const min_y = this.y - half_spacing;
@@ -145,15 +143,16 @@ export class NoteHead extends Note {
         this.setRendered();
         let head_x = this.getAbsoluteX();
         if (this.custom_glyph) {
-            head_x += this.stem_direction === Stem.UP ? this.stem_up_x_offset : this.stem_down_x_offset;
+            head_x +=
+                this.stem_direction === Stem.UP
+                    ? this.stem_up_x_offset +
+                        (this.glyphProps.stem ? this.glyphProps.getWidth(this.render_options.glyph_font_scale) - this.width : 0)
+                    : this.stem_down_x_offset;
         }
         const y = this.y;
         L("Drawing note head '", this.noteType, this.duration, "' at", head_x, y);
         const stem_direction = this.stem_direction;
         const glyph_font_scale = this.render_options.glyph_font_scale;
-        if (this.style) {
-            this.applyStyle(ctx);
-        }
         const categorySuffix = `${this.glyph_code}Stem${stem_direction === Stem.UP ? 'Up' : 'Down'}`;
         if (this.noteType === 's') {
             const staveSpace = this.checkStave().getSpacingBetweenLines();
@@ -161,12 +160,10 @@ export class NoteHead extends Note {
         }
         else {
             Glyph.renderGlyph(ctx, head_x, y, glyph_font_scale, this.glyph_code, {
-                category: this.custom_glyph ? `noteHead.custom.${categorySuffix}` : `noteHead.standard.${categorySuffix}`,
+                category: `noteHead.${categorySuffix}`,
             });
-        }
-        if (this.style) {
-            this.restoreStyle(ctx);
         }
     }
 }
 NoteHead.DEBUG = false;
+export { NoteHead };

@@ -1,6 +1,9 @@
 import { Element } from './element.js';
 import { RuntimeError } from './util.js';
-export class StaveTie extends Element {
+class StaveTie extends Element {
+    static get CATEGORY() {
+        return "StaveTie";
+    }
     constructor(notes, text) {
         super();
         this.setNotes(notes);
@@ -15,9 +18,6 @@ export class StaveTie extends Element {
             tie_spacing: 0,
         };
         this.resetFont();
-    }
-    static get CATEGORY() {
-        return "StaveTie";
     }
     setDirection(direction) {
         this.direction = direction;
@@ -58,6 +58,8 @@ export class StaveTie extends Element {
         const y_shift = this.render_options.y_shift * params.direction;
         const first_indices = this.notes.first_indices;
         const last_indices = this.notes.last_indices;
+        this.applyStyle();
+        ctx.openGroup('stavetie', this.getAttribute('id'));
         for (let i = 0; i < first_indices.length; ++i) {
             const cp_x = (params.last_x_px + last_x_shift + (params.first_x_px + first_x_shift)) / 2;
             const first_y_px = params.first_ys[first_indices[i]] + y_shift;
@@ -67,15 +69,15 @@ export class StaveTie extends Element {
             }
             const top_cp_y = (first_y_px + last_y_px) / 2 + cp1 * params.direction;
             const bottom_cp_y = (first_y_px + last_y_px) / 2 + cp2 * params.direction;
-            this.setAttribute('el', ctx.openGroup('stavetie'));
             ctx.beginPath();
             ctx.moveTo(params.first_x_px + first_x_shift, first_y_px);
             ctx.quadraticCurveTo(cp_x, top_cp_y, params.last_x_px + last_x_shift, last_y_px);
             ctx.quadraticCurveTo(cp_x, bottom_cp_y, params.first_x_px + first_x_shift, first_y_px);
             ctx.closePath();
             ctx.fill();
-            ctx.closeGroup();
         }
+        ctx.closeGroup();
+        this.restoreStyle();
     }
     renderText(first_x_px, last_x_px) {
         var _a, _b, _c;
@@ -91,6 +93,9 @@ export class StaveTie extends Element {
             ctx.fillText(this.text, center_x + this.render_options.text_shift_x, stave.getYForTopText() - 1);
             ctx.restore();
         }
+    }
+    getNotes() {
+        return this.notes;
     }
     draw() {
         this.checkContext();
@@ -139,3 +144,4 @@ export class StaveTie extends Element {
     }
 }
 StaveTie.TEXT_FONT = Object.assign({}, Element.TEXT_FONT);
+export { StaveTie };

@@ -158,6 +158,7 @@ export declare class Factory {
         fontWeight?: string;
     }): ChordSymbol;
     Articulation(params?: {
+        betweenLines?: boolean;
         type?: string;
         position?: string | number;
     }): Articulation;

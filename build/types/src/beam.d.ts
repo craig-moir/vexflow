@@ -6,7 +6,7 @@ import { Voice } from './voice';
 export declare const BEAM_LEFT = "L";
 export declare const BEAM_RIGHT = "R";
 export declare const BEAM_BOTH = "B";
-export declare type PartialBeamDirection = typeof BEAM_LEFT | typeof BEAM_RIGHT | typeof BEAM_BOTH;
+export type PartialBeamDirection = typeof BEAM_LEFT | typeof BEAM_RIGHT | typeof BEAM_BOTH;
 /** `Beams` span over a set of `StemmableNotes`. */
 export declare class Beam extends Element {
     static get CATEGORY(): string;

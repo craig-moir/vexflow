@@ -5,13 +5,15 @@ import { Note } from './note.js';
 import { Stave } from './stave.js';
 import { RuntimeError } from './util.js';
 export class System extends Element {
+    static get CATEGORY() {
+        return "System";
+    }
     constructor(params = {}) {
         super();
         this.setOptions(params);
-        this.parts = [];
-    }
-    static get CATEGORY() {
-        return "System";
+        this.partStaves = [];
+        this.partStaveInfos = [];
+        this.partVoices = [];
     }
     setOptions(options = {}) {
         if (!options.factory) {
@@ -23,6 +25,30 @@ export class System extends Element {
             this.options.autoWidth = true;
         }
     }
+    getX() {
+        return this.options.x;
+    }
+    setX(x) {
+        this.options.x = x;
+        this.partStaves.forEach((s) => {
+            s.setX(x);
+        });
+    }
+    getY() {
+        return this.options.y;
+    }
+    setY(y) {
+        this.options.y = y;
+        this.partStaves.forEach((s) => {
+            s.setY(y);
+        });
+    }
+    getStaves() {
+        return this.partStaves;
+    }
+    getVoices() {
+        return this.partVoices;
+    }
     setContext(context) {
         super.setContext(context);
         this.factory.setContext(context);
@@ -30,8 +56,8 @@ export class System extends Element {
     }
     addConnector(type = 'double') {
         this.connector = this.factory.StaveConnector({
-            top_stave: this.parts[0].stave,
-            bottom_stave: this.parts[this.parts.length - 1].stave,
+            top_stave: this.partStaves[0],
+            bottom_stave: this.partStaves[this.partStaves.length - 1],
             type,
         });
         return this.connector;
@@ -40,15 +66,26 @@ export class System extends Element {
         var _a;
         const staveOptions = Object.assign({ left_bar: false }, params.options);
         const stave = (_a = params.stave) !== null && _a !== void 0 ? _a : this.factory.Stave({ x: this.options.x, y: this.options.y, width: this.options.width, options: staveOptions });
-        const p = Object.assign(Object.assign({ stave, spaceAbove: 0, spaceBelow: 0, debugNoteMetrics: false, noJustification: false }, params), { options: staveOptions });
+        const p = Object.assign(Object.assign({ spaceAbove: 0, spaceBelow: 0, debugNoteMetrics: false, noJustification: false }, params), { options: staveOptions });
         const ctx = this.getContext();
-        p.voices.forEach((voice) => voice
-            .setContext(ctx)
-            .setStave(stave)
-            .getTickables()
-            .forEach((tickable) => tickable.setStave(stave)));
-        this.parts.push(p);
+        p.voices.forEach((voice) => {
+            voice
+                .setContext(ctx)
+                .setStave(stave)
+                .getTickables()
+                .forEach((tickable) => tickable.setStave(stave));
+            this.partVoices.push(voice);
+        });
+        this.partStaves.push(stave);
+        this.partStaveInfos.push(p);
         return stave;
+    }
+    addVoices(voices) {
+        const ctx = this.getContext();
+        voices.forEach((voice) => {
+            voice.setContext(ctx);
+            this.partVoices.push(voice);
+        });
     }
     format() {
         const options_details = this.options.details;
@@ -57,28 +94,32 @@ export class System extends Element {
         this.formatter = formatter;
         let y = this.options.y;
         let startX = 0;
-        let allVoices = [];
-        let allStaves = [];
         const debugNoteMetricsYs = [];
-        this.parts.forEach((part) => {
-            y = y + part.stave.space(part.spaceAbove);
-            part.stave.setY(y);
-            formatter.joinVoices(part.voices);
-            y = y + part.stave.space(part.spaceBelow);
-            y = y + part.stave.space(this.options.spaceBetweenStaves);
-            if (part.debugNoteMetrics) {
-                debugNoteMetricsYs.push({ y, voice: part.voices[0] });
+        this.partStaves.forEach((part, index) => {
+            y = y + part.space(this.partStaveInfos[index].spaceAbove);
+            part.setY(y);
+            y = y + part.space(this.partStaveInfos[index].spaceBelow);
+            y = y + part.space(this.options.spaceBetweenStaves);
+            if (this.partStaveInfos[index].debugNoteMetrics) {
+                debugNoteMetricsYs.push({ y, stave: part });
                 y += 15;
             }
-            allVoices = allVoices.concat(part.voices);
-            allStaves = allStaves.concat(part.stave);
-            startX = Math.max(startX, part.stave.getNoteStartX());
+            startX = Math.max(startX, part.getNoteStartX());
         });
-        this.parts.forEach((part) => part.stave.setNoteStartX(startX));
-        if (this.options.autoWidth) {
-            justifyWidth = formatter.preCalculateMinTotalWidth(allVoices);
-            this.parts.forEach((part) => {
-                part.stave.setWidth(justifyWidth + Stave.rightPadding + (startX - this.options.x));
+        this.partVoices.forEach((voice) => {
+            voice.getTickables().forEach((tickable) => {
+                const stave = tickable.getStave();
+                if (stave)
+                    tickable.setStave(stave);
+            });
+        });
+        formatter.joinVoices(this.partVoices);
+        this.partStaves.forEach((part) => part.setNoteStartX(startX));
+        if (this.options.autoWidth && this.partVoices.length > 0) {
+            justifyWidth = formatter.preCalculateMinTotalWidth(this.partVoices);
+            this.options.width = justifyWidth + Stave.rightPadding + (startX - this.options.x);
+            this.partStaves.forEach((part) => {
+                part.setWidth(this.options.width);
             });
         }
         else {
@@ -86,7 +127,10 @@ export class System extends Element {
                 ? this.options.width - (startX - this.options.x)
                 : this.options.width - (startX - this.options.x) - Stave.defaultPadding;
         }
-        formatter.format(allVoices, this.options.noJustification ? 0 : justifyWidth, this.options.formatOptions);
+        if (this.partVoices.length > 0) {
+            formatter.format(this.partVoices, this.options.noJustification ? 0 : justifyWidth, this.options.formatOptions);
+        }
+        formatter.postFormat();
         for (let i = 0; i < this.options.formatIterations; i++) {
             formatter.tune(options_details);
         }
@@ -94,7 +138,7 @@ export class System extends Element {
         this.debugNoteMetricsYs = debugNoteMetricsYs;
         this.lastY = y;
         this.boundingBox = new BoundingBox(this.options.x, this.options.y, this.options.width, this.lastY - this.options.y);
-        Stave.formatBegModifiers(allStaves);
+        Stave.formatBegModifiers(this.partStaves);
     }
     draw() {
         const ctx = this.checkContext();
@@ -106,7 +150,12 @@ export class System extends Element {
             Formatter.plotDebugging(ctx, this.formatter, this.startX, this.options.y, this.lastY);
         }
         this.debugNoteMetricsYs.forEach((d) => {
-            d.voice.getTickables().forEach((tickable) => Note.plotMetrics(ctx, tickable, d.y));
+            this.partVoices.forEach((voice) => {
+                voice.getTickables().forEach((tickable) => {
+                    if (tickable.getStave() === d.stave)
+                        Note.plotMetrics(ctx, tickable, d.y);
+                });
+            });
         });
     }
 }

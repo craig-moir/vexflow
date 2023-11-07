@@ -41,7 +41,7 @@ function brushRollRasquedo(options) {
     const voice2 = score.voice(notes2);
     f.Formatter().joinVoices([voice2]).formatToStave([voice2], stave2);
     f.draw();
-    ok(true, 'Brush/Roll/Rasquedo');
+    options.assert.ok(true, 'Brush/Roll/Rasquedo');
 }
 function arpeggioDirectionless(options) {
     const f = VexFlowTests.makeFactory(options, 700, 200);
@@ -73,7 +73,7 @@ function arpeggioDirectionless(options) {
     const voice1 = score.voice(notes1);
     f.Formatter().joinVoices([voice1]).formatToStave([voice1], stave1);
     f.draw();
-    ok(true, 'Arpeggio directionless (without arrows)');
+    options.assert.ok(true, 'Arpeggio directionless (without arrows)');
 }
 function multiVoice(options) {
     const f = VexFlowTests.makeFactory(options, 500, 200);
@@ -93,7 +93,7 @@ function multiVoice(options) {
     const voices = [notes1, notes2].map((notes) => score.voice(notes));
     f.Formatter().joinVoices(voices).formatToStave(voices, stave);
     f.draw();
-    ok(true, 'Strokes Test Multi Voice');
+    options.assert.ok(true, 'Strokes Test Multi Voice');
 }
 function multiNotationAndTab(options) {
     const f = VexFlowTests.makeFactory(options, 400, 275);
@@ -153,7 +153,7 @@ function multiNotationAndTab(options) {
     const voices = [notes1, notes2, tabNotes1, tabNotes2].map((notes) => score.voice(notes));
     f.Formatter().joinVoices(voices).formatToStave(voices, stave);
     f.draw();
-    ok(true, 'Strokes Test Notation & Tab Multi Voice');
+    options.assert.ok(true, 'Strokes Test Notation & Tab Multi Voice');
 }
 function notesWithTab(options) {
     const f = VexFlowTests.makeFactory(options, 500, 300);
@@ -269,7 +269,7 @@ function notesWithTab(options) {
     beams.forEach(function (beam) {
         beam.setContext(f.getContext()).draw();
     });
-    ok(true);
+    options.assert.ok(true);
 }
 VexFlowTests.register(StrokesTests);
 export { StrokesTests };

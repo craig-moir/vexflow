@@ -2,50 +2,19 @@ import { Glyph } from './glyph.js';
 import { Modifier } from './modifier.js';
 import { Stem } from './stem.js';
 import { Tables } from './tables.js';
-import { TickContext } from './tickcontext.js';
 import { isTabNote } from './typeguard.js';
 import { defined, log, RuntimeError } from './util.js';
 function L(...args) {
     if (Ornament.DEBUG)
         log('Vex.Flow.Ornament', args);
 }
-export class Ornament extends Modifier {
-    constructor(type) {
-        super();
-        this.type = type;
-        this.delayed = false;
-        this.render_options = {
-            font_scale: 38,
-            accidentalLowerPadding: 3,
-            accidentalUpperPadding: 3,
-        };
-        this.ornament = Tables.ornamentCodes(this.type);
-        const metrics = this.getMetrics();
-        this.adjustForStemDirection = false;
-        this.reportedWidth = metrics && metrics.reportedWidth ? metrics.reportedWidth : 0;
-        this.stemUpYOffset = metrics && metrics.stemUpYOffset ? metrics.stemUpYOffset : 0;
-        this.ornamentAlignWithNoteHead = Ornament.ornamentAlignWithNoteHead.indexOf(this.type) >= 0;
-        if (!this.ornament) {
-            throw new RuntimeError('ArgumentError', `Ornament not found: '${this.type}'`);
-        }
-        this.x_shift = metrics ? metrics.xOffset : 0;
-        this.y_shift = metrics ? metrics.yOffset : 0;
-        this.glyph = new Glyph(this.ornament.code, this.render_options.font_scale, {
-            category: `ornament.${this.ornament.code}`,
-        });
-        if (Ornament.ornamentNoteTransition.indexOf(this.type) >= 0) {
-            this.delayed = true;
-        }
-        if (!metrics) {
-            this.glyph.setOrigin(0.5, 1.0);
-        }
-    }
+class Ornament extends Modifier {
     static get CATEGORY() {
         return "Ornament";
     }
     static get minPadding() {
         const musicFont = Tables.currentMusicFont();
-        return musicFont.lookupMetric('glyphs.noteHead.minPadding');
+        return musicFont.lookupMetric('noteHead.minPadding');
     }
     static format(ornaments, state) {
         if (!ornaments || ornaments.length === 0)
@@ -116,7 +85,40 @@ export class Ornament extends Modifier {
         return ['bend', 'plungerClosed', 'plungerOpen'];
     }
     getMetrics() {
-        return Tables.currentMusicFont().getMetrics().glyphs.jazzOrnaments[this.ornament.code];
+        const ornamentMetrics = Tables.currentMusicFont().getMetrics().ornament;
+        if (!ornamentMetrics)
+            throw new RuntimeError('BadMetrics', `ornament missing`);
+        return ornamentMetrics[this.ornament.code];
+    }
+    constructor(type) {
+        super();
+        this.type = type;
+        this.delayed = false;
+        this.render_options = {
+            font_scale: Tables.NOTATION_FONT_SCALE,
+            accidentalLowerPadding: 3,
+            accidentalUpperPadding: 3,
+        };
+        this.ornament = Tables.ornamentCodes(this.type);
+        const metrics = this.getMetrics();
+        this.adjustForStemDirection = false;
+        this.reportedWidth = metrics && metrics.reportedWidth ? metrics.reportedWidth : 0;
+        this.stemUpYOffset = metrics && metrics.stemUpYOffset ? metrics.stemUpYOffset : 0;
+        this.ornamentAlignWithNoteHead = Ornament.ornamentAlignWithNoteHead.indexOf(this.type) >= 0;
+        if (!this.ornament) {
+            throw new RuntimeError('ArgumentError', `Ornament not found: '${this.type}'`);
+        }
+        this.x_shift = metrics ? metrics.xOffset : 0;
+        this.y_shift = metrics ? metrics.yOffset : 0;
+        this.glyph = new Glyph(this.ornament.code, this.render_options.font_scale, {
+            category: `ornament.${this.ornament.code}`,
+        });
+        if (Ornament.ornamentNoteTransition.indexOf(this.type) >= 0) {
+            this.delayed = true;
+        }
+        if (!metrics) {
+            this.glyph.setOrigin(0.5, 1.0);
+        }
     }
     setDelayed(delayed) {
         this.delayed = delayed;
@@ -140,8 +142,8 @@ export class Ornament extends Modifier {
         this.setRendered();
         const stemDir = note.getStemDirection();
         const stave = note.checkStave();
-        const classString = Object.keys(this.getAttribute('classes')).join(' ');
-        ctx.openGroup(classString, this.getAttribute('id'));
+        this.applyStyle();
+        ctx.openGroup('ornament', this.getAttribute('id'));
         const stemExtents = note.checkStem().getExtents();
         let y = stemDir === Stem.DOWN ? stemExtents.baseY : stemExtents.topY;
         if (isTabNote(note)) {
@@ -170,18 +172,20 @@ export class Ornament extends Modifier {
         glyphY += this.y_shift;
         if (this.delayed) {
             let delayXShift = 0;
-            const startX = glyphX - (stave.getX() - 10);
+            const startX = glyphX - stave.getNoteStartX();
             if (this.delayXShift !== undefined) {
                 delayXShift = this.delayXShift;
             }
             else {
                 delayXShift += this.glyph.getMetrics().width / 2;
-                const nextContext = TickContext.getNextContext(note.getTickContext());
+                const tickables = note.getVoice().getTickables();
+                const index = tickables.indexOf(note);
+                const nextContext = index + 1 < tickables.length ? tickables[index + 1].checkTickContext() : undefined;
                 if (nextContext) {
                     delayXShift += (nextContext.getX() - startX) * 0.5;
                 }
                 else {
-                    delayXShift += (stave.getX() + stave.getWidth() - startX) * 0.5;
+                    delayXShift += (stave.getX() + stave.getWidth() - glyphX) * 0.5;
                 }
                 this.delayXShift = delayXShift;
             }
@@ -205,6 +209,8 @@ export class Ornament extends Modifier {
             this.accidentalUpper.render(ctx, glyphX, glyphY);
         }
         ctx.closeGroup();
+        this.restoreStyle();
     }
 }
 Ornament.DEBUG = false;
+export { Ornament };

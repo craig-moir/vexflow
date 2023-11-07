@@ -50,7 +50,7 @@ function simple(options, contextBuilder) {
     voice.addTickables([note0, note1, note2, note3]);
     new Formatter().joinVoices([voice]).format([voice], 250);
     voice.draw(context, stave);
-    ok(true, 'Simple Test');
+    options.assert.ok(true, 'Simple Test');
 }
 function slurred(options, contextBuilder) {
     const { context, stave } = setupContext(options, contextBuilder);
@@ -73,7 +73,7 @@ function slurred(options, contextBuilder) {
     voice.addTickables([note0, note1]);
     new Formatter().joinVoices([voice]).format([voice], 200);
     voice.draw(context, stave);
-    ok(true, 'Slurred Test');
+    options.assert.ok(true, 'Slurred Test');
 }
 VexFlowTests.register(GraceTabNoteTests);
 export { GraceTabNoteTests };

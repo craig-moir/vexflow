@@ -8,6 +8,7 @@ export class TimeSignatureGlyph extends Glyph {
         this.topGlyphs = [];
         this.botGlyphs = [];
         let topWidth = 0;
+        let height = 0;
         for (let i = 0; i < topDigits.length; ++i) {
             let timeSigType = topDigits[i];
             switch (topDigits[i]) {
@@ -27,6 +28,7 @@ export class TimeSignatureGlyph extends Glyph {
             const topGlyph = new Glyph('timeSig' + timeSigType, this.timeSignature.point);
             this.topGlyphs.push(topGlyph);
             topWidth += (_a = topGlyph.getMetrics().width) !== null && _a !== void 0 ? _a : 0;
+            height = Math.max(height, topGlyph.getMetrics().height);
         }
         let botWidth = 0;
         for (let i = 0; i < botDigits.length; ++i) {
@@ -45,7 +47,9 @@ export class TimeSignatureGlyph extends Glyph {
             const botGlyph = new Glyph('timeSig' + timeSigType, this.timeSignature.point);
             this.botGlyphs.push(botGlyph);
             botWidth += defined(botGlyph.getMetrics().width);
+            height = Math.max(height, botGlyph.getMetrics().height);
         }
+        this.lineShift = height > 22 ? 1 : 0;
         this.width = Math.max(topWidth, botWidth);
         this.xMin = this.getMetrics().x_min;
         this.topStartX = (this.width - topWidth) / 2.0;
@@ -65,7 +69,7 @@ export class TimeSignatureGlyph extends Glyph {
         let start_x = x + this.topStartX;
         let y = 0;
         if (this.botGlyphs.length > 0)
-            y = stave.getYForLine(this.timeSignature.topLine);
+            y = stave.getYForLine(this.timeSignature.topLine - this.lineShift);
         else
             y = (stave.getYForLine(this.timeSignature.topLine) + stave.getYForLine(this.timeSignature.bottomLine)) / 2;
         for (let i = 0; i < this.topGlyphs.length; ++i) {
@@ -74,10 +78,10 @@ export class TimeSignatureGlyph extends Glyph {
             start_x += defined(glyph.getMetrics().width);
         }
         start_x = x + this.botStartX;
-        y = stave.getYForLine(this.timeSignature.bottomLine);
+        y = stave.getYForLine(this.timeSignature.bottomLine + this.lineShift);
         for (let i = 0; i < this.botGlyphs.length; ++i) {
             const glyph = this.botGlyphs[i];
-            this.timeSignature.placeGlyphOnLine(glyph, stave, 0);
+            this.timeSignature.placeGlyphOnLine(glyph, stave, this.timeSignature.getLine());
             Glyph.renderOutline(ctx, glyph.getMetrics().outline, this.scale, start_x + glyph.getMetrics().x_shift, y);
             start_x += defined(glyph.getMetrics().width);
         }

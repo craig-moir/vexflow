@@ -1,6 +1,6 @@
 import { Font } from '../font.js';
-import { GonvilleFont } from './gonville_glyphs.js';
-import { GonvilleMetrics } from './gonville_metrics.js';
+import { CommonMetrics } from './common_metrics.js';
+import { GonvilleSmuflFont } from './gonville_glyphs.js';
 export function loadGonville() {
-    Font.load('Gonville', GonvilleFont, GonvilleMetrics);
+    Font.load('Gonville', GonvilleSmuflFont, CommonMetrics);
 }

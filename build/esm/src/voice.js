@@ -1,7 +1,7 @@
 import { Element } from './element.js';
 import { Fraction } from './fraction.js';
 import { Tables } from './tables.js';
-import { defined, RuntimeError } from './util.js';
+import { defined, RuntimeError, sumArray } from './util.js';
 export var VoiceMode;
 (function (VoiceMode) {
     VoiceMode[VoiceMode["STRICT"] = 1] = "STRICT";
@@ -9,6 +9,12 @@ export var VoiceMode;
     VoiceMode[VoiceMode["FULL"] = 3] = "FULL";
 })(VoiceMode || (VoiceMode = {}));
 export class Voice extends Element {
+    static get CATEGORY() {
+        return "Voice";
+    }
+    static get Mode() {
+        return VoiceMode;
+    }
     constructor(time) {
         super();
         this.resolutionMultiplier = 1;
@@ -36,12 +42,6 @@ export class Voice extends Element {
         this.time = Object.assign({ num_beats: 4, beat_value: 4, resolution: Tables.RESOLUTION }, voiceTime);
         this.totalTicks = new Fraction(this.time.num_beats * (this.time.resolution / this.time.beat_value), 1);
         this.smallestTickCount = this.totalTicks.clone();
-    }
-    static get CATEGORY() {
-        return "Voice";
-    }
-    static get Mode() {
-        return VoiceMode;
     }
     getTotalTicks() {
         return this.totalTicks;
@@ -85,7 +85,8 @@ export class Voice extends Element {
             let boundingBox = undefined;
             for (let i = 0; i < this.tickables.length; ++i) {
                 const tickable = this.tickables[i];
-                tickable.setStave(stave);
+                if (!tickable.getStave())
+                    tickable.setStave(stave);
                 const bb = tickable.getBoundingBox();
                 if (bb) {
                     boundingBox = boundingBox ? boundingBox.mergeWith(bb) : bb;
@@ -109,12 +110,13 @@ export class Voice extends Element {
     }
     setSoftmaxFactor(factor) {
         this.options.softmaxFactor = factor;
+        this.expTicksUsed = 0;
         return this;
     }
     reCalculateExpTicksUsed() {
         const totalTicks = this.ticksUsed.value();
         const exp = (tickable) => Math.pow(this.options.softmaxFactor, tickable.getTicks().value() / totalTicks);
-        this.expTicksUsed = this.tickables.map(exp).reduce((a, b) => a + b, 0);
+        this.expTicksUsed = sumArray(this.tickables.map(exp));
         return this.expTicksUsed;
     }
     softmax(tickValue) {

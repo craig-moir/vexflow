@@ -53,6 +53,12 @@ export interface TupletOptions {
     ratioed?: boolean;
     y_offset?: number;
 }
+export interface TupletMetrics {
+    noteHeadOffset: number;
+    stemOffset: number;
+    bottomLine: number;
+    topModifierOffset: number;
+}
 export declare const enum TupletLocation {
     BOTTOM = -1,
     TOP = 1
@@ -75,7 +81,7 @@ export declare class Tuplet extends Element {
     static get LOCATION_TOP(): number;
     static get LOCATION_BOTTOM(): number;
     static get NESTING_OFFSET(): number;
-    static get metrics(): any;
+    static get metrics(): TupletMetrics;
     constructor(notes: Note[], options?: TupletOptions);
     attach(): void;
     detach(): void;

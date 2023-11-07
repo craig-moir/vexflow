@@ -23,7 +23,7 @@ function createTest(noteGroup1, noteGroup2, setupCurves) {
         const voices = [score.voice(staveNotes, { time: '4/4' })];
         factory.Formatter().joinVoices(voices).formatToStave(voices, stave);
         factory.draw();
-        ok('Simple Curve');
+        options.assert.ok('Simple Curve');
     };
 }
 const simple = createTest(['c4/8, f5, d5, g5', { stem: 'up' }], ['d6/8, f5, d5, g5', { stem: 'down' }], (f, notes) => {

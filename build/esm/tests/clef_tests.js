@@ -29,7 +29,7 @@ function draw(options) {
         .addClef('french')
         .addEndClef('treble');
     f.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawEnd(options) {
     const f = VexFlowTests.makeFactory(options, 800, 120);
@@ -50,7 +50,7 @@ function drawEnd(options) {
         .addEndClef('percussion')
         .addEndClef('french');
     f.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawSmall(options) {
     const f = VexFlowTests.makeFactory(options, 800, 120);
@@ -71,7 +71,7 @@ function drawSmall(options) {
         .addClef('french', 'small')
         .addEndClef('treble', 'small');
     f.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawSmallEnd(options) {
     const f = VexFlowTests.makeFactory(options, 800, 120);
@@ -92,7 +92,7 @@ function drawSmallEnd(options) {
         .addEndClef('percussion', 'small')
         .addEndClef('french', 'small');
     f.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawClefChange(options) {
     const f = VexFlowTests.makeFactory(options, 800, 180);
@@ -125,7 +125,7 @@ function drawClefChange(options) {
     const voice = f.Voice({ time: '12/4' }).addTickables(notes);
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 VexFlowTests.register(ClefTests);
 export { ClefTests };

@@ -19,7 +19,11 @@ function get_semibreve_rest() {
     return semibreve_rest;
 }
 export class MultiMeasureRest extends Element {
+    static get CATEGORY() {
+        return "MultiMeasureRest";
+    }
     constructor(number_of_measures, options) {
+        var _a;
         super();
         this.xs = { left: NaN, right: NaN };
         this.hasPaddingLeft = false;
@@ -32,12 +36,9 @@ export class MultiMeasureRest extends Element {
         this.hasLineThickness = typeof options.line_thickness === 'number';
         this.hasSymbolSpacing = typeof options.symbol_spacing === 'number';
         const musicFont = Tables.currentMusicFont();
-        this.render_options = Object.assign({ use_symbols: false, show_number: true, number_line: -0.5, number_glyph_point: musicFont.lookupMetric('digits.point'), line: 2, spacing_between_lines_px: Tables.STAVE_LINE_DISTANCE, serif_thickness: 2, semibreve_rest_glyph_scale: Tables.NOTATION_FONT_SCALE, padding_left: 0, padding_right: 0, line_thickness: 5, symbol_spacing: 0 }, options);
+        this.render_options = Object.assign({ use_symbols: false, show_number: true, number_line: -0.5, number_glyph_point: (_a = musicFont.lookupMetric('digits.point')) !== null && _a !== void 0 ? _a : Tables.NOTATION_FONT_SCALE, line: 2, spacing_between_lines_px: Tables.STAVE_LINE_DISTANCE, serif_thickness: 2, semibreve_rest_glyph_scale: Tables.NOTATION_FONT_SCALE, padding_left: 0, padding_right: 0, line_thickness: 5, symbol_spacing: 0 }, options);
         const fontLineShift = musicFont.lookupMetric('digits.shiftLine', 0);
         this.render_options.number_line += fontLineShift;
-    }
-    static get CATEGORY() {
-        return "MultiMeasureRest";
     }
     getXs() {
         return this.xs;

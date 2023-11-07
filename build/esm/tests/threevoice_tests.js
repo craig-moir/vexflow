@@ -30,7 +30,7 @@ function createThreeVoicesTest(noteGroup1, noteGroup2, noteGroup3, setup) {
         for (let i = 0; i < beams.length; i++) {
             beams[i].setContext(factory.getContext()).draw();
         }
-        ok(true);
+        options.assert.ok(true);
     };
 }
 const threeVoices1 = createThreeVoicesTest(['e5/2, e5', { stem: 'up' }], ['(d4 a4 d#5)/8, b4, (d4 a4 c5), b4, (d4 a4 c5), b4, (d4 a4 c5), b4', { stem: 'down' }], ['b3/4, e3, f3, a3', { stem: 'down' }], (f, voices) => {
@@ -83,7 +83,7 @@ function autoRestTwoVoices(options) {
     for (let i = 0; i < beams.length; i++) {
         beams[i].setContext(f.getContext()).draw();
     }
-    ok(true, 'Auto Adjust Rests - Two Voices');
+    options.assert.ok(true, 'Auto Adjust Rests - Two Voices');
 }
 function autoRestThreeVoices1(options) {
     const f = VexFlowTests.makeFactory(options, 850, 200);
@@ -106,7 +106,7 @@ function autoRestThreeVoices1(options) {
     createMeasure('Default Rest Positions', 400, false);
     createMeasure('Rests Repositioned To Avoid Collisions', 400, true);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function autoRestThreeVoices2(options) {
     const f = VexFlowTests.makeFactory(options, 850, 200);
@@ -126,7 +126,7 @@ function autoRestThreeVoices2(options) {
     createMeasure('Default Rest Positions', 400, false);
     createMeasure('Rests Repositioned To Avoid Collisions', 400, true);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 VexFlowTests.register(ThreeVoicesTests);
 export { ThreeVoicesTests };

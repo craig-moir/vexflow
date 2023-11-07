@@ -36,7 +36,7 @@ function drawSingle(options, contextBuilder) {
     stave1.draw();
     stave2.draw();
     connector.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawSingle4pxStaveLines(options, contextBuilder) {
     const oldThickness = Flow.STAVE_LINE_THICKNESS;
@@ -53,7 +53,7 @@ function drawSingle4pxStaveLines(options, contextBuilder) {
     stave2.draw();
     connector.draw();
     Flow.STAVE_LINE_THICKNESS = oldThickness;
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawSingleBoth(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 400, 300);
@@ -71,7 +71,7 @@ function drawSingleBoth(options, contextBuilder) {
     stave2.draw();
     connector1.draw();
     connector2.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawDouble(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 400, 300);
@@ -90,7 +90,7 @@ function drawDouble(options, contextBuilder) {
     stave2.draw();
     connector.draw();
     line.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawBrace(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 450, 300);
@@ -110,7 +110,7 @@ function drawBrace(options, contextBuilder) {
     stave2.draw();
     connector.draw();
     line.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawBraceWide(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 400, 300);
@@ -129,7 +129,7 @@ function drawBraceWide(options, contextBuilder) {
     stave2.draw();
     connector.draw();
     line.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawBracket(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 400, 300);
@@ -148,7 +148,7 @@ function drawBracket(options, contextBuilder) {
     stave2.draw();
     connector.draw();
     line.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawRepeatBegin(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 400, 300);
@@ -164,7 +164,7 @@ function drawRepeatBegin(options, contextBuilder) {
     stave1.draw();
     stave2.draw();
     line.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawRepeatEnd(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 400, 300);
@@ -180,7 +180,7 @@ function drawRepeatEnd(options, contextBuilder) {
     stave1.draw();
     stave2.draw();
     line.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawThinDouble(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 400, 300);
@@ -196,7 +196,7 @@ function drawThinDouble(options, contextBuilder) {
     stave1.draw();
     stave2.draw();
     line.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawRepeatAdjacent(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 400, 300);
@@ -236,7 +236,7 @@ function drawRepeatAdjacent(options, contextBuilder) {
     connector2.draw();
     connector3.draw();
     connector4.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawRepeatOffset2(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 400, 300);
@@ -290,7 +290,7 @@ function drawRepeatOffset2(options, contextBuilder) {
     connector3.draw();
     connector4.draw();
     connector5.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawRepeatOffset(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 400, 300);
@@ -346,7 +346,7 @@ function drawRepeatOffset(options, contextBuilder) {
     connector3.draw();
     connector4.draw();
     connector5.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 function drawCombined(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 550, 700);
@@ -396,7 +396,7 @@ function drawCombined(options, contextBuilder) {
     conn_bracket.draw();
     conn_none.draw();
     conn_brace.draw();
-    ok(true, 'all pass');
+    options.assert.ok(true, 'all pass');
 }
 VexFlowTests.register(StaveConnectorTests);
 export { StaveConnectorTests };

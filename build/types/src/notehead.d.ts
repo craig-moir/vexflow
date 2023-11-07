@@ -1,8 +1,11 @@
 import { BoundingBox } from './boundingbox';
 import { ElementStyle } from './element';
-import { GlyphProps } from './glyph';
 import { Note, NoteStruct } from './note';
 import { Stave } from './stave';
+export interface NoteHeadMetrics {
+    minPadding?: number;
+    displacedShiftX?: number;
+}
 export interface NoteHeadStruct extends NoteStruct {
     line?: number;
     glyph_font_scale?: number;
@@ -45,8 +48,6 @@ export declare class NoteHead extends Note {
     getWidth(): number;
     /** Determine if the notehead is displaced. */
     isDisplaced(): boolean;
-    /** Get the glyph data. */
-    getGlyph(): GlyphProps;
     /** Set the X coordinate. */
     setX(x: number): this;
     /** Get the Y coordinate. */

@@ -592,6 +592,14 @@ export declare const LelandFont: {
             ha: number;
             o: string;
         };
+        accidentalBuyukMucennebSharp: {
+            x_min: number;
+            x_max: number;
+            y_min: number;
+            y_max: number;
+            ha: number;
+            o: string;
+        };
         accidentalBakiyeFlat: {
             x_min: number;
             x_max: number;

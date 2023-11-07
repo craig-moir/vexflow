@@ -2,18 +2,6 @@ import { Bend } from './bend.js';
 import { Modifier } from './modifier.js';
 import { Tables } from './tables.js';
 export class Vibrato extends Modifier {
-    constructor() {
-        super();
-        this.position = Modifier.Position.RIGHT;
-        this.render_options = {
-            harsh: false,
-            vibrato_width: 20,
-            wave_height: 6,
-            wave_width: 4,
-            wave_girth: 2,
-        };
-        this.setVibratoWidth(this.render_options.vibrato_width);
-    }
     static get CATEGORY() {
         return "Vibrato";
     }
@@ -40,6 +28,18 @@ export class Vibrato extends Modifier {
         }
         state.right_shift += width;
         return true;
+    }
+    constructor() {
+        super();
+        this.position = Modifier.Position.RIGHT;
+        this.render_options = {
+            harsh: false,
+            vibrato_width: 20,
+            wave_height: 6,
+            wave_width: 4,
+            wave_girth: 2,
+        };
+        this.setVibratoWidth(this.render_options.vibrato_width);
     }
     setHarsh(harsh) {
         this.render_options.harsh = harsh;

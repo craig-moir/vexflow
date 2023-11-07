@@ -25,8 +25,6 @@ function showOneNote(note1, stave, ctx, x) {
 }
 function basic(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 1000, 240);
-    ctx.setFillStyle('#221');
-    ctx.setStrokeStyle('#221');
     const stave = new Stave(10, 10, 975);
     stave.setContext(ctx);
     stave.draw();
@@ -68,19 +66,17 @@ function basic(options, contextBuilder) {
     for (let i = 0; i < notes.length; i++) {
         showOneNote(notes[i], stave, ctx, 30 + i * 65);
         const dots = notes[i].getModifiersByType('Dot');
-        ok(dots.length > 0, 'Note ' + i + ' has dots');
+        options.assert.ok(dots.length > 0, 'Note ' + i + ' has dots');
         for (let j = 0; j < dots.length; ++j) {
-            ok(dots[j].getWidth() > 0, 'Dot ' + j + ' has width set');
+            options.assert.ok(dots[j].getWidth() > 0, 'Dot ' + j + ' has width set');
         }
     }
     beam.setContext(ctx).draw();
     VexFlowTests.plotLegendForNoteWidth(ctx, 890, 140);
-    ok(true, 'Full Dot');
+    options.assert.ok(true, 'Full Dot');
 }
 function multiVoice(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 750, 300);
-    ctx.setFillStyle('#221');
-    ctx.setStrokeStyle('#221');
     const stave = new Stave(30, 45, 700).setContext(ctx).draw();
     const notes1 = [
         new StaveNote({ keys: ['c/4', 'e/4', 'a/4'], duration: '2', stem_direction: -1 }),
@@ -117,7 +113,7 @@ function multiVoice(options, contextBuilder) {
     notes1.forEach((note) => Note.plotMetrics(ctx, note, 190));
     notes2.forEach((note) => Note.plotMetrics(ctx, note, 20));
     VexFlowTests.plotLegendForNoteWidth(ctx, 620, 220);
-    ok(true, 'Full Dot');
+    options.assert.ok(true, 'Full Dot');
 }
 VexFlowTests.register(DotTests);
 export { DotTests };

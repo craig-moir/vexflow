@@ -46,5 +46,9 @@ export declare class KeySignature extends StaveModifier {
     alterKey(alterKeySpec: string[]): this;
     convertToAlterAccList(alterKeySpec: string[]): void;
     format(): void;
+    /**
+     * Return the Glyph objects making up this KeySignature.
+     */
+    getGlyphs(): Glyph[];
     draw(): void;
 }

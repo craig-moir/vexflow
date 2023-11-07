@@ -24,8 +24,6 @@ const bendWithPhrase = (phrase) => new Bend('', false, phrase);
 function doubleBends(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 500, 240);
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     ctx.font = '10pt Arial';
     const stave = new TabStave(10, 10, 450).addTabGlyph().setContext(ctx).draw();
     const notes = [
@@ -54,7 +52,7 @@ function doubleBends(options, contextBuilder) {
     ];
     Formatter.FormatAndDraw(ctx, stave, notes);
     notes.forEach((note) => Note.plotMetrics(ctx, note, 140));
-    ok(true, 'Double Bends');
+    options.assert.ok(true, 'Double Bends');
 }
 function doubleBendsWithRelease(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 550, 240);
@@ -94,13 +92,11 @@ function doubleBendsWithRelease(options, contextBuilder) {
     ];
     Formatter.FormatAndDraw(ctx, stave, notes);
     notes.forEach((note) => Note.plotMetrics(ctx, note, 140));
-    ok(true, 'Bend Release');
+    options.assert.ok(true, 'Bend Release');
 }
 function reverseBends(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 500, 240);
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     ctx.setFont('10pt Arial');
     const stave = new TabStave(10, 10, 450).addTabGlyph().setContext(ctx).draw();
     const notes = [
@@ -138,14 +134,12 @@ function reverseBends(options, contextBuilder) {
             .setX(75 * i);
         note.setStave(stave).setContext(ctx).draw();
         Note.plotMetrics(ctx, note, 140);
-        ok(true, 'Bend ' + i);
+        options.assert.ok(true, 'Bend ' + i);
     }
 }
 function bendPhrase(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 500, 240);
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     ctx.font = Font.SIZE + 'pt ' + Font.SANS_SERIF;
     const stave = new TabStave(10, 10, 450).addTabGlyph().setContext(ctx).draw();
     const phrase1 = [
@@ -171,7 +165,7 @@ function bendPhrase(options, contextBuilder) {
             .setX(75 * i);
         note.setStave(stave).setContext(ctx).draw();
         Note.plotMetrics(ctx, note, 140);
-        ok(true, 'Bend ' + i);
+        options.assert.ok(true, 'Bend ' + i);
     }
 }
 function whackoBends(options, contextBuilder) {
@@ -209,7 +203,7 @@ function whackoBends(options, contextBuilder) {
     ];
     Formatter.FormatAndDraw(ctx, stave, notes);
     Note.plotMetrics(ctx, notes[0], 140);
-    ok(true, 'Whacko Bend & Release');
+    options.assert.ok(true, 'Whacko Bend & Release');
 }
 VexFlowTests.register(BendTests);
 export { BendTests };

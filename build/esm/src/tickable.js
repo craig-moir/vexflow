@@ -3,6 +3,9 @@ import { Fraction } from './fraction.js';
 import { Tables } from './tables.js';
 import { defined, RuntimeError } from './util.js';
 export class Tickable extends Element {
+    static get CATEGORY() {
+        return "Tickable";
+    }
     constructor() {
         super();
         this._preFormatted = false;
@@ -27,9 +30,6 @@ export class Tickable extends Element {
                 deviation: 0,
             },
         };
-    }
-    static get CATEGORY() {
-        return "Tickable";
     }
     reset() {
         return this;

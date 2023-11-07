@@ -25,3 +25,7 @@ export declare function prefix(text: string): string;
  * Convert an arbitrary angle in radians to the equivalent one in the range [0, pi).
  */
 export declare function normalizeAngle(a: number): number;
+/**
+ * Return the sum of an array of numbers.
+ */
+export declare function sumArray(arr: number[]): number;

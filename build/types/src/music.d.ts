@@ -11,9 +11,9 @@ export interface KeyParts {
     accidental: string;
     type: string;
 }
-export declare type KeyValue = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
-export declare type RootValue = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-export declare type AccidentalValue = -2 | -1 | 0 | 1 | 2;
+export type KeyValue = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
+export type RootValue = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type AccidentalValue = -2 | -1 | 0 | 1 | 2;
 export interface Key {
     root_index: RootValue;
     int_val: KeyValue;

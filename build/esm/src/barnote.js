@@ -5,7 +5,10 @@ function L(...args) {
     if (BarNote.DEBUG)
         log('Vex.Flow.BarNote', args);
 }
-export class BarNote extends Note {
+class BarNote extends Note {
+    static get CATEGORY() {
+        return "BarNote";
+    }
     constructor(type = BarlineType.SINGLE) {
         super({ duration: 'b' });
         this.metrics = {
@@ -23,9 +26,6 @@ export class BarNote extends Note {
         };
         this.ignore_ticks = true;
         this.setType(type);
-    }
-    static get CATEGORY() {
-        return "BarNote";
     }
     getType() {
         return this.type;
@@ -45,14 +45,13 @@ export class BarNote extends Note {
     draw() {
         const ctx = this.checkContext();
         L('Rendering bar line at: ', this.getAbsoluteX());
-        if (this.style)
-            this.applyStyle(ctx);
+        this.applyStyle(ctx);
         const barline = new Barline(this.type);
         barline.setX(this.getAbsoluteX());
         barline.draw(this.checkStave());
-        if (this.style)
-            this.restoreStyle(ctx);
+        this.restoreStyle(ctx);
         this.setRendered();
     }
 }
 BarNote.DEBUG = false;
+export { BarNote };

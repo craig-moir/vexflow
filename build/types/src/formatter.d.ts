@@ -9,7 +9,7 @@ import { Tickable } from './tickable';
 import { TickContext } from './tickcontext';
 import { Voice } from './voice';
 export interface FormatterOptions {
-    /** Defaults to 100. */
+    /** Defaults to Tables.SOFTMAX_FACTOR. */
     softmaxFactor?: number;
     /** Defaults to `false`. */
     globalSoftmax?: boolean;
@@ -26,6 +26,11 @@ export interface AlignmentContexts<T> {
     list: number[];
     map: Record<number, T>;
     array: T[];
+    resolutionMultiplier: number;
+}
+export interface AlignmentModifierContexts {
+    map: Map<Stave | undefined, Record<number, ModifierContext>>;
+    array: ModifierContext[];
     resolutionMultiplier: number;
 }
 /**
@@ -58,9 +63,9 @@ export declare class Formatter {
     protected justifyWidth: number;
     protected totalCost: number;
     protected totalShift: number;
-    protected tickContexts?: AlignmentContexts<TickContext>;
+    protected tickContexts: AlignmentContexts<TickContext>;
     protected formatterOptions: Required<FormatterOptions>;
-    protected modifierContexts?: AlignmentContexts<ModifierContext>;
+    protected modifierContexts: AlignmentModifierContexts[];
     protected voices: Voice[];
     protected lossHistory: number[];
     protected durationStats: Record<string, {
@@ -152,16 +157,21 @@ export declare class Formatter {
     /** Calculate the resolution multiplier for `voices`. */
     static getResolutionMultiplier(voices: Voice[]): number;
     /** Create a `ModifierContext` for each tick in `voices`. */
-    createModifierContexts(voices: Voice[]): AlignmentContexts<ModifierContext>;
+    createModifierContexts(voices: Voice[]): void;
     /**
      * Create a `TickContext` for each tick in `voices`. Also calculate the
      * total number of ticks in voices.
      */
     createTickContexts(voices: Voice[]): AlignmentContexts<TickContext>;
     /**
+     * Get the AlignmentContexts of TickContexts that were created by createTickContexts.
+     * Returns undefined if createTickContexts has not yet been run.
+     */
+    getTickContexts(): AlignmentContexts<TickContext> | undefined;
+    /**
      * This is the core formatter logic. Format voices and justify them
      * to `justifyWidth` pixels. `renderingContext` is required to justify elements
-     * that can't retreive widths without a canvas. This method sets the `x` positions
+     * that can't retrieve widths without a canvas. This method sets the `x` positions
      * of all the tickables/notes in the formatter.
      */
     preFormat(justifyWidth?: number, renderingContext?: RenderContext, voicesParam?: Voice[], stave?: Stave): number;
@@ -172,7 +182,7 @@ export declare class Formatter {
      * the overall "loss" (or cost) of this layout, and repositions tickcontexts in an
      * attempt to reduce the cost. You can call this method multiple times until it finds
      * and oscillates around a global minimum.
-     * @param alpha the "learning rate" for the formatter. It determines how much of a shift
+     * @param options[alpha] the "learning rate" for the formatter. It determines how much of a shift
      * the formatter should make based on its cost function.
      */
     tune(options?: {

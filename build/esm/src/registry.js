@@ -7,9 +7,6 @@ class Index {
     }
 }
 export class Registry {
-    constructor() {
-        this.index = new Index();
-    }
     static getDefaultRegistry() {
         return Registry.defaultRegistry;
     }
@@ -18,6 +15,9 @@ export class Registry {
     }
     static disableDefaultRegistry() {
         Registry.defaultRegistry = undefined;
+    }
+    constructor() {
+        this.index = new Index();
     }
     clear() {
         this.index = new Index();

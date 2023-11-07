@@ -3,30 +3,7 @@ import { Modifier } from './modifier.js';
 import { TextFormatter } from './textformatter.js';
 import { isTabNote } from './typeguard.js';
 import { RuntimeError } from './util.js';
-export class Bend extends Modifier {
-    constructor(text, release = false, phrase) {
-        super();
-        this.text = text;
-        this.x_shift = 0;
-        this.release = release;
-        this.tap = '';
-        this.resetFont();
-        this.render_options = {
-            line_width: 1.5,
-            line_style: '#777777',
-            bend_width: 8,
-            release_width: 8,
-        };
-        if (phrase) {
-            this.phrase = phrase;
-        }
-        else {
-            this.phrase = [{ type: Bend.UP, text: this.text }];
-            if (this.release)
-                this.phrase.push({ type: Bend.DOWN, text: '' });
-        }
-        this.updateWidth();
-    }
+class Bend extends Modifier {
     static get CATEGORY() {
         return "Bend";
     }
@@ -56,6 +33,29 @@ export class Bend extends Modifier {
         state.right_shift += last_width;
         state.top_text_line += 1;
         return true;
+    }
+    constructor(text, release = false, phrase) {
+        super();
+        this.text = text;
+        this.x_shift = 0;
+        this.release = release;
+        this.tap = '';
+        this.resetFont();
+        this.render_options = {
+            line_width: 1.5,
+            line_style: '#777777',
+            bend_width: 8,
+            release_width: 8,
+        };
+        if (phrase) {
+            this.phrase = phrase;
+        }
+        else {
+            this.phrase = [{ type: Bend.UP, text: this.text }];
+            if (this.release)
+                this.phrase.push({ type: Bend.DOWN, text: '' });
+        }
+        this.updateWidth();
     }
     setXShift(value) {
         this.x_shift = value;
@@ -200,3 +200,4 @@ export class Bend extends Modifier {
     }
 }
 Bend.TEXT_FONT = Object.assign({}, Element.TEXT_FONT);
+export { Bend };

@@ -152,7 +152,7 @@ const accidentals = {
     o: { code: 'accidentalSori', parenRightPaddingAdjustment: -1 },
     k: { code: 'accidentalKoron', parenRightPaddingAdjustment: -1 },
     bbs: { code: 'vexAccidentalMicrotonal1', parenRightPaddingAdjustment: -1 },
-    '++-': { code: 'vexAccidentalMicrotonal2', parenRightPaddingAdjustment: -1 },
+    '++-': { code: 'accidentalBuyukMucennebSharp', parenRightPaddingAdjustment: -1 },
     ashs: { code: 'vexAccidentalMicrotonal3', parenRightPaddingAdjustment: -1 },
     afhf: { code: 'vexAccidentalMicrotonal4', parenRightPaddingAdjustment: -1 },
     accSagittal5v7KleismaUp: { code: 'accSagittal5v7KleismaUp', parenRightPaddingAdjustment: -1 },
@@ -501,7 +501,7 @@ const ornaments = {
     jazzTurn: { code: 'brassJazzTurn' },
     smear: { code: 'brassSmear' },
 };
-export class Tables {
+class Tables {
     static currentMusicFont() {
         if (Tables.MUSIC_FONT_STACK.length === 0) {
             throw new RuntimeError('NoFonts', 'The font stack is empty. See: await Flow.fetchMusicFont(...); Flow.setMusicFont(...).');
@@ -532,7 +532,7 @@ export class Tables {
         if (value.octave)
             pieces[1] = value.octave.toString();
         let octave = parseInt(pieces[1], 10);
-        octave += -1 * options.octave_shift;
+        octave -= options.octave_shift;
         const baseIndex = octave * 7 - 4 * 7;
         let line = (baseIndex + value.index) / 2;
         line += Tables.clefProperties(clef).line_shift;
@@ -580,7 +580,7 @@ export class Tables {
         }
         return noteValue;
     }
-    static tabToGlyph(fret, scale = 1.0) {
+    static tabToGlyphProps(fret, scale = 1.0) {
         let glyph = undefined;
         let width = 0;
         let shift_y = 0;
@@ -905,11 +905,11 @@ export class Tables {
     }
     static getGlyphProps(duration, type = 'n') {
         duration = Tables.sanitizeDuration(duration);
-        const code = durationCodes[duration];
+        let code = durationCodes[duration];
         if (code === undefined) {
-            return undefined;
+            code = durationCodes['4'];
         }
-        let glyphTypeProperties = code.type[type];
+        let glyphTypeProperties = code[type];
         const codeNoteHead = Tables.codeNoteHead(type.toUpperCase(), duration);
         if (codeNoteHead != '')
             glyphTypeProperties = Object.assign(Object.assign({}, glyphTypeProperties), { code_head: codeNoteHead, code: codeNoteHead });
@@ -918,7 +918,8 @@ export class Tables {
         return Object.assign(Object.assign(Object.assign({}, code.common), { getWidth: getWidth }), glyphTypeProperties);
     }
 }
-Tables.SOFTMAX_FACTOR = 100;
+Tables.UNISON = true;
+Tables.SOFTMAX_FACTOR = 10;
 Tables.STEM_WIDTH = 1.5;
 Tables.STEM_HEIGHT = 35;
 Tables.STAVE_LINE_THICKNESS = 1;
@@ -947,11 +948,12 @@ Tables.TIME4_4 = {
     beat_value: 4,
     resolution: RESOLUTION,
 };
+export { Tables };
 const durationCodes = {
     '1/2': {
         common: {
+            code_head: '',
             stem: false,
-            stem_offset: 0,
             flag: false,
             stem_up_extension: -Tables.STEM_HEIGHT,
             stem_down_extension: -Tables.STEM_HEIGHT,
@@ -961,23 +963,21 @@ const durationCodes = {
             line_above: 0,
             line_below: 0,
         },
-        type: {
-            r: {
-                code_head: 'restDoubleWhole',
-                rest: true,
-                position: 'B/5',
-                dot_shiftY: 0.5,
-            },
-            s: {
-                getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
-                position: 'B/4',
-            },
+        r: {
+            code_head: 'restDoubleWhole',
+            rest: true,
+            position: 'B/5',
+            dot_shiftY: 0.5,
+        },
+        s: {
+            getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
+            position: 'B/4',
         },
     },
     1: {
         common: {
+            code_head: '',
             stem: false,
-            stem_offset: 0,
             flag: false,
             stem_up_extension: -Tables.STEM_HEIGHT,
             stem_down_extension: -Tables.STEM_HEIGHT,
@@ -987,24 +987,22 @@ const durationCodes = {
             line_above: 0,
             line_below: 0,
         },
-        type: {
-            r: {
-                code_head: 'restWhole',
-                leger_code_head: 'restWholeLegerLine',
-                rest: true,
-                position: 'D/5',
-                dot_shiftY: 0.5,
-            },
-            s: {
-                getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
-                position: 'B/4',
-            },
+        r: {
+            code_head: 'restWhole',
+            ledger_code_head: 'restWholeLegerLine',
+            rest: true,
+            position: 'D/5',
+            dot_shiftY: 0.5,
+        },
+        s: {
+            getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
+            position: 'B/4',
         },
     },
     2: {
         common: {
+            code_head: '',
             stem: true,
-            stem_offset: 0,
             flag: false,
             stem_up_extension: 0,
             stem_down_extension: 0,
@@ -1014,25 +1012,23 @@ const durationCodes = {
             line_above: 0,
             line_below: 0,
         },
-        type: {
-            r: {
-                code_head: 'restHalf',
-                leger_code_head: 'restHalfLegerLine',
-                stem: false,
-                rest: true,
-                position: 'B/4',
-                dot_shiftY: -0.5,
-            },
-            s: {
-                getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
-                position: 'B/4',
-            },
+        r: {
+            code_head: 'restHalf',
+            ledger_code_head: 'restHalfLegerLine',
+            stem: false,
+            rest: true,
+            position: 'B/4',
+            dot_shiftY: -0.5,
+        },
+        s: {
+            getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
+            position: 'B/4',
         },
     },
     4: {
         common: {
+            code_head: '',
             stem: true,
-            stem_offset: 0,
             flag: false,
             stem_up_extension: 0,
             stem_down_extension: 0,
@@ -1042,26 +1038,24 @@ const durationCodes = {
             line_above: 0,
             line_below: 0,
         },
-        type: {
-            r: {
-                code_head: 'restQuarter',
-                stem: false,
-                rest: true,
-                position: 'B/4',
-                dot_shiftY: -0.5,
-                line_above: 1.5,
-                line_below: 1.5,
-            },
-            s: {
-                getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
-                position: 'B/4',
-            },
+        r: {
+            code_head: 'restQuarter',
+            stem: false,
+            rest: true,
+            position: 'B/4',
+            dot_shiftY: -0.5,
+            line_above: 1.5,
+            line_below: 1.5,
+        },
+        s: {
+            getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
+            position: 'B/4',
         },
     },
     8: {
         common: {
+            code_head: '',
             stem: true,
-            stem_offset: 0,
             flag: true,
             beam_count: 1,
             stem_beam_extension: 0,
@@ -1075,29 +1069,27 @@ const durationCodes = {
             line_above: 0,
             line_below: 0,
         },
-        type: {
-            r: {
-                code_head: 'rest8th',
-                stem: false,
-                flag: false,
-                rest: true,
-                position: 'B/4',
-                dot_shiftY: -0.5,
-                line_above: 1.0,
-                line_below: 1.0,
-            },
-            s: {
-                getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
-                position: 'B/4',
-            },
+        r: {
+            code_head: 'rest8th',
+            stem: false,
+            flag: false,
+            rest: true,
+            position: 'B/4',
+            dot_shiftY: -0.5,
+            line_above: 1.0,
+            line_below: 1.0,
+        },
+        s: {
+            getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
+            position: 'B/4',
         },
     },
     16: {
         common: {
+            code_head: '',
             beam_count: 2,
             stem_beam_extension: 0,
             stem: true,
-            stem_offset: 0,
             flag: true,
             code_flag_upstem: 'flag16thUp',
             code_flag_downstem: 'flag16thDown',
@@ -1109,29 +1101,27 @@ const durationCodes = {
             line_above: 0,
             line_below: 0,
         },
-        type: {
-            r: {
-                code_head: 'rest16th',
-                stem: false,
-                flag: false,
-                rest: true,
-                position: 'B/4',
-                dot_shiftY: -0.5,
-                line_above: 1.0,
-                line_below: 2.0,
-            },
-            s: {
-                getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
-                position: 'B/4',
-            },
+        r: {
+            code_head: 'rest16th',
+            stem: false,
+            flag: false,
+            rest: true,
+            position: 'B/4',
+            dot_shiftY: -0.5,
+            line_above: 1.0,
+            line_below: 2.0,
+        },
+        s: {
+            getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
+            position: 'B/4',
         },
     },
     32: {
         common: {
+            code_head: '',
             beam_count: 3,
             stem_beam_extension: 7.5,
             stem: true,
-            stem_offset: 0,
             flag: true,
             code_flag_upstem: 'flag32ndUp',
             code_flag_downstem: 'flag32ndDown',
@@ -1143,29 +1133,27 @@ const durationCodes = {
             line_above: 0,
             line_below: 0,
         },
-        type: {
-            r: {
-                code_head: 'rest32nd',
-                stem: false,
-                flag: false,
-                rest: true,
-                position: 'B/4',
-                dot_shiftY: -1.5,
-                line_above: 2.0,
-                line_below: 2.0,
-            },
-            s: {
-                getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
-                position: 'B/4',
-            },
+        r: {
+            code_head: 'rest32nd',
+            stem: false,
+            flag: false,
+            rest: true,
+            position: 'B/4',
+            dot_shiftY: -1.5,
+            line_above: 2.0,
+            line_below: 2.0,
+        },
+        s: {
+            getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
+            position: 'B/4',
         },
     },
     64: {
         common: {
+            code_head: '',
             beam_count: 4,
             stem_beam_extension: 15,
             stem: true,
-            stem_offset: 0,
             flag: true,
             code_flag_upstem: 'flag64thUp',
             code_flag_downstem: 'flag64thDown',
@@ -1177,29 +1165,27 @@ const durationCodes = {
             line_above: 0,
             line_below: 0,
         },
-        type: {
-            r: {
-                code_head: 'rest64th',
-                stem: false,
-                flag: false,
-                rest: true,
-                position: 'B/4',
-                dot_shiftY: -1.5,
-                line_above: 2.0,
-                line_below: 3.0,
-            },
-            s: {
-                getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
-                position: 'B/4',
-            },
+        r: {
+            code_head: 'rest64th',
+            stem: false,
+            flag: false,
+            rest: true,
+            position: 'B/4',
+            dot_shiftY: -1.5,
+            line_above: 2.0,
+            line_below: 3.0,
+        },
+        s: {
+            getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
+            position: 'B/4',
         },
     },
     128: {
         common: {
+            code_head: '',
             beam_count: 5,
             stem_beam_extension: 22.5,
             stem: true,
-            stem_offset: 0,
             flag: true,
             code_flag_upstem: 'flag128thUp',
             code_flag_downstem: 'flag128thDown',
@@ -1211,21 +1197,19 @@ const durationCodes = {
             line_above: 0,
             line_below: 0,
         },
-        type: {
-            r: {
-                code_head: 'rest128th',
-                stem: false,
-                flag: false,
-                rest: true,
-                position: 'B/4',
-                dot_shiftY: -2.5,
-                line_above: 3.0,
-                line_below: 3.0,
-            },
-            s: {
-                getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
-                position: 'B/4',
-            },
+        r: {
+            code_head: 'rest128th',
+            stem: false,
+            flag: false,
+            rest: true,
+            position: 'B/4',
+            dot_shiftY: -2.5,
+            line_above: 3.0,
+            line_below: 3.0,
+        },
+        s: {
+            getWidth: () => Tables.SLASH_NOTEHEAD_WIDTH,
+            position: 'B/4',
         },
     },
 };

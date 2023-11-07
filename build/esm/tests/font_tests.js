@@ -13,80 +13,80 @@ import { Voice } from '../src/voice.js';
 const FontTests = {
     Start() {
         QUnit.module('Font');
-        test('setFont', setFont);
-        test('Parsing', fontParsing);
-        test('Sizes', fontSizes);
+        QUnit.test('setFont', setFont);
+        QUnit.test('Parsing', fontParsing);
+        QUnit.test('Sizes', fontSizes);
         const run = VexFlowTests.runTests;
         run('Set Text Font to Georgia', setTextFontToGeorgia);
         run('Set Music Font to Petaluma', setMusicFontToPetaluma);
     },
 };
-function setFont() {
+function setFont(assert) {
     const canvas = document.createElement('canvas');
     canvas.width = 800;
     canvas.height = 400;
     const ctx = new CanvasContext(canvas.getContext('2d'));
     ctx.setFont('PetalumaScript', '100px', 'normal', 'italic');
-    equal(ctx.font, 'italic 100px PetalumaScript');
+    assert.equal(ctx.font, 'italic 100px PetalumaScript');
     const voice = new Voice();
-    propEqual(voice.fontInfo, Element.TEXT_FONT);
+    assert.propEqual(voice.fontInfo, Element.TEXT_FONT);
     voice.setFont('bold 32pt Arial');
     const fontInfo = voice.fontInfo;
-    equal(fontInfo === null || fontInfo === void 0 ? void 0 : fontInfo.size, '32pt');
+    assert.equal(fontInfo === null || fontInfo === void 0 ? void 0 : fontInfo.size, '32pt');
     const flat = new Accidental('b');
-    equal(flat.textFont, undefined);
+    assert.equal(flat.textFont, undefined);
     flat.setFont(undefined, undefined, undefined, FontStyle.ITALIC);
-    equal(flat.getFont(), 'italic 10pt Arial, sans-serif');
+    assert.equal(flat.getFont(), 'italic 10pt Arial, sans-serif');
     flat.setFont(undefined, undefined, FontWeight.BOLD, undefined);
-    equal(flat.getFont(), 'bold 10pt Arial, sans-serif');
+    assert.equal(flat.getFont(), 'bold 10pt Arial, sans-serif');
     flat.setFont(undefined, undefined, FontWeight.BOLD, FontStyle.ITALIC);
-    equal(flat.getFont(), 'italic bold 10pt Arial, sans-serif');
+    assert.equal(flat.getFont(), 'italic bold 10pt Arial, sans-serif');
     flat.setFont(undefined, undefined, FontWeight.BOLD, 'oblique');
-    equal(flat.getFont(), 'oblique bold 10pt Arial, sans-serif');
+    assert.equal(flat.getFont(), 'oblique bold 10pt Arial, sans-serif');
     flat.setFont(undefined, undefined, 'normal', '');
-    equal(flat.getFont(), '10pt Arial, sans-serif');
+    assert.equal(flat.getFont(), '10pt Arial, sans-serif');
 }
-function fontParsing() {
+function fontParsing(assert) {
     const b = new Bend('1/2', true);
     const bFont = b.fontInfo;
-    equal(bFont === null || bFont === void 0 ? void 0 : bFont.family, Font.SANS_SERIF);
-    equal(bFont === null || bFont === void 0 ? void 0 : bFont.size, Font.SIZE);
-    equal(bFont === null || bFont === void 0 ? void 0 : bFont.weight, FontWeight.NORMAL);
-    equal(bFont === null || bFont === void 0 ? void 0 : bFont.style, FontStyle.NORMAL);
+    assert.equal(bFont === null || bFont === void 0 ? void 0 : bFont.family, Font.SANS_SERIF);
+    assert.equal(bFont === null || bFont === void 0 ? void 0 : bFont.size, Font.SIZE);
+    assert.equal(bFont === null || bFont === void 0 ? void 0 : bFont.weight, FontWeight.NORMAL);
+    assert.equal(bFont === null || bFont === void 0 ? void 0 : bFont.style, FontStyle.NORMAL);
     const f1 = 'Roboto Slab, serif';
     const t = new TextNote({ duration: '4', font: { family: f1 } });
-    equal(f1, t.fontInfo.family);
+    assert.equal(f1, t.fontInfo.family);
     const n1 = new StaveNote({ keys: ['e/5'], duration: '4' });
     const n2 = new StaveNote({ keys: ['c/5'], duration: '4' });
     const tb = new TextBracket({ start: n1, stop: n2 });
     const f2 = tb.fontInfo;
-    equal(f2 === null || f2 === void 0 ? void 0 : f2.size, 15);
-    equal(f2 === null || f2 === void 0 ? void 0 : f2.style, FontStyle.ITALIC);
+    assert.equal(f2 === null || f2 === void 0 ? void 0 : f2.size, 15);
+    assert.equal(f2 === null || f2 === void 0 ? void 0 : f2.style, FontStyle.ITALIC);
     const f3 = Font.fromCSSString(`bold 1.5em/3 "Lucida Sans Typewriter", "Lucida Console", Consolas, monospace`);
     const f3SizeInPx = Font.convertSizeToPixelValue(f3.size);
-    equal(f3SizeInPx, 24);
+    assert.equal(f3SizeInPx, 24);
 }
-function fontSizes() {
+function fontSizes(assert) {
     {
         const size = '17px';
         const sizeInEm = Font.convertSizeToPixelValue(size) / Font.scaleToPxFrom.em;
-        equal(sizeInEm, 1.0625);
+        assert.equal(sizeInEm, 1.0625);
     }
     {
         const size = '2em';
         const sizeInPx = Font.convertSizeToPixelValue(size);
-        equal(sizeInPx, 32);
+        assert.equal(sizeInPx, 32);
     }
     {
         const pedal = new PedalMarking([]);
-        equal(pedal.getFont(), 'italic bold 12pt Times New Roman, serif');
-        equal(pedal.fontSizeInPoints, 12);
-        equal(pedal.fontSizeInPixels, 16);
+        assert.equal(pedal.getFont(), 'italic bold 12pt Times New Roman, serif');
+        assert.equal(pedal.fontSizeInPoints, 12);
+        assert.equal(pedal.fontSizeInPixels, 16);
         const doubledSizePx = pedal.fontSizeInPixels * 2;
-        equal(doubledSizePx, 32);
+        assert.equal(doubledSizePx, 32);
         const doubledSizePt = Font.scaleSize(pedal.fontSizeInPoints, 2);
-        equal(doubledSizePt, 24);
-        equal(Font.scaleSize('1.5em', 3), '4.5em');
+        assert.equal(doubledSizePt, 24);
+        assert.equal(Font.scaleSize('1.5em', 3), '4.5em');
     }
 }
 function setTextFontToGeorgia(options) {
@@ -114,7 +114,7 @@ function setTextFontToGeorgia(options) {
     formatter.joinVoices([voice1, voice2]).formatToStave([voice1, voice2], stave);
     factory.draw();
     TextNote.TEXT_FONT = defaultFont;
-    ok(true);
+    options.assert.ok(true);
 }
 function setMusicFontToPetaluma(options) {
     Flow.setMusicFont('Petaluma');
@@ -129,7 +129,7 @@ function setMusicFontToPetaluma(options) {
     const formatter = factory.Formatter();
     formatter.joinVoices([voice]).formatToStave([voice], stave);
     factory.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 VexFlowTests.register(FontTests);
 export { FontTests };

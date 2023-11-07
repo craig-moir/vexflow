@@ -1,19 +1,12 @@
 import { Glyph } from './glyph.js';
 import { Note } from './note.js';
+import { Tables } from './tables.js';
 import { defined, log, RuntimeError } from './util.js';
 function L(...args) {
     if (TextDynamics.DEBUG)
         log('Vex.Flow.TextDynamics', args);
 }
-export class TextDynamics extends Note {
-    constructor(noteStruct) {
-        super(noteStruct);
-        this.sequence = (noteStruct.text || '').toLowerCase();
-        this.line = noteStruct.line || 0;
-        this.glyphs = [];
-        this.render_options = Object.assign(Object.assign({}, this.render_options), { glyph_font_size: 40 });
-        L('New Dynamics Text: ', this.sequence);
-    }
+class TextDynamics extends Note {
     static get CATEGORY() {
         return "TextDynamics";
     }
@@ -44,6 +37,14 @@ export class TextDynamics extends Note {
                 width: 12,
             },
         };
+    }
+    constructor(noteStruct) {
+        super(noteStruct);
+        this.sequence = (noteStruct.text || '').toLowerCase();
+        this.line = noteStruct.line || 0;
+        this.glyphs = [];
+        this.render_options = Object.assign(Object.assign({}, this.render_options), { glyph_font_size: Tables.NOTATION_FONT_SCALE });
+        L('New Dynamics Text: ', this.sequence);
     }
     setLine(line) {
         this.line = line;
@@ -79,3 +80,4 @@ export class TextDynamics extends Note {
     }
 }
 TextDynamics.DEBUG = false;
+export { TextDynamics };

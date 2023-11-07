@@ -23,21 +23,13 @@ export var AnnotationVerticalJustify;
     AnnotationVerticalJustify[AnnotationVerticalJustify["BOTTOM"] = 3] = "BOTTOM";
     AnnotationVerticalJustify[AnnotationVerticalJustify["CENTER_STEM"] = 4] = "CENTER_STEM";
 })(AnnotationVerticalJustify || (AnnotationVerticalJustify = {}));
-export class Annotation extends Modifier {
-    constructor(text) {
-        super();
-        this.text = text;
-        this.horizontalJustification = AnnotationHorizontalJustify.CENTER;
-        this.verticalJustification = AnnotationVerticalJustify.TOP;
-        this.resetFont();
-        this.setWidth(Tables.textWidth(text));
-    }
+class Annotation extends Modifier {
     static get CATEGORY() {
         return "Annotation";
     }
     static get minAnnotationPadding() {
         const musicFont = Tables.currentMusicFont();
-        return musicFont.lookupMetric('glyphs.noteHead.minPadding');
+        return musicFont.lookupMetric('noteHead.minPadding');
     }
     static format(annotations, state) {
         if (!annotations || annotations.length === 0)
@@ -49,10 +41,10 @@ export class Annotation extends Modifier {
         for (let i = 0; i < annotations.length; ++i) {
             const annotation = annotations[i];
             const textFormatter = TextFormatter.create(annotation.textFont);
-            const textLines = (5 + textFormatter.maxHeight) / Tables.STAVE_LINE_DISTANCE;
+            const textLines = (2 + textFormatter.getYForStringInPx(annotation.text).height) / Tables.STAVE_LINE_DISTANCE;
             let verticalSpaceNeeded = textLines;
             const note = annotation.checkAttachedNote();
-            const glyphWidth = note.getGlyph().getWidth();
+            const glyphWidth = note.getGlyphProps().getWidth();
             const textWidth = textFormatter.getWidthForTextInPx(annotation.text);
             if (annotation.horizontalJustification === AnnotationHorizontalJustify.LEFT) {
                 maxLeftGlyphWidth = Math.max(glyphWidth, maxLeftGlyphWidth);
@@ -140,6 +132,14 @@ export class Annotation extends Modifier {
         state.right_shift += rightOverlap;
         return true;
     }
+    constructor(text) {
+        super();
+        this.text = text;
+        this.horizontalJustification = AnnotationHorizontalJustify.CENTER;
+        this.verticalJustification = AnnotationVerticalJustify.TOP;
+        this.resetFont();
+        this.setWidth(Tables.textWidth(text));
+    }
     setVerticalJustification(just) {
         this.verticalJustification = typeof just === 'string' ? Annotation.VerticalJustifyString[just] : just;
         return this;
@@ -160,11 +160,10 @@ export class Annotation extends Modifier {
         this.setRendered();
         ctx.save();
         this.applyStyle();
-        const classString = Object.keys(this.getAttribute('classes')).join(' ');
-        ctx.openGroup(classString, this.getAttribute('id'));
+        ctx.openGroup('annotation', this.getAttribute('id'));
         ctx.setFont(this.textFont);
-        const text_width = ctx.measureText(this.text).width;
-        const text_height = textFormatter.maxHeight + 2;
+        const text_width = textFormatter.getWidthForTextInPx(this.text);
+        const text_height = textFormatter.getYForStringInPx(this.text).height;
         let x;
         let y;
         if (this.horizontalJustification === AnnotationHorizontalJustify.LEFT) {
@@ -201,7 +200,8 @@ export class Annotation extends Modifier {
             y = yt + (yb - yt) / 2 + text_height / 2;
         }
         else if (this.verticalJustification === AnnotationVerticalJustify.TOP) {
-            y = note.getYs()[0] - (this.text_line + 1) * Tables.STAVE_LINE_DISTANCE;
+            const topY = Math.min(...note.getYs());
+            y = topY - (this.text_line + 1) * Tables.STAVE_LINE_DISTANCE;
             if (has_stem && stemDirection === Stem.UP) {
                 spacing = stem_ext.topY < stave.getTopLineTopY() ? Tables.STAVE_LINE_DISTANCE : spacing;
                 y = Math.min(y, stem_ext.topY - spacing * (this.text_line + 1));
@@ -236,3 +236,4 @@ Annotation.VerticalJustifyString = {
     center: AnnotationVerticalJustify.CENTER,
     centerStem: AnnotationVerticalJustify.CENTER_STEM,
 };
+export { Annotation };

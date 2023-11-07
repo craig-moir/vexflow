@@ -1,3 +1,9 @@
+import { ChordSymbolMetrics } from './chordsymbol';
+import { ClefMetrics } from './clef';
+import { NoteHeadMetrics } from './notehead';
+import { OrnamentMetrics } from './ornament';
+import { StringNumberMetrics } from './stringnumber';
+import { TupletMetrics } from './tuplet';
 export interface FontInfo {
     /** CSS font-family, e.g., 'Arial', 'Helvetica Neue, Arial, sans-serif', 'Times, serif' */
     family?: string;
@@ -11,7 +17,7 @@ export interface FontInfo {
     /** `italic` as inspired by CSS font-style. */
     style?: string;
 }
-export declare type FontModule = {
+export type FontModule = {
     data: FontData;
     metrics: FontMetrics;
 };
@@ -23,17 +29,32 @@ export interface FontData {
 }
 /** Specified in the `xxx_metrics.ts` files. */
 export interface FontMetrics extends Record<string, any> {
-    name: string;
     smufl: boolean;
     stave?: Record<string, number>;
     accidental?: Record<string, number>;
-    clef?: Record<string, any>;
+    clef_default?: ClefMetrics;
+    clef_small?: ClefMetrics;
     pedalMarking?: Record<string, Record<string, number>>;
     digits?: Record<string, number>;
     articulation?: Record<string, Record<string, number>>;
     tremolo?: Record<string, Record<string, number>>;
-    noteHead?: Record<string, Record<string, number>>;
-    glyphs: Record<string, Record<string, any>>;
+    chordSymbol?: ChordSymbolMetrics;
+    ornament?: Record<string, OrnamentMetrics>;
+    noteHead?: NoteHeadMetrics;
+    stringNumber?: StringNumberMetrics;
+    tuplet?: TupletMetrics;
+    glyphs: Record<string, {
+        point?: number;
+        shiftX?: number;
+        shiftY?: number;
+        scale?: number;
+        [key: string]: {
+            point?: number;
+            shiftX?: number;
+            shiftY?: number;
+            scale?: number;
+        } | number | undefined;
+    }>;
 }
 export interface FontGlyph {
     x_min: number;

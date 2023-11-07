@@ -52,11 +52,11 @@ export declare class Voice extends Element {
     getSmallestTickCount(): Fraction;
     /** Get the tickables in the voice. */
     getTickables(): Tickable[];
-    /** Get the voice mode. */
+    /** Get the voice mode (Voice.Mode.SOFT, STRICT, or FULL) */
     getMode(): number;
     /**
      * Set the voice mode.
-     * @param mode value from `VoiceMode`
+     * @param mode value from `VoiceMode` or Voice.Mode
      */
     setMode(mode: number): this;
     /** Get the resolution multiplier for the voice. */
@@ -82,7 +82,10 @@ export declare class Voice extends Element {
     setSoftmaxFactor(factor: number): this;
     /**
      * Calculate the sum of the exponents of all the ticks in this voice to use
-     * as the denominator of softmax.
+     * as the denominator of softmax.  (It is not the sum of the softmax(t) over all tickables)
+     *
+     * Note that the "exp" of "expTicksUsed" stands for "expontential" ticks used,
+     * not "expected" ticks used.
      */
     protected reCalculateExpTicksUsed(): number;
     /** Get the softmax-scaled value of a tick duration. 'tickValue' is a number. */

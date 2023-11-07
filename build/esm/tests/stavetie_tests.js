@@ -25,7 +25,7 @@ function createTest(notesData, setupTies) {
         setupTies(factory, notes, stave);
         factory.Formatter().joinVoices([voice]).formatToStave([voice], stave);
         factory.draw();
-        ok(true);
+        options.assert.ok(true);
     };
 }
 const simple = createTest(['(cb4 e#4 a4)/2, (d4 e4 f4)', { stem: 'down' }], (f, notes) => {

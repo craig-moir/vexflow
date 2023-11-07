@@ -1,13 +1,13 @@
 import { KeySignature } from './keysignature.js';
 import { Note } from './note.js';
 export class KeySigNote extends Note {
+    static get CATEGORY() {
+        return "KeySigNote";
+    }
     constructor(keySpec, cancelKeySpec, alterKeySpec) {
         super({ duration: 'b' });
         this.keySignature = new KeySignature(keySpec, cancelKeySpec, alterKeySpec);
         this.ignore_ticks = true;
-    }
-    static get CATEGORY() {
-        return "KeySigNote";
     }
     addToModifierContext(mc) {
         return this;

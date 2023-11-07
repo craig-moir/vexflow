@@ -11,7 +11,7 @@ const RestsTests = {
     Start() {
         QUnit.module('Rests');
         const run = VexFlowTests.runTests;
-        run('Outside Stave', legerRest);
+        run('Outside Stave', ledgerRest);
         run('Dotted', basic);
         run('Auto Align - Beamed Notes Stems Up', beamsUp);
         run('Auto Align - Beamed Notes Stems Down', beamsDown);
@@ -25,8 +25,6 @@ const RestsTests = {
 function setupContext(options, contextBuilder, width = 350, height = 150) {
     const context = contextBuilder(options.elementId, width, height);
     context.scale(0.9, 0.9);
-    context.fillStyle = '#221';
-    context.strokeStyle = '#221';
     context.font = '10pt Arial';
     const stave = new Stave(10, 30, width).addClef('treble').addTimeSignature('4/4').setContext(context).draw();
     return { context, stave };
@@ -45,9 +43,9 @@ function basic(options, contextBuilder) {
     ];
     Dot.buildAndAttach(notes, { all: true });
     Formatter.FormatAndDraw(context, stave, notes);
-    ok(true, 'Dotted Rest Test');
+    options.assert.ok(true, 'Dotted Rest Test');
 }
-function legerRest(options, contextBuilder) {
+function ledgerRest(options, contextBuilder) {
     const { context, stave } = setupContext(options, contextBuilder, 700);
     const notes = [
         new StaveNote({ keys: ['a/5'], stem_direction: 1, duration: 'wr' }),
@@ -58,7 +56,7 @@ function legerRest(options, contextBuilder) {
         new StaveNote({ keys: ['b/4'], stem_direction: 1, duration: 'wr' }),
     ];
     Formatter.FormatAndDraw(context, stave, notes);
-    ok(true, 'Leger/Ledger Rest Test');
+    options.assert.ok(true, 'Leger/Ledger Rest Test');
 }
 const note = (noteStruct) => new StaveNote(noteStruct);
 function beamsUp(options, contextBuilder) {
@@ -84,7 +82,7 @@ function beamsUp(options, contextBuilder) {
     beam1.setContext(context).draw();
     beam2.setContext(context).draw();
     beam3.setContext(context).draw();
-    ok(true, 'Auto Align Rests - Beams Up Test');
+    options.assert.ok(true, 'Auto Align Rests - Beams Up Test');
 }
 function beamsDown(options, contextBuilder) {
     const { context, stave } = setupContext(options, contextBuilder, 600, 160);
@@ -109,7 +107,7 @@ function beamsDown(options, contextBuilder) {
     beam1.setContext(context).draw();
     beam2.setContext(context).draw();
     beam3.setContext(context).draw();
-    ok(true, 'Auto Align Rests - Beams Down Test');
+    options.assert.ok(true, 'Auto Align Rests - Beams Down Test');
 }
 function tupletsUp(options, contextBuilder) {
     const { context, stave } = setupContext(options, contextBuilder, 600, 160);
@@ -136,7 +134,7 @@ function tupletsUp(options, contextBuilder) {
     tuplet2.setContext(context).draw();
     tuplet3.setContext(context).draw();
     tuplet4.setContext(context).draw();
-    ok(true, 'Auto Align Rests - Tuplets Stem Up Test');
+    options.assert.ok(true, 'Auto Align Rests - Tuplets Stem Up Test');
 }
 function tupletsDown(options, contextBuilder) {
     const { context, stave } = setupContext(options, contextBuilder, 600, 160);
@@ -171,7 +169,7 @@ function tupletsDown(options, contextBuilder) {
     beam2.setContext(context).draw();
     beam3.setContext(context).draw();
     beam4.setContext(context).draw();
-    ok(true, 'Auto Align Rests - Tuplets Stem Down Test');
+    options.assert.ok(true, 'Auto Align Rests - Tuplets Stem Down Test');
 }
 function singleVoiceDefaultAlignment(options, contextBuilder) {
     const { context, stave } = setupContext(options, contextBuilder, 600, 160);
@@ -198,7 +196,7 @@ function singleVoiceDefaultAlignment(options, contextBuilder) {
     Formatter.FormatAndDraw(context, stave, notes);
     tuplet.setContext(context).draw();
     beam.setContext(context).draw();
-    ok(true, 'Auto Align Rests - Default Test');
+    options.assert.ok(true, 'Auto Align Rests - Default Test');
 }
 function singleVoiceAlignAll(options, contextBuilder) {
     const { context, stave } = setupContext(options, contextBuilder, 600, 160);
@@ -225,7 +223,7 @@ function singleVoiceAlignAll(options, contextBuilder) {
     Formatter.FormatAndDraw(context, stave, notes, { align_rests: true });
     tuplet.setContext(context).draw();
     beam.setContext(context).draw();
-    ok(true, 'Auto Align Rests - Align All Test');
+    options.assert.ok(true, 'Auto Align Rests - Align All Test');
 }
 function multiVoice(options, contextBuilder) {
     const ctx = contextBuilder(options.elementId, 600, 200);
@@ -256,7 +254,7 @@ function multiVoice(options, contextBuilder) {
     voice1.draw(ctx);
     beam2_1.setContext(ctx).draw();
     beam2_2.setContext(ctx).draw();
-    ok(true, 'Strokes Test Multi Voice');
+    options.assert.ok(true, 'Strokes Test Multi Voice');
 }
 VexFlowTests.register(RestsTests);
 export { RestsTests };

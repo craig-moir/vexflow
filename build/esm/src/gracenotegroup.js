@@ -12,27 +12,7 @@ function L(...args) {
     if (GraceNoteGroup.DEBUG)
         log('Vex.Flow.GraceNoteGroup', args);
 }
-export class GraceNoteGroup extends Modifier {
-    constructor(grace_notes, show_slur) {
-        super();
-        this.preFormatted = false;
-        this.position = Modifier.Position.LEFT;
-        this.grace_notes = grace_notes;
-        this.width = 0;
-        this.show_slur = show_slur;
-        this.slur = undefined;
-        this.voice = new Voice({
-            num_beats: 4,
-            beat_value: 4,
-            resolution: Tables.RESOLUTION,
-        }).setStrict(false);
-        this.render_options = {
-            slur_y_shift: 0,
-        };
-        this.beams = [];
-        this.voice.addTickables(this.grace_notes);
-        return this;
-    }
+class GraceNoteGroup extends Modifier {
     static get CATEGORY() {
         return "GraceNoteGroup";
     }
@@ -72,6 +52,26 @@ export class GraceNoteGroup extends Modifier {
         }
         state.left_shift += group_shift;
         return true;
+    }
+    constructor(grace_notes, show_slur) {
+        super();
+        this.preFormatted = false;
+        this.position = Modifier.Position.LEFT;
+        this.grace_notes = grace_notes;
+        this.width = 0;
+        this.show_slur = show_slur;
+        this.slur = undefined;
+        this.voice = new Voice({
+            num_beats: 4,
+            beat_value: 4,
+            resolution: Tables.RESOLUTION,
+        }).setStrict(false);
+        this.render_options = {
+            slur_y_shift: 0,
+        };
+        this.beams = [];
+        this.voice.addTickables(this.grace_notes);
+        return this;
     }
     preFormat() {
         if (this.preFormatted)
@@ -127,3 +127,4 @@ export class GraceNoteGroup extends Modifier {
     }
 }
 GraceNoteGroup.DEBUG = false;
+export { GraceNoteGroup };

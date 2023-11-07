@@ -1,6 +1,12 @@
 import { Glyph } from './glyph';
 import { Modifier } from './modifier';
 import { ModifierContextState } from './modifiercontext';
+export interface OrnamentMetrics {
+    xOffset: number;
+    yOffset: number;
+    stemUpYOffset: number;
+    reportedWidth: number;
+}
 /**
  * Ornament implements ornaments as modifiers that can be
  * attached to notes. The complete list of ornaments is available in
@@ -60,7 +66,7 @@ export declare class Ornament extends Modifier {
      * Legacy ornaments have hard-coded metrics.  If additional ornament types are
      * added, get their metrics here.
      */
-    getMetrics(): any;
+    getMetrics(): OrnamentMetrics;
     /**
      * Create a new ornament of type `type`, which is an entry in
      * `Vex.Flow.ornamentCodes` in `tables.ts`.

@@ -1,10 +1,5 @@
 import { RuntimeError } from './util.js';
-export class Fraction {
-    constructor(numerator, denominator) {
-        this.numerator = 1;
-        this.denominator = 1;
-        this.set(numerator, denominator);
-    }
+class Fraction {
     static get CATEGORY() {
         return "Fraction";
     }
@@ -36,6 +31,11 @@ export class Fraction {
         else {
             return Fraction.LCM(args.shift(), Fraction.LCMM(args));
         }
+    }
+    constructor(numerator, denominator) {
+        this.numerator = 1;
+        this.denominator = 1;
+        this.set(numerator, denominator);
     }
     set(numerator = 1, denominator = 1) {
         this.numerator = numerator;
@@ -161,6 +161,7 @@ export class Fraction {
 Fraction.__staticFractionA = new Fraction();
 Fraction.__staticFractionB = new Fraction();
 Fraction.__staticFractionTmp = new Fraction();
+export { Fraction };
 function getNumeratorAndDenominator(n, d = 1) {
     if (typeof n === 'number') {
         return [n, d];

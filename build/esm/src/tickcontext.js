@@ -1,6 +1,12 @@
 import { Fraction } from './fraction.js';
 import { RuntimeError } from './util.js';
 export class TickContext {
+    static getNextContext(tContext) {
+        const contexts = tContext.tContexts;
+        const index = contexts.indexOf(tContext);
+        if (index + 1 < contexts.length)
+            return contexts[index + 1];
+    }
     constructor(options) {
         this.preFormatted = false;
         this.postFormatted = false;
@@ -29,12 +35,6 @@ export class TickContext {
         this.formatterMetrics = {
             freedom: { left: 0, right: 0 },
         };
-    }
-    static getNextContext(tContext) {
-        const contexts = tContext.tContexts;
-        const index = contexts.indexOf(tContext);
-        if (index + 1 < contexts.length)
-            return contexts[index + 1];
     }
     getTickID() {
         return this.tickID;

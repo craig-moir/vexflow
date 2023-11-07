@@ -34,7 +34,7 @@ function simple0(options) {
     });
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function simple1(options) {
     const f = VexFlowTests.makeFactory(options, 550);
@@ -94,7 +94,7 @@ function simple1(options) {
     bottomOctaves[1].setDashed(true, [2, 2]);
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 VexFlowTests.register(TextBracketTests);
 export { TextBracketTests };

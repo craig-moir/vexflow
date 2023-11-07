@@ -77,26 +77,7 @@ class GlyphOutline {
         return result;
     }
 }
-export class Glyph extends Element {
-    constructor(code, point, options) {
-        super();
-        this.bbox = new BoundingBox(0, 0, 0, 0);
-        this.topGlyphs = [];
-        this.botGlyphs = [];
-        this.options = {};
-        this.scale = 1;
-        this.code = code;
-        this.point = point;
-        this.originShift = { x: 0, y: 0 };
-        this.x_shift = 0;
-        this.y_shift = 0;
-        if (options) {
-            this.setOptions(options);
-        }
-        else {
-            this.reset();
-        }
-    }
+class Glyph extends Element {
     static get CATEGORY() {
         return "Glyph";
     }
@@ -232,6 +213,25 @@ export class Glyph extends Element {
         const scale = (point * 72) / (data.metrics.font.getResolution() * 100);
         return data.bbox.getW() * scale;
     }
+    constructor(code, point, options) {
+        super();
+        this.bbox = new BoundingBox(0, 0, 0, 0);
+        this.topGlyphs = [];
+        this.botGlyphs = [];
+        this.options = {};
+        this.scale = 1;
+        this.code = code;
+        this.point = point;
+        this.originShift = { x: 0, y: 0 };
+        this.x_shift = 0;
+        this.y_shift = 0;
+        if (options) {
+            this.setOptions(options);
+        }
+        else {
+            this.reset();
+        }
+    }
     draw(...args) {
     }
     getCode() {
@@ -338,3 +338,4 @@ export class Glyph extends Element {
 Glyph.cache = new GlyphCache();
 Glyph.CURRENT_CACHE_KEY = '';
 Glyph.MUSIC_FONT_STACK = [];
+export { Glyph };

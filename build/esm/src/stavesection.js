@@ -1,6 +1,10 @@
 import { Font, FontStyle, FontWeight } from './font.js';
 import { StaveModifier } from './stavemodifier.js';
-export class StaveSection extends StaveModifier {
+import { TextFormatter } from './textformatter.js';
+class StaveSection extends StaveModifier {
+    static get CATEGORY() {
+        return "StaveSection";
+    }
     constructor(section, x, shift_y, drawRect = true) {
         super();
         this.setWidth(16);
@@ -10,9 +14,6 @@ export class StaveSection extends StaveModifier {
         this.shift_y = shift_y;
         this.drawRect = drawRect;
         this.resetFont();
-    }
-    static get CATEGORY() {
-        return "StaveSection";
     }
     setStaveSection(section) {
         this.section = section;
@@ -27,28 +28,28 @@ export class StaveSection extends StaveModifier {
         return this;
     }
     draw(stave, shift_x) {
+        const borderWidth = 2;
+        const padding = 2;
         const ctx = stave.checkContext();
         this.setRendered();
         ctx.save();
-        ctx.setLineWidth(2);
+        ctx.setLineWidth(borderWidth);
         ctx.setFont(this.textFont);
-        const paddingX = 2;
-        const paddingY = 2;
-        const rectWidth = 2;
-        const textMeasurements = ctx.measureText(this.section);
-        const textWidth = textMeasurements.width;
-        const textHeight = textMeasurements.height;
-        const width = textWidth + 2 * paddingX;
-        const height = textHeight + 2 * paddingY;
+        const textFormatter = TextFormatter.create(this.textFont);
+        const textWidth = textFormatter.getWidthForTextInPx(this.section);
+        const textY = textFormatter.getYForStringInPx(this.section);
+        const textHeight = textY.height;
+        const headroom = -1 * textY.yMin;
+        const width = textWidth + 2 * padding;
+        const height = textHeight + 2 * padding;
         const y = stave.getYForTopText(1.5) + this.shift_y;
         const x = this.x + shift_x;
         if (this.drawRect) {
             ctx.beginPath();
-            ctx.setLineWidth(rectWidth);
-            ctx.rect(x, y + textMeasurements.y - paddingY, width, height);
+            ctx.rect(x, y - height + headroom, width, height);
             ctx.stroke();
         }
-        ctx.fillText(this.section, x + paddingX, y);
+        ctx.fillText(this.section, x + padding, y - padding);
         ctx.restore();
         return this;
     }
@@ -59,3 +60,4 @@ StaveSection.TEXT_FONT = {
     weight: FontWeight.BOLD,
     style: FontStyle.NORMAL,
 };
+export { StaveSection };

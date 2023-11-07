@@ -1,7 +1,7 @@
 import { BravuraFont } from '../src/fonts/bravura_glyphs.js';
-import { BravuraMetrics } from '../src/fonts/bravura_metrics.js';
+import { CommonMetrics } from '../src/fonts/common_metrics.js';
 export const Font = {
     data: BravuraFont,
-    metrics: BravuraMetrics,
+    metrics: CommonMetrics,
 };
 export default Font;

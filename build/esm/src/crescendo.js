@@ -24,7 +24,10 @@ function renderHairpin(ctx, params) {
     ctx.stroke();
     ctx.closePath();
 }
-export class Crescendo extends Note {
+class Crescendo extends Note {
+    static get CATEGORY() {
+        return "Crescendo";
+    }
     constructor(noteStruct) {
         super(noteStruct);
         this.options = {
@@ -35,9 +38,6 @@ export class Crescendo extends Note {
         this.decrescendo = false;
         this.line = noteStruct.line || 0;
         this.height = 15;
-    }
-    static get CATEGORY() {
-        return "Crescendo";
     }
     setLine(line) {
         this.line = line;
@@ -75,3 +75,4 @@ export class Crescendo extends Note {
     }
 }
 Crescendo.DEBUG = false;
+export { Crescendo };

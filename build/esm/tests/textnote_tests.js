@@ -41,7 +41,7 @@ function formatTextNotes(options) {
     const formatter = f.Formatter();
     formatter.joinVoices([voice1, voice2]).formatToStave([voice1, voice2], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function formatTextNotes2(options) {
     const f = VexFlowTests.makeFactory(options, 600, 200);
@@ -80,7 +80,7 @@ function formatTextNotes2(options) {
     f.Formatter().joinVoices([voice1, voice2]).formatToStave([voice1, voice2], stave);
     voice2.getTickables().forEach((note) => Note.plotMetrics(f.getContext(), note, 170));
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function superscriptAndSubscript(options) {
     const f = VexFlowTests.makeFactory(options, 600, 230);
@@ -97,14 +97,16 @@ function superscriptAndSubscript(options) {
             .addModifier(f.Accidental({ type: 'n' }), 0)
             .addModifier(f.Accidental({ type: '#' }), 1),
     ]);
-    const voice2 = score.voice([
+    const notes2 = [
         f.TextNote({ text: Flow.unicode.flat + 'I', superscript: '+5', duration: '8' }),
         f.TextNote({ text: 'D' + Flow.unicode.sharp + '/F', duration: '4d', superscript: 'sus2' }),
         f.TextNote({ text: 'ii', superscript: '6', subscript: '4', duration: '8' }),
         f.TextNote({ text: 'C', superscript: Flow.unicode.triangle + '7', subscript: '', duration: '8' }),
         f.TextNote({ text: 'vii', superscript: Flow.unicode['o-with-slash'] + '7', duration: '8' }),
         f.TextNote({ text: 'V', superscript: '7', duration: '8' }),
-    ]);
+    ];
+    options.assert.equal(notes2[0].getText(), Flow.unicode.flat + 'I', 'TextNote.getText() return .text');
+    const voice2 = score.voice(notes2);
     voice2.getTickables().forEach((note) => {
         const textNote = note;
         textNote.setFont({ family: Font.SERIF, size: 15 });
@@ -113,7 +115,7 @@ function superscriptAndSubscript(options) {
     });
     f.Formatter().joinVoices([voice1, voice2]).formatToStave([voice1, voice2], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function formatTextGlyphs0(options) {
     const f = VexFlowTests.makeFactory(options, 600, 230);
@@ -143,7 +145,7 @@ function formatTextGlyphs0(options) {
     voice2.getTickables().forEach((n) => n.setJustification(TextNote.Justification.CENTER));
     f.Formatter().joinVoices([voice1, voice2]).formatToStave([voice1, voice2], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function formatTextGlyphs1(options) {
     const f = VexFlowTests.makeFactory(options, 600, 230);
@@ -173,7 +175,7 @@ function formatTextGlyphs1(options) {
     voice2.getTickables().forEach((n) => n.setJustification(TextNote.Justification.CENTER));
     f.Formatter().joinVoices([voice1, voice2]).formatToStave([voice1, voice2], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function crescendo(options) {
     const f = VexFlowTests.makeFactory(options, 600, 230);
@@ -188,7 +190,7 @@ function crescendo(options) {
     ]);
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function textDynamics(options) {
     const f = VexFlowTests.makeFactory(options, 600, 230);
@@ -209,7 +211,7 @@ function textDynamics(options) {
     const stave = f.Stave({ y: 40, width: width + Stave.defaultPadding });
     stave.draw();
     voice.draw(f.getContext(), stave);
-    ok(true);
+    options.assert.ok(true);
 }
 VexFlowTests.register(TextNoteTests);
 export { TextNoteTests };

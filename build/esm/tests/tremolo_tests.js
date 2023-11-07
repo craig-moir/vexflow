@@ -29,7 +29,7 @@ function tremoloBasic(options) {
     const voice2 = score.voice(notes2);
     f.Formatter().joinVoices([voice2]).formatToStave([voice2], stave2);
     f.draw();
-    ok(true, 'Tremolo - Basic');
+    options.assert.ok(true, 'Tremolo - Basic');
 }
 function tremoloBig(options) {
     const f = VexFlowTests.makeFactory(options, 600, 200);
@@ -69,7 +69,7 @@ function tremoloBig(options) {
     const voice2 = score.voice(notes2);
     f.Formatter().joinVoices([voice2]).formatToStave([voice2], stave2);
     f.draw();
-    ok(true, 'Tremolo - Big');
+    options.assert.ok(true, 'Tremolo - Big');
 }
 VexFlowTests.register(TremoloTests);
 export { TremoloTests };

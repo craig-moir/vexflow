@@ -5,7 +5,22 @@ function L(...args) {
     if (Stem.DEBUG)
         log('Vex.Flow.Stem', args);
 }
-export class Stem extends Element {
+class Stem extends Element {
+    static get CATEGORY() {
+        return "Stem";
+    }
+    static get UP() {
+        return 1;
+    }
+    static get DOWN() {
+        return -1;
+    }
+    static get WIDTH() {
+        return Tables.STEM_WIDTH;
+    }
+    static get HEIGHT() {
+        return Tables.STEM_HEIGHT;
+    }
     constructor(options) {
         super();
         this.stem_up_y_offset = 0;
@@ -23,21 +38,6 @@ export class Stem extends Element {
         this.stemletHeight = (options === null || options === void 0 ? void 0 : options.stemletHeight) || 0;
         this.renderHeightAdjustment = 0;
         this.setOptions(options);
-    }
-    static get CATEGORY() {
-        return "Stem";
-    }
-    static get UP() {
-        return 1;
-    }
-    static get DOWN() {
-        return -1;
-    }
-    static get WIDTH() {
-        return Tables.STEM_WIDTH;
-    }
-    static get HEIGHT() {
-        return Tables.STEM_HEIGHT;
     }
     setOptions(options) {
         this.stem_up_y_offset = (options === null || options === void 0 ? void 0 : options.stem_up_y_offset) || 0;
@@ -118,14 +118,17 @@ export class Stem extends Element {
         L('Rendering stem - ', 'Top Y: ', this.y_top, 'Bottom Y: ', this.y_bottom);
         const stemletYOffset = this.isStemlet ? stemHeight - this.stemletHeight * this.stem_direction : 0;
         ctx.save();
-        this.applyStyle(ctx);
+        this.applyStyle();
+        ctx.openGroup('stem', this.getAttribute('id'), { pointerBBox: true });
         ctx.beginPath();
         ctx.setLineWidth(Stem.WIDTH);
         ctx.moveTo(stem_x, stem_y - stemletYOffset + y_base_offset);
         ctx.lineTo(stem_x, stem_y - stemHeight - this.renderHeightAdjustment * stem_direction);
         ctx.stroke();
-        this.restoreStyle(ctx);
+        ctx.closeGroup();
+        this.restoreStyle();
         ctx.restore();
     }
 }
 Stem.DEBUG = false;
+export { Stem };

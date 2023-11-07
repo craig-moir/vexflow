@@ -2,19 +2,19 @@ import { Glyph } from './glyph.js';
 import { StaveModifier, StaveModifierPosition } from './stavemodifier.js';
 import { Tables } from './tables.js';
 import { defined } from './util.js';
-export class KeySignature extends StaveModifier {
+class KeySignature extends StaveModifier {
+    static get CATEGORY() {
+        return "KeySignature";
+    }
     constructor(keySpec, cancelKeySpec, alterKeySpec) {
         super();
         this.accList = [];
         this.setKeySig(keySpec, cancelKeySpec, alterKeySpec);
         this.setPosition(StaveModifierPosition.BEGIN);
-        this.glyphFontScale = 38;
+        this.glyphFontScale = Tables.NOTATION_FONT_SCALE;
         this.glyphs = [];
         this.xPositions = [];
         this.paddingForced = false;
-    }
-    static get CATEGORY() {
-        return "KeySignature";
     }
     convertToGlyph(acc, nextAcc) {
         const accGlyphData = Tables.accidentalCodes(acc.type);
@@ -173,12 +173,18 @@ export class KeySignature extends StaveModifier {
         }
         this.formatted = true;
     }
+    getGlyphs() {
+        if (!this.formatted)
+            this.format();
+        return this.glyphs;
+    }
     draw() {
         const stave = this.checkStave();
         const ctx = stave.checkContext();
         if (!this.formatted)
             this.format();
         this.setRendered();
+        this.applyStyle(ctx);
         ctx.openGroup('keysignature', this.getAttribute('id'));
         for (let i = 0; i < this.glyphs.length; i++) {
             const glyph = this.glyphs[i];
@@ -188,6 +194,7 @@ export class KeySignature extends StaveModifier {
             glyph.renderToStave(x);
         }
         ctx.closeGroup();
+        this.restoreStyle(ctx);
     }
 }
 KeySignature.accidentalSpacing = {
@@ -248,3 +255,4 @@ KeySignature.accidentalSpacing = {
         below: 10,
     },
 };
+export { KeySignature };

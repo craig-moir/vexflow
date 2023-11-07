@@ -38,7 +38,7 @@ function simple0(options) {
     staveLine2.render_options.line_dash = [10, 10];
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function simple1(options) {
     const f = VexFlowTests.makeFactory(options, 770);
@@ -116,7 +116,7 @@ function simple1(options) {
     staveLine3.render_options.text_position_vertical = 1;
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 VexFlowTests.register(StaveLineTests);
 export { StaveLineTests };

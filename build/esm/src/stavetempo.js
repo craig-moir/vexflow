@@ -2,7 +2,11 @@ import { Font, FontStyle, FontWeight } from './font.js';
 import { Glyph } from './glyph.js';
 import { StaveModifier, StaveModifierPosition } from './stavemodifier.js';
 import { Tables } from './tables.js';
-export class StaveTempo extends StaveModifier {
+import { TextFormatter } from './textformatter.js';
+class StaveTempo extends StaveModifier {
+    static get CATEGORY() {
+        return "StaveTempo";
+    }
     constructor(tempo, x, shift_y) {
         super();
         this.render_options = { glyph_font_scale: 30 };
@@ -12,9 +16,6 @@ export class StaveTempo extends StaveModifier {
         this.shift_x = 10;
         this.shift_y = shift_y;
         this.resetFont();
-    }
-    static get CATEGORY() {
-        return "StaveTempo";
     }
     setTempo(tempo) {
         this.tempo = tempo;
@@ -32,7 +33,7 @@ export class StaveTempo extends StaveModifier {
         const ctx = stave.checkContext();
         this.setRendered();
         const options = this.render_options;
-        const scale = options.glyph_font_scale / 38;
+        const scale = options.glyph_font_scale / Tables.NOTATION_FONT_SCALE;
         const name = this.tempo.name;
         const duration = this.tempo.duration;
         const dots = this.tempo.dots || 0;
@@ -40,35 +41,37 @@ export class StaveTempo extends StaveModifier {
         let x = this.x + this.shift_x + shift_x;
         const y = stave.getYForTopText(1) + this.shift_y;
         ctx.save();
+        const textFormatter = TextFormatter.create(this.textFont);
         if (name) {
             ctx.setFont(this.textFont);
             ctx.fillText(name, x, y);
-            x += ctx.measureText(name).width;
+            x += textFormatter.getWidthForTextInPx(name);
         }
         if (duration && bpm) {
-            ctx.setFont(Object.assign(Object.assign({}, this.textFont), { weight: 'normal', style: 'normal' }));
+            const noteTextFont = Object.assign(Object.assign({}, this.textFont), { weight: 'normal', style: 'normal' });
+            ctx.setFont(noteTextFont);
+            const noteTextFormatter = TextFormatter.create(noteTextFont);
             if (name) {
-                x += ctx.measureText(' ').width;
+                x += noteTextFormatter.getWidthForTextInPx('|');
                 ctx.fillText('(', x, y);
-                x += ctx.measureText('(').width;
+                x += noteTextFormatter.getWidthForTextInPx('(');
             }
-            const code = Tables.getGlyphProps(duration);
+            const glyphProps = Tables.getGlyphProps(duration);
             x += 3 * scale;
-            Glyph.renderGlyph(ctx, x, y, options.glyph_font_scale, code.code_head);
-            x += code.getWidth() * scale;
-            if (code.stem) {
+            Glyph.renderGlyph(ctx, x, y, options.glyph_font_scale, glyphProps.code_head);
+            x += Glyph.getWidth(glyphProps.code_head, options.glyph_font_scale);
+            if (glyphProps.stem) {
                 let stem_height = 30;
-                if (code.beam_count)
-                    stem_height += 3 * (code.beam_count - 1);
+                if (glyphProps.beam_count)
+                    stem_height += 3 * (glyphProps.beam_count - 1);
                 stem_height *= scale;
                 const y_top = y - stem_height;
                 ctx.fillRect(x - scale, y_top, scale, stem_height);
-                if (code.flag) {
-                    Glyph.renderGlyph(ctx, x, y_top, options.glyph_font_scale, code.code_flag_upstem, {
+                if (glyphProps.code && glyphProps.code_flag_upstem) {
+                    const flagMetrics = Glyph.renderGlyph(ctx, x, y_top, options.glyph_font_scale, glyphProps.code_flag_upstem, {
                         category: 'flag.staveTempo',
                     });
-                    if (!dots)
-                        x += 6 * scale;
+                    x += (flagMetrics.width * Tables.NOTATION_FONT_SCALE) / flagMetrics.font.getData().resolution;
                 }
             }
             for (let i = 0; i < dots; i++) {
@@ -89,3 +92,4 @@ StaveTempo.TEXT_FONT = {
     weight: FontWeight.BOLD,
     style: FontStyle.NORMAL,
 };
+export { StaveTempo };

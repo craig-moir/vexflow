@@ -1,5 +1,5 @@
 import { RenderContext } from './rendercontext';
-export declare type ContextBuilder = typeof Renderer.getSVGContext | typeof Renderer.getCanvasContext;
+export type ContextBuilder = typeof Renderer.getSVGContext | typeof Renderer.getCanvasContext;
 export declare enum RendererBackends {
     CANVAS = 1,
     SVG = 2

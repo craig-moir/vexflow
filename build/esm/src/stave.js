@@ -26,7 +26,18 @@ const SORT_ORDER_END_MODIFIERS = {
     [Barline.CATEGORY]: 2,
     [Clef.CATEGORY]: 3,
 };
-export class Stave extends Element {
+class Stave extends Element {
+    static get CATEGORY() {
+        return "Stave";
+    }
+    static get defaultPadding() {
+        const musicFont = Tables.currentMusicFont();
+        return musicFont.lookupMetric('stave.padding') + musicFont.lookupMetric('stave.endPaddingMax');
+    }
+    static get rightPadding() {
+        const musicFont = Tables.currentMusicFont();
+        return musicFont.lookupMetric('stave.endPaddingMax');
+    }
     constructor(x, y, width, options) {
         super();
         this.height = 0;
@@ -47,17 +58,6 @@ export class Stave extends Element {
         this.resetLines();
         this.addModifier(new Barline(this.options.left_bar ? BarlineType.SINGLE : BarlineType.NONE));
         this.addEndModifier(new Barline(this.options.right_bar ? BarlineType.SINGLE : BarlineType.NONE));
-    }
-    static get CATEGORY() {
-        return "Stave";
-    }
-    static get defaultPadding() {
-        const musicFont = Tables.currentMusicFont();
-        return musicFont.lookupMetric('stave.padding') + musicFont.lookupMetric('stave.endPaddingMax');
-    }
-    static get rightPadding() {
-        const musicFont = Tables.currentMusicFont();
-        return musicFont.lookupMetric('stave.endPaddingMax');
     }
     setDefaultLedgerLineStyle(style) {
         this.defaultLedgerLineStyle = style;
@@ -144,11 +144,14 @@ export class Stave extends Element {
         return this.width;
     }
     getStyle() {
-        return Object.assign({ fillStyle: this.options.fill_style, strokeStyle: this.options.fill_style, lineWidth: Tables.STAVE_LINE_THICKNESS }, this.style);
+        return Object.assign({ fillStyle: this.options.fill_style, strokeStyle: this.options.fill_style, lineWidth: Tables.STAVE_LINE_THICKNESS }, super.getStyle());
     }
     setMeasure(measure) {
         this.measure = measure;
         return this;
+    }
+    getMeasure() {
+        return this.measure;
     }
     getModifierXShift(index = 0) {
         if (typeof index !== 'number') {
@@ -467,6 +470,7 @@ export class Stave extends Element {
     draw() {
         const ctx = this.checkContext();
         this.setRendered();
+        this.applyStyle();
         ctx.openGroup('stave', this.getAttribute('id'));
         if (!this.formatted)
             this.format();
@@ -476,15 +480,15 @@ export class Stave extends Element {
         let y;
         for (let line = 0; line < num_lines; line++) {
             y = this.getYForLine(line);
-            this.applyStyle();
             if (this.options.line_config[line].visible) {
                 ctx.beginPath();
                 ctx.moveTo(x, y);
                 ctx.lineTo(x + width, y);
                 ctx.stroke();
             }
-            this.restoreStyle();
         }
+        ctx.closeGroup();
+        this.restoreStyle();
         for (let i = 0; i < this.modifiers.length; i++) {
             const modifier = this.modifiers[i];
             if (typeof modifier.draw === 'function') {
@@ -501,7 +505,6 @@ export class Stave extends Element {
             ctx.fillText('' + this.measure, this.x - textWidth / 2, y);
             ctx.restore();
         }
-        ctx.closeGroup();
         return this;
     }
     getVerticalBarWidth() {
@@ -537,6 +540,39 @@ export class Stave extends Element {
         return this;
     }
     static formatBegModifiers(staves) {
+        const adjustCategoryStartX = (category) => {
+            let minStartX = 0;
+            staves.forEach((stave) => {
+                const modifiers = stave.getModifiers(StaveModifierPosition.BEGIN, category);
+                if (modifiers.length > 0 && modifiers[0].getX() > minStartX)
+                    minStartX = modifiers[0].getX();
+            });
+            let adjustX = 0;
+            staves.forEach((stave) => {
+                adjustX = 0;
+                const modifiers = stave.getModifiers(StaveModifierPosition.BEGIN, category);
+                modifiers.forEach((modifier) => {
+                    if (minStartX - modifier.getX() > adjustX)
+                        adjustX = minStartX - modifier.getX();
+                });
+                const allModifiers = stave.getModifiers(StaveModifierPosition.BEGIN);
+                let bAdjust = false;
+                allModifiers.forEach((modifier) => {
+                    if (modifier.getCategory() === category)
+                        bAdjust = true;
+                    if (bAdjust && adjustX > 0)
+                        modifier.setX(modifier.getX() + adjustX);
+                });
+                stave.setNoteStartX(stave.getNoteStartX() + adjustX);
+            });
+        };
+        staves.forEach((stave) => {
+            if (!stave.formatted)
+                stave.format();
+        });
+        adjustCategoryStartX("Clef");
+        adjustCategoryStartX("KeySignature");
+        adjustCategoryStartX("TimeSignature");
         let maxX = 0;
         staves.forEach((stave) => {
             if (stave.getNoteStartX() > maxX)
@@ -561,20 +597,6 @@ export class Stave extends Element {
                     modifier.setX(maxX);
             });
         });
-        maxX = 0;
-        staves.forEach((stave) => {
-            const modifiers = stave.getModifiers(StaveModifierPosition.BEGIN, "TimeSignature");
-            modifiers.forEach((modifier) => {
-                if (modifier.getX() > maxX)
-                    maxX = modifier.getX();
-            });
-        });
-        staves.forEach((stave) => {
-            const modifiers = stave.getModifiers(StaveModifierPosition.BEGIN, "TimeSignature");
-            modifiers.forEach((modifier) => {
-                modifier.setX(maxX);
-            });
-        });
     }
 }
 Stave.TEXT_FONT = {
@@ -583,3 +605,4 @@ Stave.TEXT_FONT = {
     weight: FontWeight.NORMAL,
     style: FontStyle.NORMAL,
 };
+export { Stave };

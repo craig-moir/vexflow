@@ -83,7 +83,7 @@ function basic(options) {
     const voice = f.Voice().setStrict(false).addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'GraceNoteBasic');
+    options.assert.ok(true, 'GraceNoteBasic');
 }
 function graceNoteModifiers(options) {
     const f = VexFlowTests.makeFactory(options, 700, 130);
@@ -122,7 +122,7 @@ function graceNoteModifiers(options) {
     const voice = f.Voice().setStrict(false).addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'GraceNoteModifiers');
+    options.assert.ok(true, 'GraceNoteModifiers');
 }
 function basicSlurred(options) {
     const f = VexFlowTests.makeFactory(options, 700, 130);
@@ -173,7 +173,7 @@ function basicSlurred(options) {
     const voice = f.Voice().setStrict(false).addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'GraceNoteBasic');
+    options.assert.ok(true, 'GraceNoteBasic');
 }
 const createNoteForStemTest = (duration, noteBuilder, keys, stem_direction, slash = false) => {
     const struct = { duration, slash };
@@ -199,7 +199,7 @@ function stem(options) {
     voice.addTickables(createNoteBlock(['d/5'], -1));
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'GraceNoteStem');
+    options.assert.ok(true, 'GraceNoteStem');
 }
 function stemWithBeamed(options) {
     const f = VexFlowTests.makeFactory(options, 700, 130);
@@ -235,7 +235,7 @@ function stemWithBeamed(options) {
     voice.addTickables(createBeamedNoteBlock(options.params.keys2, options.params.stemDirection2, beams));
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'GraceNoteStem');
+    options.assert.ok(true, 'GraceNoteStem');
 }
 function slash(options) {
     const f = VexFlowTests.makeFactory(options, 700, 130);
@@ -273,7 +273,7 @@ function slash(options) {
     voice.addTickables(createNoteBlock(['d/4', 'a/4'], -1));
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'GraceNoteSlash');
+    options.assert.ok(true, 'GraceNoteSlash');
 }
 function slashWithBeams(options) {
     const f = VexFlowTests.makeFactory(options, 800, 130);
@@ -306,7 +306,7 @@ function slashWithBeams(options) {
     voice.addTickables(createNoteBlock(['d/4', 'a/4'], -1));
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'GraceNoteSlashWithBeams');
+    options.assert.ok(true, 'GraceNoteSlashWithBeams');
 }
 function multipleVoices(options) {
     const f = VexFlowTests.makeFactory(options, 450, 140);
@@ -356,7 +356,7 @@ function multipleVoices(options) {
     f.Beam({ notes: notes2.slice(4, 8) });
     f.Formatter().joinVoices([voice, voice2]).formatToStave([voice, voice2], stave);
     f.draw();
-    ok(true, 'Sixteenth Test');
+    options.assert.ok(true, 'Sixteenth Test');
 }
 function multipleVoicesMultipleDraws(options) {
     const f = VexFlowTests.makeFactory(options, 450, 140);
@@ -407,7 +407,7 @@ function multipleVoicesMultipleDraws(options) {
     f.Formatter().joinVoices([voice, voice2]).formatToStave([voice, voice2], stave);
     f.draw();
     f.draw();
-    ok(true, 'Seventeenth Test');
+    options.assert.ok(true, 'Seventeenth Test');
 }
 VexFlowTests.register(GraceNoteTests);
 export { GraceNoteTests };

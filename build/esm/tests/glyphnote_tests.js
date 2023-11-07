@@ -48,7 +48,7 @@ function chordChanges(options) {
     system.addConnector().setType(StaveConnector.type.BRACKET);
     f.draw();
     Registry.disableDefaultRegistry();
-    ok(true);
+    options.assert.ok(true);
 }
 function basic(options) {
     Registry.enableDefaultRegistry(new Registry());
@@ -77,7 +77,7 @@ function basic(options) {
     system.addConnector().setType(StaveConnector.type.BRACKET);
     f.draw();
     Registry.disableDefaultRegistry();
-    ok(true);
+    options.assert.ok(true);
 }
 function repeatNote(options) {
     Registry.enableDefaultRegistry(new Registry());
@@ -107,7 +107,7 @@ function repeatNote(options) {
     system.addConnector().setType(StaveConnector.type.BRACKET);
     f.draw();
     Registry.disableDefaultRegistry();
-    ok(true);
+    options.assert.ok(true);
 }
 VexFlowTests.register(GlyphNoteTests);
 export { GlyphNoteTests };

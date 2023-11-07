@@ -1,10 +1,14 @@
 import { Glyph } from './glyph.js';
 import { GraceNote } from './gracenote.js';
 import { Modifier } from './modifier.js';
+import { Note } from './note.js';
 import { Stem } from './stem.js';
 import { Tables } from './tables.js';
 import { isGraceNote } from './typeguard.js';
 export class Tremolo extends Modifier {
+    static get CATEGORY() {
+        return "Tremolo";
+    }
     constructor(num) {
         super();
         this.num = num;
@@ -13,10 +17,8 @@ export class Tremolo extends Modifier {
         this.y_spacing_scale = 1;
         this.extra_stroke_scale = 1;
     }
-    static get CATEGORY() {
-        return "Tremolo";
-    }
     draw() {
+        var _a;
         const ctx = this.checkContext();
         const note = this.checkAttachedNote();
         this.setRendered();
@@ -37,7 +39,7 @@ export class Tremolo extends Modifier {
         else {
             y += musicFont.lookupMetric(`${category}.offsetYStemUp`) * scale;
         }
-        const fontScale = musicFont.lookupMetric(`${category}.point`);
+        const fontScale = (_a = musicFont.lookupMetric(`${category}.point`)) !== null && _a !== void 0 ? _a : Note.getPoint(gn ? 'grace' : 'default');
         x += musicFont.lookupMetric(`${category}.offsetXStem${stemDirection === Stem.UP ? 'Up' : 'Down'}`);
         for (let i = 0; i < this.num; ++i) {
             Glyph.renderGlyph(ctx, x, y, fontScale, this.code, { category, scale: this.extra_stroke_scale });

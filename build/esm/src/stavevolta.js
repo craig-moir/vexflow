@@ -8,7 +8,13 @@ export var VoltaType;
     VoltaType[VoltaType["END"] = 4] = "END";
     VoltaType[VoltaType["BEGIN_END"] = 5] = "BEGIN_END";
 })(VoltaType || (VoltaType = {}));
-export class Volta extends StaveModifier {
+class Volta extends StaveModifier {
+    static get CATEGORY() {
+        return "Volta";
+    }
+    static get type() {
+        return VoltaType;
+    }
     constructor(type, number, x, y_shift) {
         super();
         this.volta = type;
@@ -16,12 +22,6 @@ export class Volta extends StaveModifier {
         this.y_shift = y_shift;
         this.number = number;
         this.resetFont();
-    }
-    static get CATEGORY() {
-        return "Volta";
-    }
-    static get type() {
-        return VoltaType;
     }
     setShiftY(y) {
         this.y_shift = y;
@@ -65,3 +65,4 @@ Volta.TEXT_FONT = {
     weight: FontWeight.BOLD,
     style: FontStyle.NORMAL,
 };
+export { Volta };

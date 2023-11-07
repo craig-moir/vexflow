@@ -16,7 +16,7 @@ import { Voice } from '../src/voice.js';
 const AccidentalTests = {
     Start() {
         QUnit.module('Accidental');
-        test('Automatic Accidentals - Simple Tests', autoAccidentalWorking);
+        QUnit.test('Automatic Accidentals - Simple Tests', autoAccidentalWorking);
         const run = VexFlowTests.runTests;
         run('Accidental Padding', formatAccidentalSpaces);
         run('Basic', basic);
@@ -46,7 +46,7 @@ function hasAccidental(note) {
 function makeNewAccid(factory) {
     return (type) => factory.Accidental({ type });
 }
-function autoAccidentalWorking() {
+function autoAccidentalWorking(assert) {
     const createStaveNote = (noteStruct) => new StaveNote(noteStruct);
     let notes = [
         { keys: ['bb/4'], duration: '4' },
@@ -60,14 +60,14 @@ function autoAccidentalWorking() {
     ].map(createStaveNote);
     let voice = new Voice().setMode(Voice.Mode.SOFT).addTickables(notes);
     Accidental.applyAccidentals([voice], 'F');
-    equal(hasAccidental(notes[0]), false, 'No flat because of key signature');
-    equal(hasAccidental(notes[1]), false, 'No flat because of key signature');
-    equal(hasAccidental(notes[2]), true, 'Added a sharp');
-    equal(hasAccidental(notes[3]), true, 'Back to natural');
-    equal(hasAccidental(notes[4]), true, 'Back to natural');
-    equal(hasAccidental(notes[5]), false, 'Natural remembered');
-    equal(hasAccidental(notes[6]), true, 'Added sharp');
-    equal(hasAccidental(notes[7]), true, 'Added sharp');
+    assert.equal(hasAccidental(notes[0]), false, 'No flat because of key signature');
+    assert.equal(hasAccidental(notes[1]), false, 'No flat because of key signature');
+    assert.equal(hasAccidental(notes[2]), true, 'Added a sharp');
+    assert.equal(hasAccidental(notes[3]), true, 'Back to natural');
+    assert.equal(hasAccidental(notes[4]), true, 'Back to natural');
+    assert.equal(hasAccidental(notes[5]), false, 'Natural remembered');
+    assert.equal(hasAccidental(notes[6]), true, 'Added sharp');
+    assert.equal(hasAccidental(notes[7]), true, 'Added sharp');
     notes = [
         { keys: ['e#/4'], duration: '4' },
         { keys: ['cb/4'], duration: '4' },
@@ -80,14 +80,14 @@ function autoAccidentalWorking() {
     ].map(createStaveNote);
     voice = new Voice().setMode(Voice.Mode.SOFT).addTickables(notes);
     Accidental.applyAccidentals([voice], 'A');
-    equal(hasAccidental(notes[0]), true, 'Added sharp');
-    equal(hasAccidental(notes[1]), true, 'Added flat');
-    equal(hasAccidental(notes[2]), true, 'Added flat');
-    equal(hasAccidental(notes[3]), true, 'Added sharp');
-    equal(hasAccidental(notes[4]), false, 'Sharp remembered');
-    equal(hasAccidental(notes[5]), true, 'Added flat(different octave)');
-    equal(hasAccidental(notes[6]), true, 'Added flat(different octave)');
-    equal(hasAccidental(notes[7]), false, 'sharp remembered');
+    assert.equal(hasAccidental(notes[0]), true, 'Added sharp');
+    assert.equal(hasAccidental(notes[1]), true, 'Added flat');
+    assert.equal(hasAccidental(notes[2]), true, 'Added flat');
+    assert.equal(hasAccidental(notes[3]), true, 'Added sharp');
+    assert.equal(hasAccidental(notes[4]), false, 'Sharp remembered');
+    assert.equal(hasAccidental(notes[5]), true, 'Added flat(different octave)');
+    assert.equal(hasAccidental(notes[6]), true, 'Added flat(different octave)');
+    assert.equal(hasAccidental(notes[7]), false, 'sharp remembered');
     notes = [
         { keys: ['c/4'], duration: '4' },
         { keys: ['cb/4'], duration: '4' },
@@ -103,17 +103,17 @@ function autoAccidentalWorking() {
     ].map(createStaveNote);
     voice = new Voice().setMode(Voice.Mode.SOFT).addTickables(notes);
     Accidental.applyAccidentals([voice], 'C');
-    equal(hasAccidental(notes[0]), false, 'No accidental');
-    equal(hasAccidental(notes[1]), true, 'Added flat');
-    equal(hasAccidental(notes[2]), false, 'Flat remembered');
-    equal(hasAccidental(notes[3]), true, 'Sharp added');
-    equal(hasAccidental(notes[4]), false, 'Sharp remembered');
-    equal(hasAccidental(notes[5]), true, 'Added doubled flat');
-    equal(hasAccidental(notes[6]), false, 'Double flat remembered');
-    equal(hasAccidental(notes[7]), true, 'Added double sharp');
-    equal(hasAccidental(notes[8]), false, 'Double sharp rememberd');
-    equal(hasAccidental(notes[9]), true, 'Added natural');
-    equal(hasAccidental(notes[10]), false, 'Natural remembered');
+    assert.equal(hasAccidental(notes[0]), false, 'No accidental');
+    assert.equal(hasAccidental(notes[1]), true, 'Added flat');
+    assert.equal(hasAccidental(notes[2]), false, 'Flat remembered');
+    assert.equal(hasAccidental(notes[3]), true, 'Sharp added');
+    assert.equal(hasAccidental(notes[4]), false, 'Sharp remembered');
+    assert.equal(hasAccidental(notes[5]), true, 'Added doubled flat');
+    assert.equal(hasAccidental(notes[6]), false, 'Double flat remembered');
+    assert.equal(hasAccidental(notes[7]), true, 'Added double sharp');
+    assert.equal(hasAccidental(notes[8]), false, 'Double sharp rememberd');
+    assert.equal(hasAccidental(notes[9]), true, 'Added natural');
+    assert.equal(hasAccidental(notes[10]), false, 'Natural remembered');
 }
 function formatAccidentalSpaces(options) {
     const f = VexFlowTests.makeFactory(options, 750, 280);
@@ -185,7 +185,7 @@ function formatAccidentalSpaces(options) {
     beams.forEach((b) => b.setContext(context).draw());
     notes.forEach((note) => Note.plotMetrics(context, note, 30));
     VexFlowTests.plotLegendForNoteWidth(context, 300, 150);
-    ok(true);
+    options.assert.ok(true);
 }
 function basic(options) {
     const f = VexFlowTests.makeFactory(options, 700, 240);
@@ -226,14 +226,14 @@ function basic(options) {
     Formatter.SimpleFormat(notes, 10, { paddingBetween: 45 });
     notes.forEach((note, index) => {
         Note.plotMetrics(f.getContext(), note, 140);
-        ok(note.getModifiersByType('Accidental').length > 0, 'Note ' + index + ' has accidentals');
+        options.assert.ok(note.getModifiersByType('Accidental').length > 0, 'Note ' + index + ' has accidentals');
         note.getModifiersByType('Accidental').forEach((accid, index) => {
-            ok(accid.getWidth() > 0, 'Accidental ' + index + ' has set width');
+            options.assert.ok(accid.getWidth() > 0, 'Accidental ' + index + ' has set width');
         });
     });
     f.draw();
     VexFlowTests.plotLegendForNoteWidth(f.getContext(), 480, 140);
-    ok(true, 'Full Accidental');
+    options.assert.ok(true, 'Full Accidental');
 }
 function cautionary(options) {
     const staveCount = 12;
@@ -265,7 +265,7 @@ function cautionary(options) {
         f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
         f.draw();
     }
-    ok(true, 'Must successfully render cautionary accidentals');
+    options.assert.ok(true, 'Must successfully render cautionary accidentals');
 }
 function specialCases(options) {
     const f = VexFlowTests.makeFactory(options, 700, 240);
@@ -307,14 +307,14 @@ function specialCases(options) {
     Formatter.SimpleFormat(notes, 0, { paddingBetween: 20 });
     notes.forEach((note, index) => {
         Note.plotMetrics(f.getContext(), note, 140);
-        ok(note.getModifiersByType('Accidental').length > 0, 'Note ' + index + ' has accidentals');
+        options.assert.ok(note.getModifiersByType('Accidental').length > 0, 'Note ' + index + ' has accidentals');
         note.getModifiersByType('Accidental').forEach((accid, index) => {
-            ok(accid.getWidth() > 0, 'Accidental ' + index + ' has set width');
+            options.assert.ok(accid.getWidth() > 0, 'Accidental ' + index + ' has set width');
         });
     });
     f.draw();
     VexFlowTests.plotLegendForNoteWidth(f.getContext(), 480, 140);
-    ok(true, 'Full Accidental');
+    options.assert.ok(true, 'Full Accidental');
 }
 function basicStemDown(options) {
     const f = VexFlowTests.makeFactory(options, 700, 240);
@@ -347,14 +347,14 @@ function basicStemDown(options) {
     Formatter.SimpleFormat(notes, 0, { paddingBetween: 30 });
     notes.forEach((note, noteIndex) => {
         Note.plotMetrics(f.getContext(), note, 140);
-        ok(note.getModifiersByType('Accidental').length > 0, 'Note ' + noteIndex + ' has accidentals');
+        options.assert.ok(note.getModifiersByType('Accidental').length > 0, 'Note ' + noteIndex + ' has accidentals');
         note.getModifiersByType('Accidental').forEach((accid, accidIndex) => {
-            ok(accid.getWidth() > 0, 'Accidental ' + accidIndex + ' has set width');
+            options.assert.ok(accid.getWidth() > 0, 'Accidental ' + accidIndex + ' has set width');
         });
     });
     f.draw();
     VexFlowTests.plotLegendForNoteWidth(f.getContext(), 480, 140);
-    ok(true, 'Full Accidental');
+    options.assert.ok(true, 'Full Accidental');
 }
 function multiVoice(options) {
     function showNotes(note1, note2, stave, ctx, x) {
@@ -408,7 +408,7 @@ function multiVoice(options) {
         .setStave(stave);
     showNotes(note1, note2, stave, ctx, 250);
     VexFlowTests.plotLegendForNoteWidth(ctx, 350, 150);
-    ok(true, 'Full Accidental');
+    options.assert.ok(true, 'Full Accidental');
 }
 function microtonal(options) {
     const f = VexFlowTests.makeFactory(options, 700, 240);
@@ -458,14 +458,14 @@ function microtonal(options) {
     Formatter.SimpleFormat(notes, 0, { paddingBetween: 35 });
     notes.forEach((note, index) => {
         Note.plotMetrics(f.getContext(), note, 140);
-        ok(note.getModifiersByType('Accidental').length > 0, 'Note ' + index + ' has accidentals');
+        options.assert.ok(note.getModifiersByType('Accidental').length > 0, 'Note ' + index + ' has accidentals');
         note.getModifiersByType('Accidental').forEach((accid, index) => {
-            ok(accid.getWidth() > 0, 'Accidental ' + index + ' has set width');
+            options.assert.ok(accid.getWidth() > 0, 'Accidental ' + index + ' has set width');
         });
     });
     f.draw();
     VexFlowTests.plotLegendForNoteWidth(ctx, 580, 140);
-    ok(true, 'Microtonal Accidental');
+    options.assert.ok(true, 'Microtonal Accidental');
 }
 function microtonal_iranian(options) {
     const f = VexFlowTests.makeFactory(options, 700, 240);
@@ -512,14 +512,14 @@ function microtonal_iranian(options) {
     Formatter.SimpleFormat(notes, 0, { paddingBetween: 35 });
     notes.forEach((note, index) => {
         Note.plotMetrics(f.getContext(), note, 140);
-        ok(note.getModifiersByType('Accidental').length > 0, 'Note ' + index + ' has accidentals');
+        options.assert.ok(note.getModifiersByType('Accidental').length > 0, 'Note ' + index + ' has accidentals');
         note.getModifiersByType('Accidental').forEach((accid, index) => {
-            ok(accid.getWidth() > 0, 'Accidental ' + index + ' has set width');
+            options.assert.ok(accid.getWidth() > 0, 'Accidental ' + index + ' has set width');
         });
     });
     f.draw();
     VexFlowTests.plotLegendForNoteWidth(ctx, 580, 140);
-    ok(true, 'Microtonal Accidental (Iranian)');
+    options.assert.ok(true, 'Microtonal Accidental (Iranian)');
 }
 function sagittal(options) {
     const f = VexFlowTests.makeFactory(options, 700, 240);
@@ -591,14 +591,14 @@ function sagittal(options) {
     Formatter.SimpleFormat(notes);
     notes.forEach((note, index) => {
         Note.plotMetrics(f.getContext(), note, 140);
-        ok(note.getModifiersByType('Accidental').length > 0, 'Note ' + index + ' has accidentals');
+        options.assert.ok(note.getModifiersByType('Accidental').length > 0, 'Note ' + index + ' has accidentals');
         note.getModifiersByType('Accidental').forEach((accid, index) => {
-            ok(accid.getWidth() > 0, 'Accidental ' + index + ' has set width');
+            options.assert.ok(accid.getWidth() > 0, 'Accidental ' + index + ' has set width');
         });
     });
     f.draw();
     VexFlowTests.plotLegendForNoteWidth(ctx, 580, 140);
-    ok(true, 'Sagittal');
+    options.assert.ok(true, 'Sagittal');
 }
 function automaticAccidentals0(options) {
     const f = VexFlowTests.makeFactory(options, 700, 200);
@@ -627,7 +627,7 @@ function automaticAccidentals0(options) {
     Accidental.applyAccidentals([voice], 'C');
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function automaticAccidentals1(options) {
     const f = VexFlowTests.makeFactory(options, 700, 150);
@@ -646,7 +646,7 @@ function automaticAccidentals1(options) {
     Accidental.applyAccidentals([voice], 'Ab');
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function automaticAccidentals2(options) {
     const f = VexFlowTests.makeFactory(options, 700, 150);
@@ -665,7 +665,7 @@ function automaticAccidentals2(options) {
     Accidental.applyAccidentals([voice], 'A');
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function automaticAccidentals3(options) {
     const f = VexFlowTests.makeFactory(options, 700, 150);
@@ -677,7 +677,7 @@ function automaticAccidentals3(options) {
     Accidental.applyAccidentals([voice], 'A');
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function automaticAccidentalsMultiVoiceInline(options) {
     const f = VexFlowTests.makeFactory(options, 700, 150);
@@ -705,25 +705,25 @@ function automaticAccidentalsMultiVoiceInline(options) {
     const voice0 = f.Voice().setMode(Voice.Mode.SOFT).addTickables(notes0);
     const voice1 = f.Voice().setMode(Voice.Mode.SOFT).addTickables(notes1);
     Accidental.applyAccidentals([voice0, voice1], 'Ab');
-    equal(hasAccidental(notes0[0]), false);
-    equal(hasAccidental(notes0[1]), true);
-    equal(hasAccidental(notes0[2]), true);
-    equal(hasAccidental(notes0[3]), false);
-    equal(hasAccidental(notes0[4]), false);
-    equal(hasAccidental(notes0[5]), true);
-    equal(hasAccidental(notes0[6]), true);
-    equal(hasAccidental(notes0[7]), false);
-    equal(hasAccidental(notes1[0]), false);
-    equal(hasAccidental(notes1[1]), true);
-    equal(hasAccidental(notes1[2]), true);
-    equal(hasAccidental(notes1[3]), false);
-    equal(hasAccidental(notes1[4]), false);
-    equal(hasAccidental(notes1[5]), true);
-    equal(hasAccidental(notes1[6]), true);
-    equal(hasAccidental(notes1[7]), false);
+    options.assert.equal(hasAccidental(notes0[0]), false);
+    options.assert.equal(hasAccidental(notes0[1]), true);
+    options.assert.equal(hasAccidental(notes0[2]), true);
+    options.assert.equal(hasAccidental(notes0[3]), false);
+    options.assert.equal(hasAccidental(notes0[4]), false);
+    options.assert.equal(hasAccidental(notes0[5]), true);
+    options.assert.equal(hasAccidental(notes0[6]), true);
+    options.assert.equal(hasAccidental(notes0[7]), false);
+    options.assert.equal(hasAccidental(notes1[0]), false);
+    options.assert.equal(hasAccidental(notes1[1]), true);
+    options.assert.equal(hasAccidental(notes1[2]), true);
+    options.assert.equal(hasAccidental(notes1[3]), false);
+    options.assert.equal(hasAccidental(notes1[4]), false);
+    options.assert.equal(hasAccidental(notes1[5]), true);
+    options.assert.equal(hasAccidental(notes1[6]), true);
+    options.assert.equal(hasAccidental(notes1[7]), false);
     new Formatter().joinVoices([voice0, voice1]).formatToStave([voice0, voice1], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function automaticAccidentalsMultiVoiceOffset(options) {
     const f = VexFlowTests.makeFactory(options, 700, 150);
@@ -752,25 +752,25 @@ function automaticAccidentalsMultiVoiceOffset(options) {
     const voice0 = f.Voice().setMode(Voice.Mode.SOFT).addTickables(notes0);
     const voice1 = f.Voice().setMode(Voice.Mode.SOFT).addTickables(notes1);
     Accidental.applyAccidentals([voice0, voice1], 'Cb');
-    equal(hasAccidental(notes0[0]), true);
-    equal(hasAccidental(notes0[1]), true);
-    equal(hasAccidental(notes0[2]), true);
-    equal(hasAccidental(notes0[3]), true);
-    equal(hasAccidental(notes0[4]), true);
-    equal(hasAccidental(notes0[5]), true);
-    equal(hasAccidental(notes0[6]), true);
-    equal(hasAccidental(notes0[7]), false, 'Natural Remembered');
-    equal(hasAccidental(notes1[0]), true);
-    equal(hasAccidental(notes1[1]), false);
-    equal(hasAccidental(notes1[2]), true);
-    equal(hasAccidental(notes1[3]), true);
-    equal(hasAccidental(notes1[4]), true);
-    equal(hasAccidental(notes1[5]), true);
-    equal(hasAccidental(notes1[6]), true);
-    equal(hasAccidental(notes1[7]), true);
+    options.assert.equal(hasAccidental(notes0[0]), true);
+    options.assert.equal(hasAccidental(notes0[1]), true);
+    options.assert.equal(hasAccidental(notes0[2]), true);
+    options.assert.equal(hasAccidental(notes0[3]), true);
+    options.assert.equal(hasAccidental(notes0[4]), true);
+    options.assert.equal(hasAccidental(notes0[5]), true);
+    options.assert.equal(hasAccidental(notes0[6]), true);
+    options.assert.equal(hasAccidental(notes0[7]), false, 'Natural Remembered');
+    options.assert.equal(hasAccidental(notes1[0]), true);
+    options.assert.equal(hasAccidental(notes1[1]), false);
+    options.assert.equal(hasAccidental(notes1[2]), true);
+    options.assert.equal(hasAccidental(notes1[3]), true);
+    options.assert.equal(hasAccidental(notes1[4]), true);
+    options.assert.equal(hasAccidental(notes1[5]), true);
+    options.assert.equal(hasAccidental(notes1[6]), true);
+    options.assert.equal(hasAccidental(notes1[7]), true);
     new Formatter().joinVoices([voice0, voice1]).formatToStave([voice0, voice1], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function automaticAccidentalsCornerCases1(options) {
     const f = VexFlowTests.makeFactory(options, 700, 150);
@@ -788,18 +788,18 @@ function automaticAccidentalsCornerCases1(options) {
     ].map(f.StaveNote.bind(f));
     const voice0 = f.Voice().setMode(Voice.Mode.SOFT).addTickables(notes0);
     Accidental.applyAccidentals([voice0], 'C');
-    equal(hasAccidental(notes0[0]), false);
-    equal(hasAccidental(notes0[1]), true);
-    equal(hasAccidental(notes0[2]), false);
-    equal(hasAccidental(notes0[3]), true);
-    equal(hasAccidental(notes0[4]), false);
-    equal(hasAccidental(notes0[5]), true);
-    equal(hasAccidental(notes0[6]), false);
-    equal(hasAccidental(notes0[7]), true);
-    equal(hasAccidental(notes0[8]), false);
+    options.assert.equal(hasAccidental(notes0[0]), false);
+    options.assert.equal(hasAccidental(notes0[1]), true);
+    options.assert.equal(hasAccidental(notes0[2]), false);
+    options.assert.equal(hasAccidental(notes0[3]), true);
+    options.assert.equal(hasAccidental(notes0[4]), false);
+    options.assert.equal(hasAccidental(notes0[5]), true);
+    options.assert.equal(hasAccidental(notes0[6]), false);
+    options.assert.equal(hasAccidental(notes0[7]), true);
+    options.assert.equal(hasAccidental(notes0[8]), false);
     new Formatter().joinVoices([voice0]).formatToStave([voice0], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function automaticAccidentalsCornerCases2(options) {
     const f = VexFlowTests.makeFactory(options, 700, 150);
@@ -826,27 +826,27 @@ function automaticAccidentalsCornerCases2(options) {
     ].map(f.StaveNote.bind(f));
     const voice0 = f.Voice().setMode(Voice.Mode.SOFT).addTickables(notes0);
     Accidental.applyAccidentals([voice0], 'C');
-    equal(hasAccidental(notes0[0]), false);
-    equal(hasAccidental(notes0[2]), true);
-    equal(hasAccidental(notes0[4]), false);
-    equal(hasAccidental(notes0[6]), true);
-    equal(hasAccidental(notes0[8]), false);
-    equal(hasAccidental(notes0[10]), true);
-    equal(hasAccidental(notes0[12]), false);
-    equal(hasAccidental(notes0[14]), true);
-    equal(hasAccidental(notes0[16]), false);
-    equal(hasAccidental(notes0[1]), false);
-    equal(hasAccidental(notes0[3]), true);
-    equal(hasAccidental(notes0[5]), false);
-    equal(hasAccidental(notes0[7]), true);
-    equal(hasAccidental(notes0[9]), false);
-    equal(hasAccidental(notes0[11]), true);
-    equal(hasAccidental(notes0[13]), false);
-    equal(hasAccidental(notes0[15]), true);
-    equal(hasAccidental(notes0[17]), false);
+    options.assert.equal(hasAccidental(notes0[0]), false);
+    options.assert.equal(hasAccidental(notes0[2]), true);
+    options.assert.equal(hasAccidental(notes0[4]), false);
+    options.assert.equal(hasAccidental(notes0[6]), true);
+    options.assert.equal(hasAccidental(notes0[8]), false);
+    options.assert.equal(hasAccidental(notes0[10]), true);
+    options.assert.equal(hasAccidental(notes0[12]), false);
+    options.assert.equal(hasAccidental(notes0[14]), true);
+    options.assert.equal(hasAccidental(notes0[16]), false);
+    options.assert.equal(hasAccidental(notes0[1]), false);
+    options.assert.equal(hasAccidental(notes0[3]), true);
+    options.assert.equal(hasAccidental(notes0[5]), false);
+    options.assert.equal(hasAccidental(notes0[7]), true);
+    options.assert.equal(hasAccidental(notes0[9]), false);
+    options.assert.equal(hasAccidental(notes0[11]), true);
+    options.assert.equal(hasAccidental(notes0[13]), false);
+    options.assert.equal(hasAccidental(notes0[15]), true);
+    options.assert.equal(hasAccidental(notes0[17]), false);
     new Formatter().joinVoices([voice0]).formatToStave([voice0], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function automaticAccidentalsCornerCases3(options) {
     const f = VexFlowTests.makeFactory(options, 700, 150);
@@ -864,18 +864,18 @@ function automaticAccidentalsCornerCases3(options) {
     ].map(f.StaveNote.bind(f));
     const voice0 = f.Voice().setMode(Voice.Mode.SOFT).addTickables(notes0);
     Accidental.applyAccidentals([voice0], 'C#');
-    equal(hasAccidental(notes0[0]), true);
-    equal(hasAccidental(notes0[1]), true);
-    equal(hasAccidental(notes0[2]), false);
-    equal(hasAccidental(notes0[3]), true);
-    equal(hasAccidental(notes0[4]), false);
-    equal(hasAccidental(notes0[5]), true);
-    equal(hasAccidental(notes0[6]), false);
-    equal(hasAccidental(notes0[7]), true);
-    equal(hasAccidental(notes0[8]), false);
+    options.assert.equal(hasAccidental(notes0[0]), true);
+    options.assert.equal(hasAccidental(notes0[1]), true);
+    options.assert.equal(hasAccidental(notes0[2]), false);
+    options.assert.equal(hasAccidental(notes0[3]), true);
+    options.assert.equal(hasAccidental(notes0[4]), false);
+    options.assert.equal(hasAccidental(notes0[5]), true);
+    options.assert.equal(hasAccidental(notes0[6]), false);
+    options.assert.equal(hasAccidental(notes0[7]), true);
+    options.assert.equal(hasAccidental(notes0[8]), false);
     new Formatter().joinVoices([voice0]).formatToStave([voice0], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function automaticAccidentalsCornerCases4(options) {
     const f = VexFlowTests.makeFactory(options, 700, 150);
@@ -902,27 +902,27 @@ function automaticAccidentalsCornerCases4(options) {
     ].map(f.StaveNote.bind(f));
     const voice0 = f.Voice().setMode(Voice.Mode.SOFT).addTickables(notes0);
     Accidental.applyAccidentals([voice0], 'C#');
-    equal(hasAccidental(notes0[0]), true);
-    equal(hasAccidental(notes0[2]), true);
-    equal(hasAccidental(notes0[4]), false);
-    equal(hasAccidental(notes0[6]), true);
-    equal(hasAccidental(notes0[8]), false);
-    equal(hasAccidental(notes0[10]), true);
-    equal(hasAccidental(notes0[12]), false);
-    equal(hasAccidental(notes0[14]), true);
-    equal(hasAccidental(notes0[16]), false);
-    equal(hasAccidental(notes0[1]), true);
-    equal(hasAccidental(notes0[3]), true);
-    equal(hasAccidental(notes0[5]), false);
-    equal(hasAccidental(notes0[7]), true);
-    equal(hasAccidental(notes0[9]), false);
-    equal(hasAccidental(notes0[11]), true);
-    equal(hasAccidental(notes0[13]), false);
-    equal(hasAccidental(notes0[15]), true);
-    equal(hasAccidental(notes0[17]), false);
+    options.assert.equal(hasAccidental(notes0[0]), true);
+    options.assert.equal(hasAccidental(notes0[2]), true);
+    options.assert.equal(hasAccidental(notes0[4]), false);
+    options.assert.equal(hasAccidental(notes0[6]), true);
+    options.assert.equal(hasAccidental(notes0[8]), false);
+    options.assert.equal(hasAccidental(notes0[10]), true);
+    options.assert.equal(hasAccidental(notes0[12]), false);
+    options.assert.equal(hasAccidental(notes0[14]), true);
+    options.assert.equal(hasAccidental(notes0[16]), false);
+    options.assert.equal(hasAccidental(notes0[1]), true);
+    options.assert.equal(hasAccidental(notes0[3]), true);
+    options.assert.equal(hasAccidental(notes0[5]), false);
+    options.assert.equal(hasAccidental(notes0[7]), true);
+    options.assert.equal(hasAccidental(notes0[9]), false);
+    options.assert.equal(hasAccidental(notes0[11]), true);
+    options.assert.equal(hasAccidental(notes0[13]), false);
+    options.assert.equal(hasAccidental(notes0[15]), true);
+    options.assert.equal(hasAccidental(notes0[17]), false);
     new Formatter().joinVoices([voice0]).formatToStave([voice0], stave);
     f.draw();
-    ok(true);
+    options.assert.ok(true);
 }
 function factoryAPI(options) {
     const f = VexFlowTests.makeFactory(options, 700, 240);
@@ -962,13 +962,13 @@ function factoryAPI(options) {
     ];
     Formatter.SimpleFormat(notes);
     notes.forEach((n, i) => {
-        ok(n.getModifiersByType('Accidental').length > 0, 'Note ' + i + ' has accidentals');
+        options.assert.ok(n.getModifiersByType('Accidental').length > 0, 'Note ' + i + ' has accidentals');
         n.getModifiersByType('Accidental').forEach((accid, i) => {
-            ok(accid.getWidth() > 0, 'Accidental ' + i + ' has set width');
+            options.assert.ok(accid.getWidth() > 0, 'Accidental ' + i + ' has set width');
         });
     });
     f.draw();
-    ok(true, 'Factory API');
+    options.assert.ok(true, 'Factory API');
 }
 VexFlowTests.register(AccidentalTests);
 export { AccidentalTests };

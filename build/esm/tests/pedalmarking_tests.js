@@ -24,7 +24,7 @@ function createTest(makePedal) {
         f.Formatter().joinVoices([voice1]).formatToStave([voice1], stave1);
         makePedal(f, voice0.getTickables(), voice1.getTickables());
         f.draw();
-        ok(true, 'Must render');
+        options.assert.ok(true, 'Must render');
     };
 }
 function withSimplePedal(style) {

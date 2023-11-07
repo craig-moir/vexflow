@@ -89,7 +89,7 @@ import { DATE, ID, VERSION } from './version.js';
 import { Vibrato } from './vibrato.js';
 import { VibratoBracket } from './vibratobracket.js';
 import { Voice, VoiceMode } from './voice.js';
-export class Flow {
+class Flow {
     static get BUILD() {
         return {
             VERSION: VERSION,
@@ -111,6 +111,9 @@ export class Flow {
     static getMusicFont() {
         const fonts = Tables.MUSIC_FONT_STACK;
         return fonts.map((font) => font.getName());
+    }
+    static getMusicFontStack() {
+        return Tables.MUSIC_FONT_STACK;
     }
     static get RENDER_PRECISION_PLACES() {
         return Tables.RENDER_PRECISION_PLACES;
@@ -298,3 +301,4 @@ Flow.VoltaType = VoltaType;
 Flow.TextBracketPosition = TextBracketPosition;
 Flow.TextJustification = TextJustification;
 Flow.VoiceMode = VoiceMode;
+export { Flow };

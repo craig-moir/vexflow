@@ -17,7 +17,10 @@ function drawBoldDoubleLine(ctx, type, topX, topY, botY) {
     ctx.fillRect(topX + x_shift, topY, 1, botY - topY);
     ctx.fillRect(topX - thickLineOffset, topY, variableWidth, botY - topY);
 }
-export class StaveConnector extends Element {
+class StaveConnector extends Element {
+    static get CATEGORY() {
+        return "StaveConnector";
+    }
     constructor(top_stave, bottom_stave) {
         super();
         this.thickness = Tables.STAVE_LINE_THICKNESS;
@@ -28,9 +31,6 @@ export class StaveConnector extends Element {
         this.resetFont();
         this.x_shift = 0;
         this.texts = [];
-    }
-    static get CATEGORY() {
-        return "StaveConnector";
     }
     setType(type) {
         const newType = typeof type === 'string' ? StaveConnector.typeString[type] : type;
@@ -197,3 +197,4 @@ StaveConnector.typeString = {
     thinDouble: StaveConnector.type.THIN_DOUBLE,
     none: StaveConnector.type.NONE,
 };
+export { StaveConnector };

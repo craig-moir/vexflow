@@ -3,7 +3,7 @@ import { BoundingBoxComputation, Glyph } from '../src/index.js';
 const BoundingBoxComputationTests = {
     Start() {
         QUnit.module('BoundingBoxComputation');
-        test('Point Test', point);
+        QUnit.test('Point Test', point);
         const run = VexFlowTests.runTests;
         quadraticParams.forEach((params, index) => {
             run(`Quadratic Test ${index}`, quadratic, params);
@@ -13,18 +13,18 @@ const BoundingBoxComputationTests = {
         });
     },
 };
-function point() {
+function point(assert) {
     const bboxComp = new BoundingBoxComputation();
     bboxComp.addPoint(2, 3);
-    equal(bboxComp.getX1(), 2, 'Bad X1');
-    equal(bboxComp.getY1(), 3, 'Bad Y1');
-    equal(bboxComp.width(), 0, 'Bad width');
-    equal(bboxComp.height(), 0, 'Bad height');
+    assert.equal(bboxComp.getX1(), 2, 'Bad X1');
+    assert.equal(bboxComp.getY1(), 3, 'Bad Y1');
+    assert.equal(bboxComp.width(), 0, 'Bad width');
+    assert.equal(bboxComp.height(), 0, 'Bad height');
     bboxComp.addPoint(-5, 7);
-    equal(bboxComp.getX1(), -5, 'Bad X1');
-    equal(bboxComp.getY1(), 3, 'Bad Y1');
-    equal(bboxComp.width(), 7, 'Bad width');
-    equal(bboxComp.height(), 4, 'Bad height');
+    assert.equal(bboxComp.getX1(), -5, 'Bad X1');
+    assert.equal(bboxComp.getY1(), 3, 'Bad Y1');
+    assert.equal(bboxComp.width(), 7, 'Bad width');
+    assert.equal(bboxComp.height(), 4, 'Bad height');
 }
 function createContext(options) {
     const points = options.params.points;
@@ -91,14 +91,14 @@ function quadratic(options) {
     ctx.lineTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.stroke();
-    ok(Math.abs(bboxComp.getX1() - box[0]) < 0.01, `Bad X1: ${bboxComp.getX1()}`);
-    ok(Math.abs(bboxComp.getY1() - box[1]) < 0.01, `Bad Y1: ${bboxComp.getY1()}`);
-    ok(Math.abs(bboxComp.width() - box[2]) < 0.01, `Bad width: ${bboxComp.width()}`);
-    ok(Math.abs(bboxComp.height() - box[3]) < 0.01, `Bad height: ${bboxComp.height()}`);
-    ok(Math.abs(bbox.getX() - box[0]) < 0.01, `Bad X: ${bbox.getX()}`);
-    ok(Math.abs(bbox.getY() - box[1]) < 0.01, `Bad Y: ${bbox.getY()}`);
-    ok(Math.abs(bbox.getW() - box[2]) < 0.01, `Bad W: ${bbox.getW()}`);
-    ok(Math.abs(bbox.getH() - box[3]) < 0.01, `Bad H: ${bbox.getH()}`);
+    options.assert.ok(Math.abs(bboxComp.getX1() - box[0]) < 0.01, `Bad X1: ${bboxComp.getX1()}`);
+    options.assert.ok(Math.abs(bboxComp.getY1() - box[1]) < 0.01, `Bad Y1: ${bboxComp.getY1()}`);
+    options.assert.ok(Math.abs(bboxComp.width() - box[2]) < 0.01, `Bad width: ${bboxComp.width()}`);
+    options.assert.ok(Math.abs(bboxComp.height() - box[3]) < 0.01, `Bad height: ${bboxComp.height()}`);
+    options.assert.ok(Math.abs(bbox.getX() - box[0]) < 0.01, `Bad X: ${bbox.getX()}`);
+    options.assert.ok(Math.abs(bbox.getY() - box[1]) < 0.01, `Bad Y: ${bbox.getY()}`);
+    options.assert.ok(Math.abs(bbox.getW() - box[2]) < 0.01, `Bad W: ${bbox.getW()}`);
+    options.assert.ok(Math.abs(bbox.getH() - box[3]) < 0.01, `Bad H: ${bbox.getH()}`);
 }
 const cubicParams = [
     {
@@ -170,14 +170,14 @@ function cubic(options) {
     ctx.lineTo(x2, y2);
     ctx.lineTo(x3, y3);
     ctx.stroke();
-    ok(Math.abs(bboxComp.getX1() - box[0]) < 0.01, `Bad X1: ${bboxComp.getX1()}`);
-    ok(Math.abs(bboxComp.getY1() - box[1]) < 0.01, `Bad Y1: ${bboxComp.getY1()}`);
-    ok(Math.abs(bboxComp.width() - box[2]) < 0.01, `Bad width: ${bboxComp.width()}`);
-    ok(Math.abs(bboxComp.height() - box[3]) < 0.01, `Bad height: ${bboxComp.height()}`);
-    ok(Math.abs(bbox.getX() - box[0]) < 0.01, `Bad X: ${bbox.getX()}`);
-    ok(Math.abs(bbox.getY() - box[1]) < 0.01, `Bad Y: ${bbox.getY()}`);
-    ok(Math.abs(bbox.getW() - box[2]) < 0.01, `Bad W: ${bbox.getW()}`);
-    ok(Math.abs(bbox.getH() - box[3]) < 0.01, `Bad H: ${bbox.getH()}`);
+    options.assert.ok(Math.abs(bboxComp.getX1() - box[0]) < 0.01, `Bad X1: ${bboxComp.getX1()}`);
+    options.assert.ok(Math.abs(bboxComp.getY1() - box[1]) < 0.01, `Bad Y1: ${bboxComp.getY1()}`);
+    options.assert.ok(Math.abs(bboxComp.width() - box[2]) < 0.01, `Bad width: ${bboxComp.width()}`);
+    options.assert.ok(Math.abs(bboxComp.height() - box[3]) < 0.01, `Bad height: ${bboxComp.height()}`);
+    options.assert.ok(Math.abs(bbox.getX() - box[0]) < 0.01, `Bad X: ${bbox.getX()}`);
+    options.assert.ok(Math.abs(bbox.getY() - box[1]) < 0.01, `Bad Y: ${bbox.getY()}`);
+    options.assert.ok(Math.abs(bbox.getW() - box[2]) < 0.01, `Bad W: ${bbox.getW()}`);
+    options.assert.ok(Math.abs(bbox.getH() - box[3]) < 0.01, `Bad H: ${bbox.getH()}`);
 }
 VexFlowTests.register(BoundingBoxComputationTests);
 export { BoundingBoxComputationTests };

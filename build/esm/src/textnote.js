@@ -1,6 +1,7 @@
 import { Font, FontStyle, FontWeight } from './font.js';
 import { Glyph } from './glyph.js';
 import { Note } from './note.js';
+import { Tables } from './tables.js';
 import { RuntimeError } from './util.js';
 export var TextJustification;
 (function (TextJustification) {
@@ -8,28 +9,7 @@ export var TextJustification;
     TextJustification[TextJustification["CENTER"] = 2] = "CENTER";
     TextJustification[TextJustification["RIGHT"] = 3] = "RIGHT";
 })(TextJustification || (TextJustification = {}));
-export class TextNote extends Note {
-    constructor(noteStruct) {
-        super(noteStruct);
-        this.text = noteStruct.text || '';
-        this.superscript = noteStruct.superscript;
-        this.subscript = noteStruct.subscript;
-        this.setFont(noteStruct.font);
-        this.line = noteStruct.line || 0;
-        this.smooth = noteStruct.smooth || false;
-        this.ignore_ticks = noteStruct.ignore_ticks || false;
-        this.justification = TextJustification.LEFT;
-        if (noteStruct.glyph) {
-            const struct = TextNote.GLYPHS[noteStruct.glyph];
-            if (!struct)
-                throw new RuntimeError('Invalid glyph type: ' + noteStruct.glyph);
-            this.glyph = new Glyph(struct.code, 40, { category: 'textNote' });
-            this.setWidth(this.glyph.getMetrics().width);
-        }
-        else {
-            this.glyph = undefined;
-        }
-    }
+class TextNote extends Note {
     static get CATEGORY() {
         return "TextNote";
     }
@@ -94,6 +74,27 @@ export class TextNote extends Note {
             },
         };
     }
+    constructor(noteStruct) {
+        super(noteStruct);
+        this.text = noteStruct.text || '';
+        this.superscript = noteStruct.superscript;
+        this.subscript = noteStruct.subscript;
+        this.setFont(noteStruct.font);
+        this.line = noteStruct.line || 0;
+        this.smooth = noteStruct.smooth || false;
+        this.ignore_ticks = noteStruct.ignore_ticks || false;
+        this.justification = TextJustification.LEFT;
+        if (noteStruct.glyph) {
+            const struct = TextNote.GLYPHS[noteStruct.glyph];
+            if (!struct)
+                throw new RuntimeError('Invalid glyph type: ' + noteStruct.glyph);
+            this.glyph = new Glyph(struct.code, Tables.NOTATION_FONT_SCALE, { category: 'textNote' });
+            this.setWidth(this.glyph.getMetrics().width);
+        }
+        else {
+            this.glyph = undefined;
+        }
+    }
     setJustification(just) {
         this.justification = just;
         return this;
@@ -101,6 +102,12 @@ export class TextNote extends Note {
     setLine(line) {
         this.line = line;
         return this;
+    }
+    getLine() {
+        return this.line;
+    }
+    getText() {
+        return this.text;
     }
     preFormat() {
         if (this.preFormatted)
@@ -172,3 +179,4 @@ TextNote.TEXT_FONT = {
     style: FontStyle.NORMAL,
 };
 TextNote.Justification = TextJustification;
+export { TextNote };

@@ -3,9 +3,9 @@ import { Element } from './element';
 import { Font, FontGlyph } from './font';
 import { RenderContext } from './rendercontext';
 import { Stave } from './stave';
-import { Stem } from './stem';
 export interface GlyphProps {
     code_head: string;
+    ledger_code_head?: string;
     dot_shiftY: number;
     position: string;
     rest: boolean;
@@ -14,19 +14,18 @@ export interface GlyphProps {
     stem_beam_extension: number;
     stem_up_extension: number;
     stem_down_extension: number;
-    stem: Stem;
-    code: string;
-    code_flag_upstem: string;
-    code_flag_downstem: string;
-    flag: boolean;
-    width: number;
-    text: string;
+    stem: boolean;
+    code?: string;
+    code_flag_upstem?: string;
+    code_flag_downstem?: string;
+    flag?: boolean;
+    width?: number;
+    text?: string;
     tabnote_stem_down_extension: number;
     tabnote_stem_up_extension: number;
     beam_count: number;
-    shift_y: number;
+    shift_y?: number;
     getWidth(a?: number): number;
-    getMetrics(): GlyphMetrics;
 }
 export interface GlyphOptions {
     category?: string;

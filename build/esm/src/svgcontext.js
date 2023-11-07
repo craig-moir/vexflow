@@ -1,5 +1,6 @@
 import { Font, FontStyle, FontWeight } from './font.js';
 import { RenderContext } from './rendercontext.js';
+import { Tables } from './tables.js';
 import { normalizeAngle, prefix, RuntimeError } from './util.js';
 const ATTRIBUTES_TO_IGNORE = {
     path: {
@@ -54,24 +55,30 @@ class MeasureTextCache {
             this.txt = txt;
         }
         txt.textContent = text;
-        txt.setAttributeNS(null, 'font-family', attributes['font-family']);
-        txt.setAttributeNS(null, 'font-size', attributes['font-size']);
-        txt.setAttributeNS(null, 'font-style', attributes['font-style']);
-        txt.setAttributeNS(null, 'font-weight', attributes['font-weight']);
+        if (attributes['font-family'])
+            txt.setAttributeNS(null, 'font-family', attributes['font-family']);
+        if (attributes['font-size'])
+            txt.setAttributeNS(null, 'font-size', `${attributes['font-size']}`);
+        if (attributes['font-style'])
+            txt.setAttributeNS(null, 'font-style', attributes['font-style']);
+        if (attributes['font-weight'])
+            txt.setAttributeNS(null, 'font-weight', `${attributes['font-weight']}`);
         svg.appendChild(txt);
         const bbox = txt.getBBox();
         svg.removeChild(txt);
         return { x: bbox.x, y: bbox.y, width: bbox.width, height: bbox.height };
     }
 }
-export class SVGContext extends RenderContext {
+class SVGContext extends RenderContext {
     constructor(element) {
         super();
         this.width = 0;
         this.height = 0;
+        this.precision = 1;
         this.backgroundFillStyle = 'white';
         this.fontCSSString = '';
         this.element = element;
+        this.precision = Math.pow(10, Tables.RENDER_PRECISION_PLACES);
         const svg = this.create('svg');
         this.element.appendChild(svg);
         this.svg = svg;
@@ -86,13 +93,19 @@ export class SVGContext extends RenderContext {
             'font-weight': FontWeight.NORMAL,
             'font-style': FontStyle.NORMAL,
         };
-        this.state = Object.assign({ scale: { x: 1, y: 1 } }, defaultFontAttributes);
+        this.state = Object.assign({ scaleX: 1, scaleY: 1 }, defaultFontAttributes);
         this.attributes = Object.assign({ 'stroke-width': 0.3, 'stroke-dasharray': 'none', fill: 'black', stroke: 'black' }, defaultFontAttributes);
+        this.groupAttributes = [];
+        this.applyAttributes(svg, this.attributes);
+        this.groupAttributes.push(Object.assign({}, this.attributes));
         this.shadow_attributes = {
             width: 0,
             color: 'black',
         };
         this.state_stack = [];
+    }
+    round(n) {
+        return Math.round(n * this.precision) / this.precision;
     }
     create(svgElementType) {
         return document.createElementNS(SVG_NS, svgElementType);
@@ -109,10 +122,13 @@ export class SVGContext extends RenderContext {
         if (attrs && attrs.pointerBBox) {
             group.setAttribute('pointer-events', 'bounding-box');
         }
+        this.applyAttributes(group, this.attributes);
+        this.groupAttributes.push(Object.assign(Object.assign({}, this.groupAttributes[this.groupAttributes.length - 1]), this.attributes));
         return group;
     }
     closeGroup() {
         this.groups.pop();
+        this.groupAttributes.pop();
         this.parent = this.groups[this.groups.length - 1];
     }
     add(elem) {
@@ -167,13 +183,14 @@ export class SVGContext extends RenderContext {
             height,
         };
         this.applyAttributes(this.svg, attributes);
-        this.scale(this.state.scale.x, this.state.scale.y);
+        this.scale(this.state.scaleX, this.state.scaleY);
         return this;
     }
     scale(x, y) {
-        this.state.scale = { x, y };
-        const visibleWidth = this.width / x;
-        const visibleHeight = this.height / y;
+        this.state.scaleX = this.state.scaleX ? this.state.scaleX * x : x;
+        this.state.scaleY = this.state.scaleY ? this.state.scaleY * y : y;
+        const visibleWidth = this.width / this.state.scaleX;
+        const visibleHeight = this.height / this.state.scaleY;
         this.setViewBox(0, 0, visibleWidth, visibleHeight);
         return this;
     }
@@ -192,7 +209,10 @@ export class SVGContext extends RenderContext {
             if (attrNamesToIgnore && attrNamesToIgnore[attrName]) {
                 continue;
             }
-            element.setAttributeNS(null, attrName, attributes[attrName]);
+            if (attributes[attrName] &&
+                (this.groupAttributes.length == 0 ||
+                    attributes[attrName] != this.groupAttributes[this.groupAttributes.length - 1][attrName]))
+                element.setAttributeNS(null, attrName, attributes[attrName]);
         }
         return element;
     }
@@ -200,7 +220,7 @@ export class SVGContext extends RenderContext {
         while (this.svg.lastChild) {
             this.svg.removeChild(this.svg.lastChild);
         }
-        this.scale(this.state.scale.x, this.state.scale.y);
+        this.scale(this.state.scaleX, this.state.scaleY);
     }
     rect(x, y, width, height, attributes) {
         if (height < 0) {
@@ -209,17 +229,21 @@ export class SVGContext extends RenderContext {
         }
         const rectangle = this.create('rect');
         attributes = attributes !== null && attributes !== void 0 ? attributes : { fill: 'none', 'stroke-width': this.lineWidth, stroke: 'black' };
+        x = this.round(x);
+        y = this.round(y);
+        width = this.round(width);
+        height = this.round(height);
         this.applyAttributes(rectangle, Object.assign({ x, y, width, height }, attributes));
         this.add(rectangle);
         return this;
     }
     fillRect(x, y, width, height) {
-        const attributes = { fill: this.attributes.fill };
+        const attributes = { fill: this.attributes.fill, stroke: 'none' };
         this.rect(x, y, width, height, attributes);
         return this;
     }
     clearRect(x, y, width, height) {
-        this.rect(x, y, width, height, { 'stroke-width': 0, fill: this.backgroundFillStyle });
+        this.rect(x, y, width, height, { fill: this.backgroundFillStyle, stroke: 'none' });
         return this;
     }
     beginPath() {
@@ -229,46 +253,68 @@ export class SVGContext extends RenderContext {
         return this;
     }
     moveTo(x, y) {
+        x = this.round(x);
+        y = this.round(y);
         this.path += 'M' + x + ' ' + y;
         this.pen.x = x;
         this.pen.y = y;
         return this;
     }
     lineTo(x, y) {
+        x = this.round(x);
+        y = this.round(y);
         this.path += 'L' + x + ' ' + y;
         this.pen.x = x;
         this.pen.y = y;
         return this;
     }
     bezierCurveTo(x1, y1, x2, y2, x, y) {
+        x = this.round(x);
+        y = this.round(y);
+        x1 = this.round(x1);
+        y1 = this.round(y1);
+        x2 = this.round(x2);
+        y2 = this.round(y2);
         this.path += 'C' + x1 + ' ' + y1 + ',' + x2 + ' ' + y2 + ',' + x + ' ' + y;
         this.pen.x = x;
         this.pen.y = y;
         return this;
     }
     quadraticCurveTo(x1, y1, x, y) {
+        x = this.round(x);
+        y = this.round(y);
+        x1 = this.round(x1);
+        y1 = this.round(y1);
         this.path += 'Q' + x1 + ' ' + y1 + ',' + x + ' ' + y;
         this.pen.x = x;
         this.pen.y = y;
         return this;
     }
     arc(x, y, radius, startAngle, endAngle, counterclockwise) {
-        const x0 = x + radius * Math.cos(startAngle);
-        const y0 = y + radius * Math.sin(startAngle);
+        let x0 = x + radius * Math.cos(startAngle);
+        let y0 = y + radius * Math.sin(startAngle);
+        x0 = this.round(x0);
+        y0 = this.round(y0);
+        const tmpStartTest = normalizeAngle(startAngle);
+        const tmpEndTest = normalizeAngle(endAngle);
         if ((!counterclockwise && endAngle - startAngle >= TWO_PI) ||
-            (counterclockwise && startAngle - endAngle >= TWO_PI)) {
-            const x1 = x + radius * Math.cos(startAngle + Math.PI);
-            const y1 = y + radius * Math.sin(startAngle + Math.PI);
+            (counterclockwise && startAngle - endAngle >= TWO_PI) ||
+            tmpStartTest === tmpEndTest) {
+            let x1 = x + radius * Math.cos(startAngle + Math.PI);
+            let y1 = y + radius * Math.sin(startAngle + Math.PI);
+            x1 = this.round(x1);
+            y1 = this.round(y1);
+            radius = this.round(radius);
             this.path += `M${x0} ${y0} A${radius} ${radius} 0 0 0 ${x1} ${y1} `;
             this.path += `A${radius} ${radius} 0 0 0 ${x0} ${y0}`;
             this.pen.x = x0;
             this.pen.y = y0;
         }
         else {
-            const x1 = x + radius * Math.cos(endAngle);
-            const y1 = y + radius * Math.sin(endAngle);
-            startAngle = normalizeAngle(startAngle);
-            endAngle = normalizeAngle(endAngle);
+            let x1 = x + radius * Math.cos(endAngle);
+            let y1 = y + radius * Math.sin(endAngle);
+            startAngle = tmpStartTest;
+            endAngle = tmpEndTest;
             let large;
             if (Math.abs(endAngle - startAngle) < Math.PI) {
                 large = counterclockwise;
@@ -280,6 +326,9 @@ export class SVGContext extends RenderContext {
                 large = !large;
             }
             const sweep = !counterclockwise;
+            x1 = this.round(x1);
+            y1 = this.round(y1);
+            radius = this.round(radius);
             this.path += `M${x0} ${y0} A${radius} ${radius} 0 ${+large} ${+sweep} ${x1} ${y1}`;
             this.pen.x = x1;
             this.pen.y = y1;
@@ -324,6 +373,8 @@ export class SVGContext extends RenderContext {
         if (!text || text.length <= 0) {
             return this;
         }
+        x = this.round(x);
+        y = this.round(y);
         const attributes = Object.assign(Object.assign({}, this.attributes), { stroke: 'none', x,
             y });
         const txt = this.create('text');
@@ -412,3 +463,4 @@ export class SVGContext extends RenderContext {
     }
 }
 SVGContext.measureTextCache = new MeasureTextCache();
+export { SVGContext };

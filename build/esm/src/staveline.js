@@ -11,7 +11,10 @@ function drawArrowHead(ctx, x0, y0, x1, y1, x2, y2) {
     ctx.closePath();
     ctx.fill();
 }
-export class StaveLine extends Element {
+class StaveLine extends Element {
+    static get CATEGORY() {
+        return "StaveLine";
+    }
     constructor(notes) {
         super();
         this.setNotes(notes);
@@ -31,9 +34,6 @@ export class StaveLine extends Element {
             text_position_vertical: StaveLine.TextVerticalPosition.TOP,
             text_justification: StaveLine.TextJustification.CENTER,
         };
-    }
-    static get CATEGORY() {
-        return "StaveLine";
     }
     setText(text) {
         this.text = text;
@@ -164,7 +164,7 @@ export class StaveLine extends Element {
             const upwards_slope = start_position.y > end_position.y;
             start_position.x += first_note.getMetrics().modRightPx + render_options.padding_left;
             end_position.x -= last_note.getMetrics().modLeftPx + render_options.padding_right;
-            const notehead_width = first_note.getGlyph().getWidth();
+            const notehead_width = first_note.getGlyphProps().getWidth();
             const first_displaced = first_note.getKeyProps()[first_index].displaced;
             if (first_displaced && first_note.getStemDirection() === 1) {
                 start_position.x += notehead_width + render_options.padding_left;
@@ -213,3 +213,4 @@ StaveLine.TextVerticalPosition = {
     BOTTOM: 2,
 };
 StaveLine.TextJustification = TextJustification;
+export { StaveLine };

@@ -49,7 +49,7 @@ function simple(options) {
         .addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'Simple Test');
+    options.assert.ok(true, 'Simple Test');
 }
 function beamed(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -78,7 +78,7 @@ function beamed(options) {
         .addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'Beamed Test');
+    options.assert.ok(true, 'Beamed Test');
 }
 function ratio(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -112,7 +112,7 @@ function ratio(options) {
     const voice = f.Voice().setStrict(true).addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'Ratioed Test');
+    options.assert.ok(true, 'Ratioed Test');
 }
 function bottom(options) {
     const f = VexFlowTests.makeFactory(options, 350, 160);
@@ -144,7 +144,7 @@ function bottom(options) {
         .addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'Bottom Test');
+    options.assert.ok(true, 'Bottom Test');
 }
 function bottomRatio(options) {
     const f = VexFlowTests.makeFactory(options, 350, 160);
@@ -182,7 +182,7 @@ function bottomRatio(options) {
         .addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'Bottom Ratioed Test');
+    options.assert.ok(true, 'Bottom Ratioed Test');
 }
 function awkward(options) {
     const f = VexFlowTests.makeFactory(options, 370, 160);
@@ -223,7 +223,7 @@ function awkward(options) {
     const voice = f.Voice().setStrict(false).addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'Awkward Test');
+    options.assert.ok(true, 'Awkward Test');
 }
 function complex(options) {
     const f = VexFlowTests.makeFactory(options, 600);
@@ -277,7 +277,7 @@ function complex(options) {
     const voice2 = f.Voice().setStrict(true).addTickables(notes2);
     new Formatter().joinVoices([voice1, voice2]).formatToStave([voice1, voice2], stave);
     f.draw();
-    ok(true, 'Complex Test');
+    options.assert.ok(true, 'Complex Test');
 }
 function mixedTop(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -313,7 +313,7 @@ function mixedTop(options) {
     const voice = f.Voice().setStrict(false).addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'Mixed Stem Direction Tuplet');
+    options.assert.ok(true, 'Mixed Stem Direction Tuplet');
 }
 function mixedBottom(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -349,7 +349,7 @@ function mixedBottom(options) {
     const voice = f.Voice().setStrict(false).addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'Mixed Stem Direction Bottom Tuplet');
+    options.assert.ok(true, 'Mixed Stem Direction Bottom Tuplet');
 }
 function nested(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -386,7 +386,7 @@ function nested(options) {
     const voice = f.Voice().setStrict(true).addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'Nested Tuplets');
+    options.assert.ok(true, 'Nested Tuplets');
 }
 function single(options) {
     const f = VexFlowTests.makeFactory(options);
@@ -444,7 +444,7 @@ function single(options) {
         .addTickables(notes);
     new Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
-    ok(true, 'Nested Tuplets');
+    options.assert.ok(true, 'Nested Tuplets');
 }
 VexFlowTests.register(TupletTests);
 export { TupletTests };

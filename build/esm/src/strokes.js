@@ -1,22 +1,10 @@
 import { Font, FontStyle, FontWeight } from './font.js';
 import { Glyph } from './glyph.js';
 import { Modifier } from './modifier.js';
+import { Tables } from './tables.js';
 import { isNote, isStaveNote, isTabNote } from './typeguard.js';
 import { RuntimeError } from './util.js';
-export class Stroke extends Modifier {
-    constructor(type, options) {
-        super();
-        this.options = Object.assign({ all_voices: true }, options);
-        this.all_voices = this.options.all_voices;
-        this.type = type;
-        this.position = Modifier.Position.LEFT;
-        this.render_options = {
-            font_scale: 38,
-        };
-        this.resetFont();
-        this.setXShift(0);
-        this.setWidth(10);
-    }
+class Stroke extends Modifier {
     static get CATEGORY() {
         return "Stroke";
     }
@@ -48,6 +36,19 @@ export class Stroke extends Modifier {
         }, 0);
         state.left_shift += xShift;
         return true;
+    }
+    constructor(type, options) {
+        super();
+        this.options = Object.assign({ all_voices: true }, options);
+        this.all_voices = this.options.all_voices;
+        this.type = type;
+        this.position = Modifier.Position.LEFT;
+        this.render_options = {
+            font_scale: Tables.NOTATION_FONT_SCALE,
+        };
+        this.resetFont();
+        this.setXShift(0);
+        this.setWidth(10);
     }
     getPosition() {
         return this.position;
@@ -173,7 +174,7 @@ export class Stroke extends Modifier {
             return;
         }
         Glyph.renderGlyph(ctx, x + this.x_shift + arrow_shift_x, arrow_y, this.render_options.font_scale, arrow, {
-            category: `stroke.${arrow}.${strokeLine}`,
+            category: `stroke_${strokeLine}.${arrow}`,
         });
         if (this.type === Stroke.Type.RASQUEDO_DOWN || this.type === Stroke.Type.RASQUEDO_UP) {
             ctx.save();
@@ -198,3 +199,4 @@ Stroke.TEXT_FONT = {
     weight: FontWeight.BOLD,
     style: FontStyle.ITALIC,
 };
+export { Stroke };

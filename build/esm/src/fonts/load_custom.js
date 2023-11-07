@@ -1,6 +1,6 @@
 import { Font } from '../font.js';
+import { CommonMetrics } from './common_metrics.js';
 import { CustomFont } from './custom_glyphs.js';
-import { CustomMetrics } from './custom_metrics.js';
 export function loadCustom() {
-    Font.load('Custom', CustomFont, CustomMetrics);
+    Font.load('Custom', CustomFont, CommonMetrics);
 }

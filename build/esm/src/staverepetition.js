@@ -2,7 +2,10 @@ import { Font, FontStyle, FontWeight } from './font.js';
 import { Glyph } from './glyph.js';
 import { StaveModifier } from './stavemodifier.js';
 import { Tables } from './tables.js';
-export class Repetition extends StaveModifier {
+class Repetition extends StaveModifier {
+    static get CATEGORY() {
+        return "Repetition";
+    }
     constructor(type, x, y_shift) {
         super();
         this.symbol_type = type;
@@ -10,9 +13,6 @@ export class Repetition extends StaveModifier {
         this.x_shift = 0;
         this.y_shift = y_shift;
         this.resetFont();
-    }
-    static get CATEGORY() {
-        return "Repetition";
     }
     setShiftX(x) {
         this.x_shift = x;
@@ -77,6 +77,7 @@ export class Repetition extends StaveModifier {
         return this;
     }
     drawSymbolText(stave, x, text, draw_coda) {
+        var _a;
         const ctx = stave.checkContext();
         ctx.save();
         ctx.setFont(this.textFont);
@@ -125,7 +126,9 @@ export class Repetition extends StaveModifier {
             this.y_shift +
             Tables.currentMusicFont().lookupMetric('staveRepetition.symbolText.offsetY');
         if (draw_coda) {
-            Glyph.renderGlyph(ctx, symbol_x, y, 40, 'coda', { category: 'coda' });
+            Glyph.renderGlyph(ctx, symbol_x, y, Font.convertSizeToPointValue((_a = this.textFont) === null || _a === void 0 ? void 0 : _a.size) * 2, 'coda', {
+                category: 'coda',
+            });
         }
         ctx.fillText(text, text_x, y + 5);
         ctx.restore();
@@ -134,7 +137,7 @@ export class Repetition extends StaveModifier {
 }
 Repetition.TEXT_FONT = {
     family: Font.SERIF,
-    size: 12,
+    size: Tables.NOTATION_FONT_SCALE / 3,
     weight: FontWeight.BOLD,
     style: FontStyle.NORMAL,
 };
@@ -153,3 +156,4 @@ Repetition.type = {
     FINE: 12,
     TO_CODA: 13,
 };
+export { Repetition };

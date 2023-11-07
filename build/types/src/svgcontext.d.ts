@@ -1,6 +1,14 @@
 import { FontInfo } from './font';
 import { GroupAttributes, RenderContext, TextMeasure } from './rendercontext';
-export declare type Attributes = Record<string, any>;
+export type Attributes = {
+    [name: string]: string | number | undefined;
+    'font-family'?: string;
+    'font-size'?: string | number;
+    'font-style'?: string;
+    'font-weight'?: string | number;
+    scaleX?: number;
+    scaleY?: number;
+};
 export interface State {
     state: Attributes;
     attributes: Attributes;
@@ -34,10 +42,13 @@ export declare class SVGContext extends RenderContext {
     state_stack: State[];
     parent: SVGGElement;
     groups: SVGGElement[];
+    protected groupAttributes: Attributes[];
+    protected precision: number;
     backgroundFillStyle: string;
     /** Formatted as CSS font shorthand (e.g., 'italic bold 12pt Arial') */
     protected fontCSSString: string;
     constructor(element: HTMLElement);
+    protected round(n: number): number;
     /**
      * Use one of the overload signatures to create an SVG element of a specific type.
      * The last overload accepts an arbitrary string, and is identical to the

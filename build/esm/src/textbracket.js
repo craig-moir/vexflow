@@ -12,26 +12,7 @@ export var TextBracketPosition;
     TextBracketPosition[TextBracketPosition["TOP"] = 1] = "TOP";
     TextBracketPosition[TextBracketPosition["BOTTOM"] = -1] = "BOTTOM";
 })(TextBracketPosition || (TextBracketPosition = {}));
-export class TextBracket extends Element {
-    constructor({ start, stop, text = '', superscript = '', position = TextBracketPosition.TOP }) {
-        super();
-        this.start = start;
-        this.stop = stop;
-        this.text = text;
-        this.superscript = superscript;
-        this.position = typeof position === 'string' ? TextBracket.PositionString[position] : position;
-        this.line = 1;
-        this.resetFont();
-        this.render_options = {
-            dashed: true,
-            dash: [5],
-            color: 'black',
-            line_width: 1,
-            show_bracket: true,
-            bracket_height: 8,
-            underline_superscript: true,
-        };
-    }
+class TextBracket extends Element {
     static get CATEGORY() {
         return "TextBracket";
     }
@@ -51,6 +32,25 @@ export class TextBracket extends Element {
     static get PositionsString() {
         L('PositionsString is deprecated, use PositionString instead.');
         return TextBracket.PositionString;
+    }
+    constructor({ start, stop, text = '', superscript = '', position = TextBracketPosition.TOP }) {
+        super();
+        this.start = start;
+        this.stop = stop;
+        this.text = text;
+        this.superscript = superscript;
+        this.position = typeof position === 'string' ? TextBracket.PositionString[position] : position;
+        this.line = 1;
+        this.resetFont();
+        this.render_options = {
+            dashed: true,
+            dash: [5],
+            color: 'black',
+            line_width: 1,
+            show_bracket: true,
+            bracket_height: 8,
+            underline_superscript: true,
+        };
     }
     applyStyle(ctx) {
         ctx.setFont(this.font);
@@ -104,7 +104,7 @@ export class TextBracket extends Element {
         const super_height = super_measure.height;
         let start_x = start.x;
         let line_y = super_y;
-        const end_x = stop.x + this.stop.getGlyph().getWidth();
+        const end_x = stop.x + this.stop.getGlyphProps().getWidth();
         if (this.position === TextBracketPosition.TOP) {
             start_x += main_width + super_width + 5;
             line_y -= super_height / 2.7;
@@ -142,3 +142,4 @@ TextBracket.TEXT_FONT = {
     weight: FontWeight.NORMAL,
     style: FontStyle.ITALIC,
 };
+export { TextBracket };

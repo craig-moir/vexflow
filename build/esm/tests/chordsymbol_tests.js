@@ -34,8 +34,6 @@ function withModifiers(options) {
     const f = VexFlowTests.makeFactory(options, 750, 580);
     const ctx = f.getContext();
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     function draw(chords, y) {
         const notes = [
             note(f, ['c/4'], 'q', chords[0]).addModifier(new Ornament('doit')),
@@ -100,14 +98,12 @@ function withModifiers(options) {
         f.ChordSymbol({ fontSize: 18 }).addGlyphOrText('C#').addGlyphOrText('7(#11b9)', superscript),
     ];
     draw(chords, 240);
-    ok(true, 'Font Size Chord Symbol');
+    options.assert.ok(true, 'Font Size Chord Symbol');
 }
 function fontSize(options) {
     const f = VexFlowTests.makeFactory(options, 750, 580);
     const ctx = f.getContext();
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     function draw(chords, y) {
         const stave = f.Stave({ x: 10, y, width: 450 }).addClef('treble');
         const notes = [
@@ -176,14 +172,12 @@ function fontSize(options) {
         f.ChordSymbol({ fontSize: 18 }).addGlyphOrText('C#').addGlyphOrText('7(#11b9)', superscript),
     ];
     draw(chords, 240);
-    ok(true, 'Font Size Chord Symbol');
+    options.assert.ok(true, 'Font Size Chord Symbol');
 }
 function kern(options) {
     const f = VexFlowTests.makeFactory(options, 650 * 1.5, 650);
     const ctx = f.getContext();
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     function draw(chords, y) {
         const stave = f.Stave({ x: 10, y, width: 450 }).addClef('treble').setContext(ctx).draw();
         const notes = [
@@ -225,19 +219,18 @@ function kern(options) {
         f.ChordSymbol().addText('E').addGlyphOrText('(#9)', superscript),
     ];
     draw(chords, 310);
-    ok(true, 'Chord Symbol Kerning Tests');
+    options.assert.ok(true, 'Chord Symbol Kerning Tests');
 }
 function top(options) {
     const f = VexFlowTests.makeFactory(options, 650 * 1.5, 650);
     const ctx = f.getContext();
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
+    const note = (factory, keys, duration, chordSymbol, direction) => factory.StaveNote({ keys, duration, stem_direction: direction }).addModifier(chordSymbol, 0);
     function draw(c1, c2, y) {
         const stave = f.Stave({ x: 10, y, width: 450 }).addClef('treble').setContext(ctx).draw();
         const notes = [
-            note(f, ['e/4', 'a/4', 'd/5'], 'h', c1).addModifier(new Accidental('b'), 0),
-            note(f, ['c/4', 'e/4', 'b/4'], 'h', c2),
+            note(f, ['e/4', 'a/4', 'd/5'], 'h', c1, 1).addModifier(new Accidental('b'), 0),
+            note(f, ['c/5', 'e/5', 'c/6'], 'h', c2, -1),
         ];
         const score = f.EasyScore();
         const voice = score.voice(notes, { time: '4/4' });
@@ -271,14 +264,12 @@ function top(options) {
         .addGlyphOrText('b9', subscript);
     chord2 = f.ChordSymbol().addText('C').addTextSuperscript('sus4');
     draw(chord1, chord2, 240);
-    ok(true, 'Top Chord Symbol');
+    options.assert.ok(true, 'Top Chord Symbol');
 }
 function topJustify(options) {
     const f = VexFlowTests.makeFactory(options, 500 * 1.5, 680);
     const ctx = f.getContext();
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     function draw(chord1, chord2, y) {
         const stave = new Stave(10, y, 450).addClef('treble').setContext(ctx).draw();
         const notes = [
@@ -313,14 +304,12 @@ function topJustify(options) {
         .addGlyphOrText('b9', subscript);
     chord2 = f.ChordSymbol({ hJustify: 'centerStem' }).addText('C').addTextSuperscript('Maj.');
     draw(chord1, chord2, 340);
-    ok(true, 'Top Chord Justified');
+    options.assert.ok(true, 'Top Chord Justified');
 }
 function bottom(options) {
     const f = VexFlowTests.makeFactory(options, 600 * 1.5, 230);
     const ctx = f.getContext();
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     function draw(chords, y) {
         const stave = new Stave(10, y, 400).addClef('treble').setContext(ctx).draw();
         const notes = [
@@ -338,14 +327,12 @@ function bottom(options) {
         f.ChordSymbol({ vJustify: 'bottom' }).addGlyphOrText('V/V'),
     ];
     draw(chords, 10);
-    ok(true, 'Bottom Chord Symbol');
+    options.assert.ok(true, 'Bottom Chord Symbol');
 }
 function bottomStemDown(options) {
     const f = VexFlowTests.makeFactory(options, 600 * 1.5, 330);
     const ctx = f.getContext();
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     function draw(chords, y) {
         const note = (keys, duration, chordSymbol) => new StaveNote({ keys, duration, stem_direction: -1 }).addModifier(chordSymbol, 0);
         const stave = new Stave(10, y, 400).addClef('treble').setContext(ctx).draw();
@@ -364,14 +351,12 @@ function bottomStemDown(options) {
         f.ChordSymbol({ vJustify: 'bottom' }).addText('A').addGlyphSuperscript('dim'),
     ];
     draw(chords, 10);
-    ok(true, 'Bottom Stem Down Chord Symbol');
+    options.assert.ok(true, 'Bottom Stem Down Chord Symbol');
 }
 function doubleBottom(options) {
     const f = VexFlowTests.makeFactory(options, 600 * 1.5, 260);
     const ctx = f.getContext();
     ctx.scale(1.5, 1.5);
-    ctx.fillStyle = '#221';
-    ctx.strokeStyle = '#221';
     function draw(chords, chords2, y) {
         const note = (keys, duration, chordSymbol1, chordSymbol2) => new StaveNote({ keys, duration }).addModifier(chordSymbol1, 0).addModifier(chordSymbol2, 0);
         const stave = f.Stave({ x: 10, y, width: 450 }).addClef('treble').setContext(ctx).draw();
@@ -396,7 +381,7 @@ function doubleBottom(options) {
         f.ChordSymbol({ vJustify: 'bottom' }).addText('SD'),
     ];
     draw(chords1, chords2, 10);
-    ok(true, '2 Bottom Chord Symbol');
+    options.assert.ok(true, '2 Bottom Chord Symbol');
 }
 VexFlowTests.register(ChordSymbolTests);
 export { ChordSymbolTests };

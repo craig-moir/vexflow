@@ -2,10 +2,16 @@ import { FontInfo } from './font';
 import { Modifier } from './modifier';
 import { ModifierContextState } from './modifiercontext';
 import { Note } from './note';
+export interface StringNumberMetrics {
+    verticalPadding: number;
+    stemPadding: number;
+    leftPadding: number;
+    rightPadding: number;
+}
 export declare class StringNumber extends Modifier {
     static get CATEGORY(): string;
     static TEXT_FONT: Required<FontInfo>;
-    static get metrics(): any;
+    static get metrics(): StringNumberMetrics;
     static format(nums: StringNumber[], state: ModifierContextState): boolean;
     protected radius: number;
     protected drawCircle: boolean;

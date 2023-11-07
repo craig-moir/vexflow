@@ -27,35 +27,7 @@ function centerRest(rest, noteU, noteL) {
     rest.maxLine -= delta;
     rest.minLine -= delta;
 }
-export class StaveNote extends StemmableNote {
-    constructor(noteStruct) {
-        var _a, _b, _c;
-        super(noteStruct);
-        this.minLine = 0;
-        this.maxLine = 0;
-        this.sortedKeyProps = [];
-        this.ledgerLineStyle = {};
-        this.clef = (_a = noteStruct.clef) !== null && _a !== void 0 ? _a : 'treble';
-        this.octave_shift = (_b = noteStruct.octave_shift) !== null && _b !== void 0 ? _b : 0;
-        this.glyph = Tables.getGlyphProps(this.duration, this.noteType);
-        defined(this.glyph, 'BadArguments', `No glyph found for duration '${this.duration}' and type '${this.noteType}'`);
-        this.displaced = false;
-        this.dot_shiftY = 0;
-        this.use_default_head_x = false;
-        this._noteHeads = [];
-        this.modifiers = [];
-        this.render_options = Object.assign(Object.assign({}, this.render_options), { glyph_font_scale: noteStruct.glyph_font_scale || Tables.NOTATION_FONT_SCALE, stroke_px: noteStruct.stroke_px || StaveNote.LEDGER_LINE_OFFSET });
-        this.calculateKeyProps();
-        this.buildStem();
-        if (noteStruct.auto_stem) {
-            this.autoStem();
-        }
-        else {
-            this.setStemDirection((_c = noteStruct.stem_direction) !== null && _c !== void 0 ? _c : Stem.UP);
-        }
-        this.reset();
-        this.buildFlag();
-    }
+class StaveNote extends StemmableNote {
     static get CATEGORY() {
         return "StaveNote";
     }
@@ -70,9 +42,10 @@ export class StaveNote extends StemmableNote {
     }
     static get minNoteheadPadding() {
         const musicFont = Tables.currentMusicFont();
-        return musicFont.lookupMetric('glyphs.noteHead.minPadding');
+        return musicFont.lookupMetric('noteHead.minPadding');
     }
     static format(notes, state) {
+        var _a, _b;
         if (!notes || notes.length < 2)
             return false;
         const notesList = [];
@@ -85,8 +58,8 @@ export class StaveNote extends StemmableNote {
             const stemMin = notes[i].getStemMinimumLength() / 10;
             let maxL;
             if (notes[i].isRest()) {
-                maxL = line + notes[i].glyph.line_above;
-                minL = line - notes[i].glyph.line_below;
+                maxL = line + notes[i].glyphProps.line_above;
+                minL = line - notes[i].glyphProps.line_below;
             }
             else {
                 maxL =
@@ -159,31 +132,16 @@ export class StaveNote extends StemmableNote {
                 else {
                     const lineDiff = Math.abs(noteU.line - noteL.line);
                     if (noteU.note.hasStem() && noteL.note.hasStem()) {
-                        let whiteNoteHeadCount = 0;
-                        let blackNoteHeadCount = 0;
-                        if (Tables.durationToNumber(noteU.note.duration) === 2) {
-                            whiteNoteHeadCount++;
-                        }
-                        else if (Tables.durationToNumber(noteU.note.duration) > 2) {
-                            blackNoteHeadCount++;
-                        }
-                        if (Tables.durationToNumber(noteL.note.duration) === 2) {
-                            whiteNoteHeadCount++;
-                        }
-                        else if (Tables.durationToNumber(noteL.note.duration) > 2) {
-                            blackNoteHeadCount++;
-                        }
-                        if ((whiteNoteHeadCount !== 2 && blackNoteHeadCount !== 2) ||
-                            noteU.note.getModifiersByType("Dot").length !== noteL.note.getModifiersByType("Dot").length) {
-                            xShift = voiceXShift + 2;
-                            if (noteU.stemDirection === noteL.stemDirection) {
-                                noteU.note.setXShift(xShift);
-                            }
-                            else {
-                                noteL.note.setXShift(xShift);
-                            }
-                        }
-                        else if (lineDiff < 1 && lineDiff > 0) {
+                        const noteUHead = Tables.codeNoteHead((_a = noteU.note.sortedKeyProps[0].keyProps.code) !== null && _a !== void 0 ? _a : 'N', noteU.note.duration);
+                        const noteLHead = Tables.codeNoteHead((_b = noteL.note.sortedKeyProps[noteL.note.sortedKeyProps.length - 1].keyProps.code) !== null && _b !== void 0 ? _b : 'N', noteL.note.duration);
+                        if (!Tables.UNISON ||
+                            noteUHead !== noteLHead ||
+                            noteU.note.getModifiers().filter((item) => item.getCategory() === "Dot" && item.getIndex() === 0)
+                                .length !==
+                                noteL.note.getModifiers().filter((item) => item.getCategory() === "Dot" && item.getIndex() === 0)
+                                    .length ||
+                            (lineDiff < 1 && lineDiff > 0) ||
+                            JSON.stringify(noteU.note.getStyle()) !== JSON.stringify(noteL.note.getStyle())) {
                             xShift = voiceXShift + 2;
                             if (noteU.stemDirection === noteL.stemDirection) {
                                 noteU.note.setXShift(xShift);
@@ -209,7 +167,7 @@ export class StaveNote extends StemmableNote {
                     }
                     else if (lineDiff < 1) {
                         xShift = voiceXShift + 2;
-                        if (noteU.stemDirection === noteL.stemDirection) {
+                        if (noteU.note.duration < noteL.note.duration) {
                             noteU.note.setXShift(xShift);
                         }
                         else {
@@ -293,6 +251,34 @@ export class StaveNote extends StemmableNote {
         notes.forEach((note) => note.postFormat());
         return true;
     }
+    constructor(noteStruct) {
+        var _a, _b, _c;
+        super(noteStruct);
+        this.minLine = 0;
+        this.maxLine = 0;
+        this.sortedKeyProps = [];
+        this.ledgerLineStyle = {};
+        this.clef = (_a = noteStruct.clef) !== null && _a !== void 0 ? _a : 'treble';
+        this.octave_shift = (_b = noteStruct.octave_shift) !== null && _b !== void 0 ? _b : 0;
+        this.glyphProps = Tables.getGlyphProps(this.duration, this.noteType);
+        defined(this.glyphProps, 'BadArguments', `No glyph found for duration '${this.duration}' and type '${this.noteType}'`);
+        this.displaced = false;
+        this.dot_shiftY = 0;
+        this.use_default_head_x = false;
+        this._noteHeads = [];
+        this.modifiers = [];
+        this.render_options = Object.assign(Object.assign({}, this.render_options), { glyph_font_scale: noteStruct.glyph_font_scale || Tables.NOTATION_FONT_SCALE, stroke_px: noteStruct.stroke_px || StaveNote.LEDGER_LINE_OFFSET });
+        this.calculateKeyProps();
+        this.buildStem();
+        if (noteStruct.auto_stem) {
+            this.autoStem();
+        }
+        else {
+            this.setStemDirection((_c = noteStruct.stem_direction) !== null && _c !== void 0 ? _c : Stem.UP);
+        }
+        this.reset();
+        this.buildFlag();
+    }
     reset() {
         super.reset();
         const noteHeadStyles = this._noteHeads.map((noteHead) => noteHead.getStyle());
@@ -304,7 +290,7 @@ export class StaveNote extends StemmableNote {
         });
         const stave = this.stave;
         if (stave) {
-            this._noteHeads.forEach((head) => head.setStave(stave));
+            this.setStave(stave);
         }
         this.calcNoteDisplacements();
         return this;
@@ -373,6 +359,7 @@ export class StaveNote extends StemmableNote {
             this.addChildElement(notehead);
             this._noteHeads[this.sortedKeyProps[i].index] = notehead;
         }
+        return this._noteHeads;
     }
     autoStem() {
         this.setStemDirection(this.calculateOptimalStemDirection());
@@ -389,8 +376,8 @@ export class StaveNote extends StemmableNote {
         let lastLine;
         for (let i = 0; i < this.keys.length; ++i) {
             const key = this.keys[i];
-            if (this.glyph.rest)
-                this.glyph.position = key;
+            if (this.glyphProps.rest)
+                this.glyphProps.position = key;
             const options = { octave_shift: this.octave_shift || 0, duration: this.duration };
             const props = Tables.keyProperties(key, this.clef, options);
             if (!props) {
@@ -444,11 +431,11 @@ export class StaveNote extends StemmableNote {
                 maxY = y + halfLineSpacing;
             }
             else {
-                minY = y - this.glyph.line_above * lineSpacing;
-                maxY = y + this.glyph.line_below * lineSpacing;
+                minY = y - this.glyphProps.line_above * lineSpacing;
+                maxY = y + this.glyphProps.line_below * lineSpacing;
             }
         }
-        else if (this.glyph.stem) {
+        else if (this.glyphProps.stem) {
             const ys = this.getStemExtents();
             ys.baseY += halfLineSpacing * this.getStemDirection();
             minY = Math.min(ys.topY, ys.baseY);
@@ -492,13 +479,13 @@ export class StaveNote extends StemmableNote {
         return resultLine;
     }
     isRest() {
-        return this.glyph.rest;
+        return this.glyphProps.rest;
     }
     isChord() {
         return !this.isRest() && this.keys.length > 1;
     }
     hasStem() {
-        return this.glyph.stem;
+        return this.glyphProps.stem;
     }
     hasFlag() {
         return super.hasFlag() && !this.isRest();
@@ -610,10 +597,12 @@ export class StaveNote extends StemmableNote {
         return this.ledgerLineStyle;
     }
     setFlagStyle(style) {
-        this.flagStyle = style;
+        var _a;
+        (_a = this.flag) === null || _a === void 0 ? void 0 : _a.setStyle(style);
     }
     getFlagStyle() {
-        return this.flagStyle;
+        var _a;
+        return (_a = this.flag) === null || _a === void 0 ? void 0 : _a.getStyle();
     }
     setKeyStyle(index, style) {
         this._noteHeads[index].setStyle(style);
@@ -713,10 +702,10 @@ export class StaveNote extends StemmableNote {
     }
     drawLedgerLines() {
         const stave = this.checkStave();
-        const { glyph, render_options: { stroke_px }, } = this;
+        const { glyphProps, render_options: { stroke_px }, } = this;
         const ctx = this.checkContext();
-        const width = glyph.getWidth() + stroke_px * 2;
-        const doubleWidth = 2 * (glyph.getWidth() + stroke_px) - Stem.WIDTH / 2;
+        const width = glyphProps.getWidth() + stroke_px * 2;
+        const doubleWidth = 2 * (glyphProps.getWidth() + stroke_px) - Stem.WIDTH / 2;
         if (this.isRest())
             return;
         if (!ctx) {
@@ -754,24 +743,24 @@ export class StaveNote extends StemmableNote {
         }
         this.restoreStyle(ctx, style);
     }
-    drawModifiers() {
+    drawModifiers(noteheadParam) {
         const ctx = this.checkContext();
-        ctx.openGroup('modifiers');
         for (let i = 0; i < this.modifiers.length; i++) {
             const modifier = this.modifiers[i];
             const index = modifier.checkIndex();
             const notehead = this._noteHeads[index];
-            const noteheadStyle = notehead.getStyle();
-            notehead.applyStyle(ctx, noteheadStyle);
-            modifier.setContext(ctx);
-            modifier.drawWithStyle();
-            notehead.restoreStyle(ctx, noteheadStyle);
+            if (notehead == noteheadParam) {
+                const noteheadStyle = notehead.getStyle();
+                notehead.applyStyle(ctx, noteheadStyle);
+                modifier.setContext(ctx);
+                modifier.drawWithStyle();
+                notehead.restoreStyle(ctx, noteheadStyle);
+            }
         }
-        ctx.closeGroup();
     }
     shouldDrawFlag() {
         const hasStem = this.stem !== undefined;
-        const hasFlag = this.glyph.flag;
+        const hasFlag = this.glyphProps.flag == true;
         const hasNoBeam = this.beam === undefined;
         return hasStem && hasFlag && hasNoBeam;
     }
@@ -790,27 +779,26 @@ export class StaveNote extends StemmableNote {
                     y_top -
                         noteStemHeight +
                         2 -
-                        (this.glyph ? this.glyph.stem_down_extension : 0) * this.getStaveNoteScale() -
+                        (this.glyphProps ? this.glyphProps.stem_down_extension : 0) * this.getStaveNoteScale() -
                         ((_b = (_a = this.flag) === null || _a === void 0 ? void 0 : _a.getMetrics().y_shift) !== null && _b !== void 0 ? _b : 0) * (1 - this.getStaveNoteScale())
                 :
                     y_bottom -
                         noteStemHeight -
                         2 +
-                        (this.glyph ? this.glyph.stem_up_extension : 0) * this.getStaveNoteScale() -
+                        (this.glyphProps ? this.glyphProps.stem_up_extension : 0) * this.getStaveNoteScale() -
                         ((_d = (_c = this.flag) === null || _c === void 0 ? void 0 : _c.getMetrics().y_shift) !== null && _d !== void 0 ? _d : 0) * (1 - this.getStaveNoteScale());
-            ctx.openGroup('flag', undefined, { pointerBBox: true });
-            this.applyStyle(ctx, this.getFlagStyle());
             (_e = this.flag) === null || _e === void 0 ? void 0 : _e.render(ctx, flagX, flagY);
-            this.restoreStyle(ctx, this.getFlagStyle());
-            ctx.closeGroup();
         }
     }
     drawNoteHeads() {
         const ctx = this.checkContext();
         this._noteHeads.forEach((notehead) => {
-            ctx.openGroup('notehead', undefined, { pointerBBox: true });
+            notehead.applyStyle(ctx);
+            ctx.openGroup('notehead', notehead.getAttribute('id'), { pointerBBox: true });
             notehead.setContext(ctx).draw();
+            this.drawModifiers(notehead);
             ctx.closeGroup();
+            notehead.restoreStyle(ctx);
         });
     }
     drawStem(stemOptions) {
@@ -822,9 +810,7 @@ export class StaveNote extends StemmableNote {
             this.stem.adjustHeightForFlag();
         }
         if (this.stem) {
-            ctx.openGroup('stem', undefined, { pointerBBox: true });
             this.stem.setContext(ctx).draw();
-            ctx.closeGroup();
         }
     }
     getStaveNoteScale() {
@@ -832,7 +818,7 @@ export class StaveNote extends StemmableNote {
     }
     getStemExtension() {
         const super_stem_extension = super.getStemExtension();
-        if (!this.glyph.stem) {
+        if (!this.glyphProps.stem) {
             return super_stem_extension;
         }
         const stem_direction = this.getStemDirection();
@@ -874,18 +860,16 @@ export class StaveNote extends StemmableNote {
         }
         L('Rendering ', this.isChord() ? 'chord :' : 'note :', this.keys);
         this.applyStyle();
-        this.setAttribute('el', ctx.openGroup('stavenote', this.getAttribute('id')));
+        ctx.openGroup('stavenote', this.getAttribute('id'));
         this.drawLedgerLines();
-        ctx.openGroup('note', undefined, { pointerBBox: true });
         if (shouldRenderStem)
             this.drawStem();
         this.drawNoteHeads();
         this.drawFlag();
-        ctx.closeGroup();
-        this.drawModifiers();
         ctx.closeGroup();
         this.restoreStyle();
         this.setRendered();
     }
 }
 StaveNote.DEBUG = false;
+export { StaveNote };

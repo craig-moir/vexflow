@@ -27,8 +27,6 @@ export declare class PedalMarking extends Element {
     /** Glyph data */
     static readonly GLYPHS: Record<string, {
         code: string;
-        y_shift: number;
-        x_shift: number;
     }>;
     /** Pedal type as number. */
     static readonly type: {

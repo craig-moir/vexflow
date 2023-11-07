@@ -13,6 +13,23 @@ export interface ChordSymbolBlock {
     width: number;
     glyph?: Glyph;
 }
+export interface ChordSymbolGlyphMetrics {
+    leftSideBearing: number;
+    advanceWidth: number;
+    yOffset: number;
+}
+export interface ChordSymbolMetrics {
+    global: {
+        superscriptOffset: number;
+        subscriptOffset: number;
+        kerningOffset: number;
+        lowerKerningText: string[];
+        upperKerningText: string[];
+        spacing: number;
+        superSubRatio: number;
+    };
+    glyphs: Record<string, ChordSymbolGlyphMetrics>;
+}
 export declare enum ChordSymbolHorizontalJustify {
     LEFT = 1,
     CENTER = 2,
@@ -48,7 +65,7 @@ export declare class ChordSymbol extends Modifier {
     /** Currently unused: Globally turn off text formatting, if the built-in formatting does not work for your font. */
     static set NO_TEXT_FORMAT(val: boolean);
     static get NO_TEXT_FORMAT(): boolean;
-    static getMetricForGlyph(glyphCode: string): any;
+    static getMetricForGlyph(glyphCode: string): ChordSymbolGlyphMetrics | undefined;
     static get engravingFontResolution(): number;
     static get spacingBetweenBlocks(): number;
     static getWidthForGlyph(glyph: Glyph): number;
@@ -62,7 +79,7 @@ export declare class ChordSymbol extends Modifier {
     }>;
     static readonly symbolTypes: typeof SymbolTypes;
     static readonly symbolModifiers: typeof SymbolModifiers;
-    static get metrics(): any;
+    static get metrics(): ChordSymbolMetrics;
     static get lowerKerningText(): string[];
     static get upperKerningText(): string[];
     static isSuperscript(block: ChordSymbolBlock): boolean;

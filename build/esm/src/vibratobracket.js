@@ -5,7 +5,10 @@ function L(...args) {
     if (VibratoBracket.DEBUG)
         log('Vex.Flow.VibratoBracket', args);
 }
-export class VibratoBracket extends Element {
+class VibratoBracket extends Element {
+    static get CATEGORY() {
+        return "VibratoBracket";
+    }
     constructor(bracket_data) {
         super();
         if (bracket_data.start)
@@ -20,9 +23,6 @@ export class VibratoBracket extends Element {
             wave_girth: 2,
             vibrato_width: 0,
         };
-    }
-    static get CATEGORY() {
-        return "VibratoBracket";
     }
     setLine(line) {
         this.line = line;
@@ -48,3 +48,4 @@ export class VibratoBracket extends Element {
     }
 }
 VibratoBracket.DEBUG = false;
+export { VibratoBracket };
