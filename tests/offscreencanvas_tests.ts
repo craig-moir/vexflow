@@ -20,16 +20,18 @@ const OffscreenCanvasTests = {
     }
 
     QUnit.module('OffscreenCanvas');
-    test('Simple Test', simpleTest);
+    QUnit.test('Simple Test', simpleTest);
   },
 };
 
-function simpleTest(): void {
+function simpleTest(assert: Assert): void {
   // Create a CanvasContext from an OffscreenCanvas.
   // eslint-disable-next-line
   // @ts-ignore
   const offscreenCanvas = new OffscreenCanvas(550, 200);
-  const offscreenCtx = offscreenCanvas.getContext('2d');
+  // eslint-disable-next-line
+  // @ts-ignore
+  const offscreenCtx: OffscreenCanvasRenderingContext2D = offscreenCanvas.getContext('2d');
   if (offscreenCtx == null) {
     throw new Error("Couldn't create offscreen context");
   }
@@ -59,7 +61,7 @@ function simpleTest(): void {
   canvasCtx.drawImage(imgBmp, 0, 0);
   document.body.appendChild(canvas);
 
-  ok(true, 'all pass');
+  assert.ok(true, 'all pass');
 }
 
 VexFlowTests.register(OffscreenCanvasTests);

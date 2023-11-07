@@ -39,8 +39,6 @@ function showOneNote(note1: StaveNote, stave: Stave, ctx: RenderContext, x: numb
 
 function basic(options: TestOptions, contextBuilder: ContextBuilder): void {
   const ctx = contextBuilder(options.elementId, 1000, 240);
-  ctx.setFillStyle('#221');
-  ctx.setStrokeStyle('#221');
 
   const stave = new Stave(10, 10, 975);
   stave.setContext(ctx);
@@ -89,10 +87,10 @@ function basic(options: TestOptions, contextBuilder: ContextBuilder): void {
   for (let i = 0; i < notes.length; i++) {
     showOneNote(notes[i], stave, ctx, 30 + i * 65);
     const dots = notes[i].getModifiersByType('Dot');
-    ok(dots.length > 0, 'Note ' + i + ' has dots');
+    options.assert.ok(dots.length > 0, 'Note ' + i + ' has dots');
 
     for (let j = 0; j < dots.length; ++j) {
-      ok(dots[j].getWidth() > 0, 'Dot ' + j + ' has width set');
+      options.assert.ok(dots[j].getWidth() > 0, 'Dot ' + j + ' has width set');
     }
   }
 
@@ -100,13 +98,11 @@ function basic(options: TestOptions, contextBuilder: ContextBuilder): void {
 
   VexFlowTests.plotLegendForNoteWidth(ctx, 890, 140);
 
-  ok(true, 'Full Dot');
+  options.assert.ok(true, 'Full Dot');
 }
 
 function multiVoice(options: TestOptions, contextBuilder: ContextBuilder): void {
   const ctx = contextBuilder(options.elementId, 750, 300);
-  ctx.setFillStyle('#221');
-  ctx.setStrokeStyle('#221');
 
   const stave = new Stave(30, 45, 700).setContext(ctx).draw();
 
@@ -150,7 +146,7 @@ function multiVoice(options: TestOptions, contextBuilder: ContextBuilder): void 
 
   VexFlowTests.plotLegendForNoteWidth(ctx, 620, 220);
 
-  ok(true, 'Full Dot');
+  options.assert.ok(true, 'Full Dot');
 }
 
 VexFlowTests.register(DotTests);

@@ -6,7 +6,6 @@
 import { ContextBuilder, Factory, Flow, Font, RenderContext, Renderer } from '../src/index';
 
 import { globalObject } from '../src/util';
-import { Assert } from './types/qunit';
 
 // eslint-disable-next-line
 declare const $: any;
@@ -105,11 +104,25 @@ const CANVAS_TEST_CONFIG = {
   fontStacks: ['Bravura'],
 };
 
+const CANVAS_TEXT_CONFIG = {
+  backend: Renderer.Backends.CANVAS,
+  tagName: 'canvas',
+  testType: 'Canvas',
+  fontStacks: ['Bravura'],
+};
+
 const SVG_TEST_CONFIG = {
   backend: Renderer.Backends.SVG,
   tagName: 'div',
   testType: 'SVG',
   fontStacks: ['Bravura', 'Gonville', 'Petaluma', 'Leland'],
+};
+
+const SVG_TEXT_CONFIG = {
+  backend: Renderer.Backends.SVG,
+  tagName: 'div',
+  testType: 'SVG',
+  fontStacks: ['Bravura'],
 };
 
 const NODE_TEST_CONFIG = {
@@ -182,10 +195,10 @@ export class VexFlowTests {
    * Each font stack is a prioritized list of font names.
    */
   static FONT_STACKS: Record<string, string[]> = {
-    Bravura: ['Bravura', 'Gonville', 'Custom'],
+    Bravura: ['Bravura', 'Custom'],
     Gonville: ['Gonville', 'Bravura', 'Custom'],
     Petaluma: ['Petaluma', 'Gonville', 'Bravura', 'Custom'],
-    Leland: ['Leland', 'Bravura', 'Gonville', 'Custom'],
+    Leland: ['Leland', 'Bravura', 'Custom'],
   };
 
   static set NODE_FONT_STACKS(fontStacks: string[]) {
@@ -212,6 +225,12 @@ export class VexFlowTests {
     VexFlowTests.runNodeTest(name, testFunc, params);
   }
 
+  // eslint-disable-next-line
+  static runTextTests(name: string, testFunc: TestFunction, params?: any): void {
+    VexFlowTests.runCanvasText(name, testFunc, params);
+    VexFlowTests.runSVGText(name, testFunc, params);
+  }
+
   /**
    * Append a <div/> which contains the test case title and rendered output.
    * See flow.html and flow.css.
@@ -224,7 +243,7 @@ export class VexFlowTests {
     const title = $('<div/>').addClass('name').attr('id', titleId).html(anchorTestTitle).get(0);
     const vexOutput = $(`<${tagName}/>`).addClass('vex-tabdiv').attr('id', elementId).get(0);
     const container = $('<div/>').addClass('testcanvas').append(title, vexOutput).get(0);
-    $('#vexflow_testoutput').append(container);
+    $('#qunit-tests').append(container);
     return vexOutput;
   }
 
@@ -242,13 +261,27 @@ export class VexFlowTests {
   }
 
   // eslint-disable-next-line
+  static runCanvasText(name: string, testFunc: TestFunction, params: any): void {
+    if (VexFlowTests.RUN_CANVAS_TESTS) {
+      const helper = null;
+      VexFlowTests.runWithParams({ ...CANVAS_TEXT_CONFIG, name, testFunc, params, helper });
+    }
+  }
+
+  // eslint-disable-next-line
   static runSVGTest(name: string, testFunc: TestFunction, params?: any): void {
     if (VexFlowTests.RUN_SVG_TESTS) {
       const helper = null;
       VexFlowTests.runWithParams({ ...SVG_TEST_CONFIG, name, testFunc, params, helper });
     }
   }
-
+  // eslint-disable-next-line
+  static runSVGText(name: string, testFunc: TestFunction, params?: any): void {
+    if (VexFlowTests.RUN_SVG_TESTS) {
+      const helper = null;
+      VexFlowTests.runWithParams({ ...SVG_TEXT_CONFIG, name, testFunc, params, helper });
+    }
+  }
   // eslint-disable-next-line
   static runNodeTest(name: string, testFunc: TestFunction, params: any): void {
     if (VexFlowTests.RUN_NODE_TESTS) {
@@ -264,8 +297,8 @@ export class VexFlowTests {
    */
   static runNodeTestHelper(fontName: string, element: HTMLElement): void {
     if (Renderer.lastContext !== undefined) {
-      const moduleName = sanitizeName(QUnit.current_module);
-      const testName = sanitizeName(QUnit.current_test);
+      const moduleName = sanitizeName(QUnit.module.name);
+      const testName = sanitizeName(QUnit.test.name);
       // If we are only testing Bravura, we OMIT the font name from the
       // output image file name, which allows visual diffs against
       // the previous release: version 3.0.9. In the future, if we decide
@@ -289,7 +322,7 @@ export class VexFlowTests {
     }
     const testTypeLowerCase = testType.toLowerCase();
     fontStacks.forEach((fontStackName: string) => {
-      QUnit.test(name, (assert: Assert) => {
+      QUnit.test(name, (assert: any) => {
         useTempFontStack(fontStackName);
         const elementId = VexFlowTests.generateTestID(`${testTypeLowerCase}_` + fontStackName);
         const moduleName = assert.test.module.name;

@@ -20,7 +20,7 @@ const RestsTests = {
   Start(): void {
     QUnit.module('Rests');
     const run = VexFlowTests.runTests;
-    run('Outside Stave', legerRest);
+    run('Outside Stave', ledgerRest);
     run('Dotted', basic);
     run('Auto Align - Beamed Notes Stems Up', beamsUp);
     run('Auto Align - Beamed Notes Stems Down', beamsDown);
@@ -50,8 +50,7 @@ function setupContext(
   // context is SVGContext or CanvasRenderingContext2D (native) or CanvasContext (only if Renderer.USE_CANVAS_PROXY is true).
   const context = contextBuilder(options.elementId, width, height);
   context.scale(0.9, 0.9);
-  context.fillStyle = '#221';
-  context.strokeStyle = '#221';
+
   context.font = '10pt Arial';
 
   const stave = new Stave(10, 30, width).addClef('treble').addTimeSignature('4/4').setContext(context).draw();
@@ -80,13 +79,13 @@ function basic(options: TestOptions, contextBuilder: ContextBuilder): void {
 
   Formatter.FormatAndDraw(context, stave, notes);
 
-  ok(true, 'Dotted Rest Test');
+  options.assert.ok(true, 'Dotted Rest Test');
 }
 
 /**
- * Use the leger glyph if the whole or half rest is above/below the staff
+ * Use the ledger glyph if the whole or half rest is above/below the staff
  */
-function legerRest(options: TestOptions, contextBuilder: ContextBuilder): void {
+function ledgerRest(options: TestOptions, contextBuilder: ContextBuilder): void {
   const { context, stave } = setupContext(options, contextBuilder, 700);
 
   const notes = [
@@ -99,7 +98,7 @@ function legerRest(options: TestOptions, contextBuilder: ContextBuilder): void {
   ];
   Formatter.FormatAndDraw(context, stave, notes);
 
-  ok(true, 'Leger/Ledger Rest Test');
+  options.assert.ok(true, 'Leger/Ledger Rest Test');
 }
 
 // Optional: Use a helper function to make your code more concise.
@@ -138,7 +137,7 @@ function beamsUp(options: TestOptions, contextBuilder: ContextBuilder): void {
   beam2.setContext(context).draw();
   beam3.setContext(context).draw();
 
-  ok(true, 'Auto Align Rests - Beams Up Test');
+  options.assert.ok(true, 'Auto Align Rests - Beams Up Test');
 }
 
 /**
@@ -174,7 +173,7 @@ function beamsDown(options: TestOptions, contextBuilder: ContextBuilder): void {
   beam2.setContext(context).draw();
   beam3.setContext(context).draw();
 
-  ok(true, 'Auto Align Rests - Beams Down Test');
+  options.assert.ok(true, 'Auto Align Rests - Beams Down Test');
 }
 
 /**
@@ -214,7 +213,7 @@ function tupletsUp(options: TestOptions, contextBuilder: ContextBuilder): void {
   tuplet3.setContext(context).draw();
   tuplet4.setContext(context).draw();
 
-  ok(true, 'Auto Align Rests - Tuplets Stem Up Test');
+  options.assert.ok(true, 'Auto Align Rests - Tuplets Stem Up Test');
 }
 
 /**
@@ -264,7 +263,7 @@ function tupletsDown(options: TestOptions, contextBuilder: ContextBuilder): void
   beam3.setContext(context).draw();
   beam4.setContext(context).draw();
 
-  ok(true, 'Auto Align Rests - Tuplets Stem Down Test');
+  options.assert.ok(true, 'Auto Align Rests - Tuplets Stem Down Test');
 }
 
 /**
@@ -305,7 +304,7 @@ function singleVoiceDefaultAlignment(options: TestOptions, contextBuilder: Conte
   tuplet.setContext(context).draw();
   beam.setContext(context).draw();
 
-  ok(true, 'Auto Align Rests - Default Test');
+  options.assert.ok(true, 'Auto Align Rests - Default Test');
 }
 
 /**
@@ -346,7 +345,7 @@ function singleVoiceAlignAll(options: TestOptions, contextBuilder: ContextBuilde
   tuplet.setContext(context).draw();
   beam.setContext(context).draw();
 
-  ok(true, 'Auto Align Rests - Align All Test');
+  options.assert.ok(true, 'Auto Align Rests - Align All Test');
 }
 
 /**
@@ -394,7 +393,7 @@ function multiVoice(options: TestOptions, contextBuilder: ContextBuilder): void 
   beam2_1.setContext(ctx).draw();
   beam2_2.setContext(ctx).draw();
 
-  ok(true, 'Strokes Test Multi Voice');
+  options.assert.ok(true, 'Strokes Test Multi Voice');
 }
 
 VexFlowTests.register(RestsTests);

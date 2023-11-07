@@ -64,6 +64,13 @@ export interface TupletOptions {
   y_offset?: number;
 }
 
+export interface TupletMetrics {
+  noteHeadOffset: number;
+  stemOffset: number;
+  bottomLine: number;
+  topModifierOffset: number;
+}
+
 export const enum TupletLocation {
   BOTTOM = -1,
   TOP = +1,
@@ -103,9 +110,11 @@ export class Tuplet extends Element {
     return 15;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static get metrics(): any {
-    return Tables.currentMusicFont().getMetrics().glyphs.tuplet;
+  static get metrics(): TupletMetrics {
+    const tupletMetrics = Tables.currentMusicFont().getMetrics().tuplet;
+
+    if (!tupletMetrics) throw new RuntimeError('BadMetrics', `tuplet missing`);
+    return tupletMetrics;
   }
 
   constructor(notes: Note[], options: TupletOptions = {}) {
@@ -132,7 +141,7 @@ export class Tuplet extends Element {
 
     this.ratioed =
       this.options.ratioed != undefined ? this.options.ratioed : Math.abs(this.notes_occupied - this.num_notes) > 1;
-    this.point = Tables.currentMusicFont().lookupMetric('digits.tupletPoint');
+    this.point = (Tables.NOTATION_FONT_SCALE * 3) / 5;
     this.y_pos = 16;
     this.x_pos = 100;
     this.width = 200;
@@ -397,11 +406,11 @@ export class Tuplet extends Element {
       const colon_x = notation_start_x + x_offset + this.point * 0.16;
       const colon_radius = this.point * 0.06;
       ctx.beginPath();
-      ctx.arc(colon_x, this.y_pos - this.point * 0.08, colon_radius, 0, Math.PI * 2, true);
+      ctx.arc(colon_x, this.y_pos - this.point * 0.08, colon_radius, 0, Math.PI * 2, false);
       ctx.closePath();
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(colon_x, this.y_pos + this.point * 0.12, colon_radius, 0, Math.PI * 2, true);
+      ctx.arc(colon_x, this.y_pos + this.point * 0.12, colon_radius, 0, Math.PI * 2, false);
       ctx.closePath();
       ctx.fill();
       x_offset += this.point * 0.32;

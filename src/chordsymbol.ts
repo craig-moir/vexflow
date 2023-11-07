@@ -18,7 +18,7 @@ import { StemmableNote } from './stemmablenote';
 import { Tables } from './tables';
 import { TextFormatter } from './textformatter';
 import { Category, isStemmableNote } from './typeguard';
-import { log } from './util';
+import { log, RuntimeError } from './util';
 
 // To enable logging for this class. Set `Vex.Flow.ChordSymbol.DEBUG` to `true`.
 // eslint-disable-next-line
@@ -35,6 +35,25 @@ export interface ChordSymbolBlock {
   vAlign: boolean;
   width: number;
   glyph?: Glyph;
+}
+
+export interface ChordSymbolGlyphMetrics {
+  leftSideBearing: number;
+  advanceWidth: number;
+  yOffset: number;
+}
+
+export interface ChordSymbolMetrics {
+  global: {
+    superscriptOffset: number;
+    subscriptOffset: number;
+    kerningOffset: number;
+    lowerKerningText: string[];
+    upperKerningText: string[];
+    spacing: number;
+    superSubRatio: number;
+  };
+  glyphs: Record<string, ChordSymbolGlyphMetrics>;
 }
 
 export enum ChordSymbolHorizontalJustify {
@@ -104,10 +123,9 @@ export class ChordSymbol extends Modifier {
     return ChordSymbol.noFormat;
   }
 
-  // eslint-disable-next-line
-  static getMetricForGlyph(glyphCode: string): any {
-    if (ChordSymbol.metrics[glyphCode]) {
-      return ChordSymbol.metrics[glyphCode];
+  static getMetricForGlyph(glyphCode: string): ChordSymbolGlyphMetrics | undefined {
+    if (ChordSymbol.metrics.glyphs[glyphCode]) {
+      return ChordSymbol.metrics.glyphs[glyphCode];
     }
     return undefined;
   }
@@ -224,9 +242,11 @@ export class ChordSymbol extends Modifier {
 
   static readonly symbolModifiers = SymbolModifiers;
 
-  // eslint-disable-next-line
-  static get metrics(): any {
-    return Tables.currentMusicFont().getMetrics().glyphs.chordSymbol;
+  static get metrics(): ChordSymbolMetrics {
+    const chordSymbol = Tables.currentMusicFont().getMetrics().chordSymbol;
+
+    if (!chordSymbol) throw new RuntimeError('BadMetrics', `chordSymbol missing`);
+    return chordSymbol;
   }
 
   static get lowerKerningText(): string[] {
@@ -250,7 +270,7 @@ export class ChordSymbol extends Modifier {
 
   static get minPadding(): number {
     const musicFont = Tables.currentMusicFont();
-    return musicFont.lookupMetric('glyphs.noteHead.minPadding');
+    return musicFont.lookupMetric('noteHead.minPadding');
   }
   /**
    * Estimate the width of the whole chord symbol, based on the sum of the widths of the individual blocks.
@@ -348,7 +368,7 @@ export class ChordSymbol extends Modifier {
         state.text_line += lineSpaces + 1;
       }
       if (symbol.getReportWidth() && isStemmableNote(note)) {
-        const glyphWidth = note.getGlyph().getWidth();
+        const glyphWidth = note.getGlyphProps().getWidth();
         if (symbol.getHorizontal() === ChordSymbolHorizontalJustify.LEFT) {
           maxLeftGlyphWidth = Math.max(glyphWidth, maxLeftGlyphWidth);
           leftWidth = Math.max(leftWidth, symbolWidth) + ChordSymbol.minPadding;
@@ -542,10 +562,6 @@ export class ChordSymbol extends Modifier {
       const glyphArgs = ChordSymbol.glyphs[params.glyph];
       const glyphPoints = 20;
       symbolBlock.glyph = new Glyph(glyphArgs.code, glyphPoints, { category: 'chordSymbol' });
-      // Beware: glyph.metrics is not the same as glyph.getMetrics() !
-      // rv.glyph.point = rv.glyph.point * rv.glyph.metrics.scale;
-      // rv.width = rv.glyph.getMetrics().width;
-      // don't set yShift here, b/c we need to do it at formatting time after the font is set.
     } else if (symbolType === SymbolTypes.TEXT) {
       symbolBlock.width = this.textFormatter.getWidthForTextInEm(symbolBlock.text);
     } else if (symbolType === SymbolTypes.LINE) {
@@ -706,8 +722,8 @@ export class ChordSymbol extends Modifier {
 
     // We're changing context parameters. Save current state.
     ctx.save();
-    const classString = Object.keys(this.getAttribute('classes')).join(' ');
-    ctx.openGroup(classString, this.getAttribute('id'));
+    this.applyStyle();
+    ctx.openGroup('chordsymbol', this.getAttribute('id'));
 
     const start = note.getModifierStartXY(Modifier.Position.ABOVE, this.index);
     ctx.setFont(this.textFont);
@@ -730,7 +746,8 @@ export class ChordSymbol extends Modifier {
       }
     } else {
       // (this.vertical === VerticalJustify.TOP)
-      y = Math.min(stave.getYForTopText(this.text_line), note.getYs()[0] - 10);
+      const topY = Math.min(...note.getYs());
+      y = Math.min(stave.getYForTopText(this.text_line), topY - 10);
       if (hasStem) {
         const stem_ext = note.checkStem().getExtents();
         const spacing = stave.getSpacingBetweenLines();
@@ -804,6 +821,7 @@ export class ChordSymbol extends Modifier {
       }
     });
     ctx.closeGroup();
+    this.restoreStyle();
     ctx.restore();
   }
 }

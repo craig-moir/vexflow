@@ -180,7 +180,7 @@ function minuet1(options: TestOptions): void {
 
   /*  Measure 8 */
   system = appendSystem(180);
-  const grace = f.GraceNote({ keys: ['d/3'], clef: 'bass', duration: '8', slash: true });
+  const grace = f.GraceNote({ keys: ['d/3'], clef: 'bass', duration: '4', slash: false });
 
   system.addStave({ voices: [voice(notes('A4/h.[id="m8c"]'))] });
   system.addStave({
@@ -428,7 +428,7 @@ function minuet1(options: TestOptions): void {
   /* Done */
   f.draw();
   Registry.disableDefaultRegistry();
-  ok(true, 'Bach Minuet 1');
+  options.assert.ok(true, 'Bach Minuet 1');
 }
 
 VexFlowTests.register(BachDemoTests);

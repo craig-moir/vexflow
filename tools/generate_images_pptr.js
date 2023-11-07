@@ -39,7 +39,7 @@ const options = {
   job: 0,
   SCRIPT_VER: argv[2] || 'build',
   IMAGE_OUTPUT_DIR: argv[3],
-  TIMEOUT: 30 * 1000,
+  TIMEOUT: 60 * 1000, // 60 seconds.
 };
 const args = process.argv.slice(4);
 // console.log(args);
@@ -96,7 +96,7 @@ const savePNGData = (filename, pngDataURL) => {
 };
 
 const launch = async (query, jobInfo) => {
-  const browser = await puppeteer.launch({ headless: true, devtools: false });
+  const browser = await puppeteer.launch({ headless: "new", devtools: false });
   const page = await browser.newPage();
   page.on('error', (msg) => {
     jobLog(msg, 'error', jobInfo);
@@ -125,7 +125,7 @@ const launchTestPage = async (jobs, job) => {
   });
 
   const genImages = async () => {
-    const elmDefs = await page.$$eval('#vexflow_testoutput .testcanvas', (elms) => {
+    const elmDefs = await page.$$eval('#qunit-tests .testcanvas', (elms) => {
       window.VF_TEST_GLOBAL = {};
       const { VF_TEST_GLOBAL } = window;
       const ret = [];
@@ -268,7 +268,7 @@ const launchTestPage = async (jobs, job) => {
         throw Error(`Error: test timeout (${d / 1000} sec).`);
       }
 
-      if (!data.startsWith('Tests completed in')) {
+      if (!data.includes('completed in')) {
         progress(`${job}/${jobs}: ${data}`);
         page.waitForTimeout(200);
       } else {

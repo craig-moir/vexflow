@@ -8,13 +8,19 @@ import { ModifierContextState } from './modifiercontext';
 import { Stem } from './stem';
 import { StemmableNote } from './stemmablenote';
 import { Tables } from './tables';
-import { TickContext } from './tickcontext';
 import { Category, isTabNote } from './typeguard';
 import { defined, log, RuntimeError } from './util';
 
 // eslint-disable-next-line
 function L(...args: any[]) {
   if (Ornament.DEBUG) log('Vex.Flow.Ornament', args);
+}
+
+export interface OrnamentMetrics {
+  xOffset: number;
+  yOffset: number;
+  stemUpYOffset: number;
+  reportedWidth: number;
 }
 
 /**
@@ -34,7 +40,7 @@ export class Ornament extends Modifier {
   }
   static get minPadding(): number {
     const musicFont = Tables.currentMusicFont();
-    return musicFont.lookupMetric('glyphs.noteHead.minPadding');
+    return musicFont.lookupMetric('noteHead.minPadding');
   }
 
   protected ornament: {
@@ -156,9 +162,11 @@ export class Ornament extends Modifier {
    * Legacy ornaments have hard-coded metrics.  If additional ornament types are
    * added, get their metrics here.
    */
-  // eslint-disable-next-line
-  getMetrics(): any {
-    return Tables.currentMusicFont().getMetrics().glyphs.jazzOrnaments[this.ornament.code];
+  getMetrics(): OrnamentMetrics {
+    const ornamentMetrics = Tables.currentMusicFont().getMetrics().ornament;
+
+    if (!ornamentMetrics) throw new RuntimeError('BadMetrics', `ornament missing`);
+    return ornamentMetrics[this.ornament.code];
   }
 
   /**
@@ -172,7 +180,7 @@ export class Ornament extends Modifier {
     this.delayed = false;
 
     this.render_options = {
-      font_scale: 38,
+      font_scale: Tables.NOTATION_FONT_SCALE,
       accidentalLowerPadding: 3,
       accidentalUpperPadding: 3,
     };
@@ -249,8 +257,8 @@ export class Ornament extends Modifier {
     const stemDir = note.getStemDirection();
     const stave = note.checkStave();
 
-    const classString = Object.keys(this.getAttribute('classes')).join(' ');
-    ctx.openGroup(classString, this.getAttribute('id'));
+    this.applyStyle();
+    ctx.openGroup('ornament', this.getAttribute('id'));
 
     // Get stem extents
     const stemExtents = note.checkStem().getExtents();
@@ -294,16 +302,18 @@ export class Ornament extends Modifier {
     // Ajdust x position if ornament is delayed
     if (this.delayed) {
       let delayXShift = 0;
-      const startX = glyphX - (stave.getX() - 10);
+      const startX = glyphX - stave.getNoteStartX();
       if (this.delayXShift !== undefined) {
         delayXShift = this.delayXShift;
       } else {
         delayXShift += this.glyph.getMetrics().width / 2;
-        const nextContext = TickContext.getNextContext(note.getTickContext());
+        const tickables = note.getVoice().getTickables();
+        const index = tickables.indexOf(note);
+        const nextContext = index + 1 < tickables.length ? tickables[index + 1].checkTickContext() : undefined;
         if (nextContext) {
           delayXShift += (nextContext.getX() - startX) * 0.5;
         } else {
-          delayXShift += (stave.getX() + stave.getWidth() - startX) * 0.5;
+          delayXShift += (stave.getX() + stave.getWidth() - glyphX) * 0.5;
         }
         this.delayXShift = delayXShift;
       }
@@ -332,5 +342,6 @@ export class Ornament extends Modifier {
       this.accidentalUpper.render(ctx, glyphX, glyphY);
     }
     ctx.closeGroup();
+    this.restoreStyle();
   }
 }

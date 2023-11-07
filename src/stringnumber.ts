@@ -15,6 +15,13 @@ import { Tables } from './tables';
 import { Category, isStaveNote, isStemmableNote } from './typeguard';
 import { RuntimeError } from './util';
 
+export interface StringNumberMetrics {
+  verticalPadding: number;
+  stemPadding: number;
+  leftPadding: number;
+  rightPadding: number;
+}
+
 export class StringNumber extends Modifier {
   static get CATEGORY(): string {
     return Category.StringNumber;
@@ -27,15 +34,27 @@ export class StringNumber extends Modifier {
     style: FontStyle.NORMAL,
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static get metrics(): any {
-    return Tables.currentMusicFont().getMetrics().glyphs.stringNumber;
+  static get metrics(): StringNumberMetrics {
+    return (
+      Tables.currentMusicFont().getMetrics().stringNumber ?? {
+        verticalPadding: 0,
+        stemPadding: 0,
+        leftPadding: 0,
+        rightPadding: 0,
+      }
+    );
   }
 
   // ## Static Methods
   // Arrange string numbers inside a `ModifierContext`
   static format(nums: StringNumber[], state: ModifierContextState): boolean {
+    /**
+     * The modifier context's left_shift state.
+     */
     const left_shift = state.left_shift;
+    /**
+     * The modifier context's right_shift state.
+     */
     const right_shift = state.right_shift;
     const num_spacing = 1;
 
@@ -43,7 +62,7 @@ export class StringNumber extends Modifier {
 
     const nums_list = [];
     let prev_note = null;
-    let shift_left = 0;
+    let extraXSpaceForDisplacedNotehead = 0;
     let shift_right = 0;
     const modLines = 0;
 
@@ -71,8 +90,8 @@ export class StringNumber extends Modifier {
 
       if (note !== prev_note) {
         for (let n = 0; n < note.keys.length; ++n) {
-          if (left_shift === 0) {
-            shift_left = Math.max(note.getLeftDisplacedHeadPx(), shift_left);
+          if (pos === Modifier.Position.LEFT) {
+            extraXSpaceForDisplacedNotehead = Math.max(note.getLeftDisplacedHeadPx(), extraXSpaceForDisplacedNotehead);
           }
           if (right_shift === 0) {
             shift_right = Math.max(note.getRightDisplacedHeadPx(), shift_right);
@@ -88,7 +107,7 @@ export class StringNumber extends Modifier {
         note,
         num,
         line: glyphLine,
-        shiftL: shift_left,
+        shiftL: extraXSpaceForDisplacedNotehead,
         shiftR: shift_right,
       });
     }
@@ -102,7 +121,6 @@ export class StringNumber extends Modifier {
     let last_line = null;
     let last_note = null;
     for (let i = 0; i < nums_list.length; ++i) {
-      let num_shift = 0;
       const note = nums_list[i].note;
       const pos = nums_list[i].pos;
       const num = nums_list[i].num;
@@ -114,14 +132,15 @@ export class StringNumber extends Modifier {
       }
 
       const num_width = num.getWidth() + num_spacing;
+      let num_x_shift = 0;
       if (pos === Modifier.Position.LEFT) {
-        num.setXShift(left_shift);
-        num_shift = shift_left + num_width; // spacing
-        x_widthL = num_shift > x_widthL ? num_shift : x_widthL;
+        num.setXShift(left_shift + extraXSpaceForDisplacedNotehead);
+        num_x_shift = num_width; // spacing
+        x_widthL = Math.max(num_x_shift, x_widthL);
       } else if (pos === Modifier.Position.RIGHT) {
         num.setXShift(num_shiftR);
-        num_shift += num_width; // spacing
-        x_widthR = num_shift > x_widthR ? num_shift : x_widthR;
+        num_x_shift += num_width; // spacing
+        x_widthR = num_x_shift > x_widthR ? num_x_shift : x_widthR;
       }
       last_line = line;
       last_note = note;

@@ -59,7 +59,7 @@ module.exports = {
   noteheadCircleXDoubleWhole: 'vxx',
   noteheadCircleXWhole: 'vxx',
   noteheadCircleXHalf: 'vxx',
-  noteheadCircleX: 'vxx',
+  noteheadCircleX: 'v3b',
   noteheadCircledDoubleWhole: 'vxx',
   noteheadCircledWhole: 'vxx',
   noteheadCircledHalf: 'vxx',
@@ -135,6 +135,7 @@ module.exports = {
 
   // arel-ezgi-uzdilek accidentals (e440-e44f)
   accidentalBuyukMucennebFlat: 'v39',
+  accidentalBuyukMucennebSharp: null,
   accidentalBakiyeFlat: 'vb7',
   accidentalKomaSharp: 'v51', // same as accidentalQuarterToneSharpStein
   accidentalKucukMucennebSharp: 'v8d',
@@ -162,6 +163,8 @@ module.exports = {
   fermataLongBelow: 'v5f',
   fermataVeryLongAbove: 'v32',
   fermataVeryLongBelow: 'vbd',
+  fermataVeryShortAbove: 'vxx',
+  fermataVeryShortBelow: 'vxx',
   fermataShortAbove: 'vac',
   fermataShortBelow: 'v7e',
   breathMarkComma: 'v6c',

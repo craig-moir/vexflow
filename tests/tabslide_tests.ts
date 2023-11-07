@@ -50,8 +50,7 @@ function setupContext(options: TestOptions, width?: number): { context: RenderCo
   // eslint-disable-next-line
   const context = options.contextBuilder!(options.elementId, 350, 140);
   context.scale(0.9, 0.9);
-  context.fillStyle = '#221';
-  context.strokeStyle = '#221';
+
   context.font = '10pt Arial';
   const stave = new TabStave(10, 10, width || 350).addTabGlyph().setContext(context).draw();
 
@@ -77,7 +76,7 @@ function simple(options: TestOptions, contextBuilder: ContextBuilder): void {
     stave,
     context
   );
-  ok(true, 'Simple Test');
+  options.assert.ok(true, 'Simple Test');
 }
 
 /**
@@ -134,7 +133,7 @@ function multiTest(options: TestOptions, buildTabSlide: (notes: TieNotes) => Tab
     .setContext(context)
     .draw();
 
-  ok(true, 'Single note');
+  options.assert.ok(true, 'Single note');
 
   buildTabSlide({
     first_note: notes[2],
@@ -145,7 +144,7 @@ function multiTest(options: TestOptions, buildTabSlide: (notes: TieNotes) => Tab
     .setContext(context)
     .draw();
 
-  ok(true, 'Chord');
+  options.assert.ok(true, 'Chord');
 
   buildTabSlide({
     first_note: notes[4],
@@ -156,7 +155,7 @@ function multiTest(options: TestOptions, buildTabSlide: (notes: TieNotes) => Tab
     .setContext(context)
     .draw();
 
-  ok(true, 'Single note high-fret');
+  options.assert.ok(true, 'Single note high-fret');
 
   buildTabSlide({
     first_note: notes[6],
@@ -167,7 +166,7 @@ function multiTest(options: TestOptions, buildTabSlide: (notes: TieNotes) => Tab
     .setContext(context)
     .draw();
 
-  ok(true, 'Chord high-fret');
+  options.assert.ok(true, 'Chord high-fret');
 }
 
 function slideUp(options: TestOptions, contextBuilder: ContextBuilder): void {

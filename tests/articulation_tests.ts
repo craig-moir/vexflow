@@ -25,6 +25,7 @@ const ArticulationTests = {
     QUnit.module('Articulation');
     const run = VexFlowTests.runTests;
     run('Articulation - Vertical Placement', verticalPlacement);
+    run('Articulation - Vertical Placement (Glyph codes)', verticalPlacement2);
     run('Articulation - Staccato/Staccatissimo', drawArticulations, { sym1: 'a.', sym2: 'av' });
     run('Articulation - Accent/Tenuto', drawArticulations, { sym1: 'a>', sym2: 'a-' });
     run('Articulation - Marcato/L.H. Pizzicato', drawArticulations, { sym1: 'a^', sym2: 'a+' });
@@ -46,7 +47,7 @@ function drawArticulations(options: TestOptions): void {
   const width = 125 - Stave.defaultPadding;
   const f = VexFlowTests.makeFactory(options, 675, 195);
   const ctx = f.getContext();
-  expect(0);
+  options.assert.expect(0);
   let x = 10;
   const y = 30;
   const score = f.EasyScore();
@@ -150,7 +151,7 @@ function drawFermata(options: TestOptions): void {
     return stave.getWidth();
   };
 
-  expect(0);
+  options.assert.expect(0);
 
   const notesBar1 = [
     f.StaveNote({ keys: ['c/4'], duration: 'q', stem_direction: 1 }),
@@ -182,8 +183,7 @@ function drawFermata(options: TestOptions): void {
 
 function verticalPlacement(options: TestOptions, contextBuilder: ContextBuilder): void {
   const ctx = contextBuilder(options.elementId, 750, 300);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
+
   const staveNote = (noteStruct: StaveNoteStruct) => new StaveNote(noteStruct);
   const stave = new Stave(10, 50, 750).addClef('treble').setContext(ctx).draw();
 
@@ -239,11 +239,72 @@ function verticalPlacement(options: TestOptions, contextBuilder: ContextBuilder)
   ];
 
   Formatter.FormatAndDraw(ctx, stave, notes);
-  ok(true, ' Annotation Placement');
+  options.assert.ok(true, ' Annotation Placement');
+}
+
+function verticalPlacement2(options: TestOptions, contextBuilder: ContextBuilder): void {
+  const ctx = contextBuilder(options.elementId, 750, 300);
+
+  const staveNote = (noteStruct: StaveNoteStruct) => new StaveNote(noteStruct);
+  const stave = new Stave(10, 50, 750).addClef('treble').setContext(ctx).draw();
+
+  const notes = [
+    staveNote({ keys: ['f/4'], duration: 'q' })
+      .addModifier(new Articulation('fermataBelow'), 0)
+      .addModifier(new Articulation('augmentationDot').setPosition(ModifierPosition.BELOW), 0)
+      .addModifier(new Articulation('articTenutoBelow'), 0),
+    staveNote({ keys: ['g/4'], duration: 'q', stem_direction: Stem.DOWN })
+      .addModifier(new Articulation('fermataShortBelow'), 0)
+      .addModifier(new Articulation('augmentationDot').setPosition(ModifierPosition.BELOW), 0)
+      .addModifier(new Articulation('articTenutoBelow'), 0),
+    staveNote({ keys: ['c/5'], duration: 'q' })
+      .addModifier(new Articulation('fermataLongBelow'), 0)
+      .addModifier(new Articulation('augmentationDot').setPosition(ModifierPosition.BELOW), 0)
+      .addModifier(new Articulation('articTenutoBelow'), 0),
+    staveNote({ keys: ['f/4'], duration: 'q' })
+      .addModifier(new Articulation('augmentationDot').setPosition(ModifierPosition.BELOW), 0)
+      .addModifier(new Articulation('articTenutoBelow'), 0)
+      .addModifier(new Articulation('fermataVeryShortBelow'), 0),
+    staveNote({ keys: ['g/4'], duration: 'q', stem_direction: Stem.DOWN })
+      .addModifier(new Articulation('augmentationDot').setPosition(ModifierPosition.BELOW), 0)
+      .addModifier(new Articulation('articTenutoBelow'), 0)
+      .addModifier(new Articulation('fermataVeryLongBelow'), 0),
+    staveNote({ keys: ['c/5'], duration: 'q' })
+      .addModifier(new Articulation('augmentationDot').setPosition(ModifierPosition.BELOW).setBetweenLines(), 0)
+      .addModifier(new Articulation('articTenutoBelow').setBetweenLines(), 0)
+      .addModifier(new Articulation('fermataBelow'), 0),
+    staveNote({ keys: ['a/5'], duration: 'q', stem_direction: Stem.DOWN })
+      .addModifier(new Articulation('fermataAbove'), 0)
+      .addModifier(new Articulation('augmentationDot').setPosition(ModifierPosition.ABOVE), 0)
+      .addModifier(new Articulation('articTenutoAbove'), 0),
+    staveNote({ keys: ['f/5'], duration: 'q' })
+      .addModifier(new Articulation('fermataShortAbove'), 0)
+      .addModifier(new Articulation('augmentationDot').setPosition(ModifierPosition.ABOVE), 0)
+      .addModifier(new Articulation('articTenutoAbove'), 0),
+    staveNote({ keys: ['b/4'], duration: 'q', stem_direction: Stem.DOWN })
+      .addModifier(new Articulation('fermataLongAbove'), 0)
+      .addModifier(new Articulation('augmentationDot').setPosition(ModifierPosition.ABOVE), 0)
+      .addModifier(new Articulation('articTenutoAbove'), 0),
+    staveNote({ keys: ['a/5'], duration: 'q', stem_direction: Stem.DOWN })
+      .addModifier(new Articulation('augmentationDot').setPosition(ModifierPosition.ABOVE), 0)
+      .addModifier(new Articulation('articTenutoAbove'), 0)
+      .addModifier(new Articulation('fermataVeryShortAbove'), 0),
+    staveNote({ keys: ['f/5'], duration: 'q' })
+      .addModifier(new Articulation('augmentationDot').setPosition(ModifierPosition.ABOVE), 0)
+      .addModifier(new Articulation('articTenutoAbove'), 0)
+      .addModifier(new Articulation('fermataVeryLongAbove'), 0),
+    staveNote({ keys: ['b/4'], duration: 'q', stem_direction: Stem.DOWN })
+      .addModifier(new Articulation('augmentationDot').setPosition(ModifierPosition.ABOVE).setBetweenLines(), 0)
+      .addModifier(new Articulation('articTenutoAbove').setBetweenLines(), 0)
+      .addModifier(new Articulation('fermataAbove'), 0),
+  ];
+
+  Formatter.FormatAndDraw(ctx, stave, notes);
+  options.assert.ok(true, ' Annotation Placement (Glyph codes)');
 }
 
 function drawArticulations2(options: TestOptions): void {
-  expect(0);
+  options.assert.expect(0);
   const scale = 0.8;
   const f = VexFlowTests.makeFactory(options, 1500, 195);
 
@@ -428,7 +489,7 @@ function tabNotes(options: TestOptions, contextBuilder: ContextBuilder): void {
 
   voice.draw(ctx, stave);
 
-  ok(true, 'TabNotes successfully drawn');
+  options.assert.ok(true, 'TabNotes successfully drawn');
 }
 
 VexFlowTests.register(ArticulationTests);

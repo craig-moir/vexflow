@@ -34,13 +34,11 @@ const NoteHeadTests = {
 };
 
 function setContextStyle(ctx: RenderContext): void {
-  // TODO: scale() method in SVGContext and CanvasContext should work similarly!
   // The final scale should be 1.8.
-  // ctx.scale(0.9, 0.9);
-  // ctx.scale(2.0, 2.0);
-  ctx.scale(1.8, 1.8);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
+  ctx.scale(0.9, 0.9);
+  ctx.scale(2.0, 2.0);
+  //ctx.scale(1.8, 1.8);
+
   ctx.font = '10pt Arial';
 }
 
@@ -63,7 +61,7 @@ function basic(options: TestOptions, contextBuilder: ContextBuilder): void {
 
   voice.draw(ctx, stave);
 
-  ok('Basic NoteHead test');
+  options.assert.ok('Basic NoteHead test');
 }
 
 /**
@@ -118,8 +116,8 @@ function variousHeads(options: TestOptions, contextBuilder: ContextBuilder): voi
       note.stem_direction = staveNum === 0 ? -1 : 1;
       const staveNote = showNote(note, stave, ctx, (i + 1) * 25);
 
-      ok(staveNote.getX() > 0, 'Note ' + i + ' has X value');
-      ok(staveNote.getYs().length > 0, 'Note ' + i + ' has Y values');
+      options.assert.ok(staveNote.getX() > 0, 'Note ' + i + ' has X value');
+      options.assert.ok(staveNote.getYs().length > 0, 'Note ' + i + ' has Y values');
     }
   }
 }
@@ -187,8 +185,8 @@ function variousNoteHeads(options: TestOptions, contextBuilder: ContextBuilder):
       note.stem_direction = staveNum === 0 ? -1 : 1;
       const staveNote = showNote(note, stave, ctx, (i + 1) * 25);
 
-      ok(staveNote.getX() > 0, 'Note ' + i + ' has X value');
-      ok(staveNote.getYs().length > 0, 'Note ' + i + ' has Y values');
+      options.assert.ok(staveNote.getX() > 0, 'Note ' + i + ' has X value');
+      options.assert.ok(staveNote.getYs().length > 0, 'Note ' + i + ' has Y values');
     }
   }
 }
@@ -213,8 +211,8 @@ function variousNoteHeads2(options: TestOptions, contextBuilder: ContextBuilder)
     const note = notes[i];
     const staveNote = showNote(note, stave, ctx, (i + 1) * 25);
 
-    ok(staveNote.getX() > 0, 'Note ' + i + ' has X value');
-    ok(staveNote.getYs().length > 0, 'Note ' + i + ' has Y values');
+    options.assert.ok(staveNote.getX() > 0, 'Note ' + i + ' has X value');
+    options.assert.ok(staveNote.getYs().length > 0, 'Note ' + i + ' has Y values');
   }
 }
 
@@ -253,8 +251,8 @@ function drumChordHeads(options: TestOptions, contextBuilder: ContextBuilder): v
       note.stem_direction = h === 0 ? -1 : 1;
       const staveNote = showNote(note, stave, ctx, (i + 1) * 25);
 
-      ok(staveNote.getX() > 0, 'Note ' + i + ' has X value');
-      ok(staveNote.getYs().length > 0, 'Note ' + i + ' has Y values');
+      options.assert.ok(staveNote.getX() > 0, 'Note ' + i + ' has X value');
+      options.assert.ok(staveNote.getYs().length > 0, 'Note ' + i + ' has Y values');
     }
   }
 }
@@ -270,8 +268,8 @@ function basicBoundingBoxes(options: TestOptions, contextBuilder: ContextBuilder
   const formatter = new Formatter();
   const voice = new Voice(Flow.TIME4_4).setStrict(false);
 
-  const nh1 = new NoteHead({ duration: '4', line: 3 });
-  const nh2 = new NoteHead({ duration: '2', line: 2.5 });
+  const nh1 = new StaveNote({ keys: ['b/4'], duration: '4' });
+  const nh2 = new StaveNote({ keys: ['a/4'], duration: '2' });
   const nh3 = new NoteHead({ duration: '1', line: 0 });
 
   voice.addTickables([nh1, nh2, nh3]);
@@ -279,12 +277,12 @@ function basicBoundingBoxes(options: TestOptions, contextBuilder: ContextBuilder
 
   voice.draw(ctx, stave);
 
-  for (const bb of [nh1.getBoundingBox(), nh2.getBoundingBox(), nh3.getBoundingBox()]) {
+  for (const bb of [nh1.noteHeads[0].getBoundingBox(), nh2.noteHeads[0].getBoundingBox(), nh3.getBoundingBox()]) {
     ctx.rect(bb.getX(), bb.getY(), bb.getW(), bb.getH());
   }
   ctx.stroke();
 
-  ok('NoteHead Bounding Boxes');
+  options.assert.ok('NoteHead Bounding Boxes');
 }
 
 VexFlowTests.register(NoteHeadTests);

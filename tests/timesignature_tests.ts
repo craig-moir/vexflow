@@ -13,7 +13,7 @@ import { TimeSignature } from '../src/timesignature';
 const TimeSignatureTests = {
   Start(): void {
     QUnit.module('TimeSignature');
-    test('Time Signature Parser', parser);
+    QUnit.test('Time Signature Parser', parser);
     const run = VexFlowTests.runTests;
     run('Basic Time Signatures', basic);
     run('Big Signature Test', big);
@@ -27,18 +27,27 @@ const TimeSignatureTests = {
   },
 };
 
-function parser(): void {
+function parser(assert: Assert): void {
   const timeSig = new TimeSignature();
+  assert.equal(timeSig.getTimeSpec(), '4/4', 'default time signature is 4/4');
 
   const mustFail = ['asdf', '123/', '/10', '/', '4567', 'C+', '1+', '+1', '(3+', '+3)', '()', '(+)'];
   mustFail.forEach((invalidString) => {
-    throws(() => timeSig.parseTimeSpec(invalidString), /BadTimeSignature/);
+    assert.throws(() => timeSig.parseTimeSpec(invalidString), /BadTimeSignature/);
   });
 
   const mustPass = ['4/4', '10/12', '1/8', '1234567890/1234567890', 'C', 'C|', '+'];
   mustPass.forEach((validString) => timeSig.parseTimeSpec(validString));
 
-  ok(true, 'all pass');
+  timeSig.setTimeSig('4/4');
+  assert.equal(timeSig.getIsNumeric(), true, '4/4 is numeric');
+  assert.equal(timeSig.getLine(), 0, 'digits are on line 0');
+  timeSig.setTimeSig('C|');
+  assert.equal(timeSig.getTimeSpec(), 'C|', 'timeSpec changed to C|');
+  assert.equal(timeSig.getIsNumeric(), false, 'cut time is not numeric');
+  assert.equal(timeSig.getLine(), 2, 'cut/common are on line 2');
+
+  assert.ok(true, 'all pass');
 }
 
 function basic(options: TestOptions, contextBuilder: ContextBuilder): void {
@@ -61,7 +70,7 @@ function basic(options: TestOptions, contextBuilder: ContextBuilder): void {
     .setContext(ctx)
     .draw();
 
-  ok(true, 'all pass');
+  options.assert.ok(true, 'all pass');
 }
 
 function big(options: TestOptions, contextBuilder: ContextBuilder): void {
@@ -75,7 +84,7 @@ function big(options: TestOptions, contextBuilder: ContextBuilder): void {
     .setContext(ctx)
     .draw();
 
-  ok(true, 'all pass');
+  options.assert.ok(true, 'all pass');
 }
 
 function additive(options: TestOptions, contextBuilder: ContextBuilder): void {
@@ -83,7 +92,7 @@ function additive(options: TestOptions, contextBuilder: ContextBuilder): void {
 
   new Stave(10, 10, 300).addTimeSignature('2+3+2/8').setContext(ctx).draw();
 
-  ok(true, 'all pass');
+  options.assert.ok(true, 'all pass');
 }
 
 function alternating(options: TestOptions, contextBuilder: ContextBuilder): void {
@@ -91,7 +100,7 @@ function alternating(options: TestOptions, contextBuilder: ContextBuilder): void
 
   new Stave(10, 10, 300).addTimeSignature('6/8').addTimeSignature('+').addTimeSignature('3/4').setContext(ctx).draw();
 
-  ok(true, 'all pass');
+  options.assert.ok(true, 'all pass');
 }
 
 function interchangeable(options: TestOptions, contextBuilder: ContextBuilder): void {
@@ -99,7 +108,7 @@ function interchangeable(options: TestOptions, contextBuilder: ContextBuilder): 
 
   new Stave(10, 10, 300).addTimeSignature('3/4').addTimeSignature('-').addTimeSignature('2/4').setContext(ctx).draw();
 
-  ok(true, 'all pass');
+  options.assert.ok(true, 'all pass');
 }
 
 function agregate(options: TestOptions, contextBuilder: ContextBuilder): void {
@@ -114,7 +123,7 @@ function agregate(options: TestOptions, contextBuilder: ContextBuilder): void {
     .setContext(ctx)
     .draw();
 
-  ok(true, 'all pass');
+  options.assert.ok(true, 'all pass');
 }
 
 function complex(options: TestOptions, contextBuilder: ContextBuilder): void {
@@ -127,7 +136,7 @@ function complex(options: TestOptions, contextBuilder: ContextBuilder): void {
     .setContext(ctx)
     .draw();
 
-  ok(true, 'all pass');
+  options.assert.ok(true, 'all pass');
 }
 
 function multiple(options: TestOptions, contextBuilder: ContextBuilder): void {
@@ -144,11 +153,13 @@ function multiple(options: TestOptions, contextBuilder: ContextBuilder): void {
   const stave2 = new Stave(15, 110, 300).addClef('treble').addTimeSignature('4/4').setContext(ctx).draw();
   const stave3 = new Stave(15, 220, 300).addClef('bass').addTimeSignature('4/4').setContext(ctx).draw();
 
+  Stave.formatBegModifiers([stave1, stave2, stave3]);
+
   new StaveConnector(stave1, stave2).setType('single').setContext(ctx).draw();
   new StaveConnector(stave2, stave3).setType('single').setContext(ctx).draw();
   new StaveConnector(stave2, stave3).setType('brace').setContext(ctx).draw();
 
-  ok(true, 'all pass');
+  options.assert.ok(true, 'all pass');
 }
 
 function change(options: TestOptions): void {
@@ -170,7 +181,7 @@ function change(options: TestOptions): void {
   f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
   f.draw();
 
-  ok(true, 'all pass');
+  options.assert.ok(true, 'all pass');
 }
 
 VexFlowTests.register(TimeSignatureTests);

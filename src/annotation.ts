@@ -73,7 +73,7 @@ export class Annotation extends Modifier {
   // words don't run into each other.
   static get minAnnotationPadding(): number {
     const musicFont = Tables.currentMusicFont();
-    return musicFont.lookupMetric('glyphs.noteHead.minPadding');
+    return musicFont.lookupMetric('noteHead.minPadding');
   }
   /** Arrange annotations within a `ModifierContext` */
   static format(annotations: Annotation[], state: ModifierContextState): boolean {
@@ -86,11 +86,11 @@ export class Annotation extends Modifier {
       const annotation = annotations[i];
       const textFormatter = TextFormatter.create(annotation.textFont);
       // Text height is expressed in fractional stave spaces.
-      const textLines = (5 + textFormatter.maxHeight) / Tables.STAVE_LINE_DISTANCE;
+      const textLines = (2 + textFormatter.getYForStringInPx(annotation.text).height) / Tables.STAVE_LINE_DISTANCE;
       let verticalSpaceNeeded = textLines;
 
       const note = annotation.checkAttachedNote();
-      const glyphWidth = note.getGlyph().getWidth();
+      const glyphWidth = note.getGlyphProps().getWidth();
       // Get the text width from the font metrics.
       const textWidth = textFormatter.getWidthForTextInPx(annotation.text);
       if (annotation.horizontalJustification === AnnotationHorizontalJustify.LEFT) {
@@ -241,12 +241,11 @@ export class Annotation extends Modifier {
     // still need to save context state just before this, since we will be
     // changing ctx parameters below.
     this.applyStyle();
-    const classString = Object.keys(this.getAttribute('classes')).join(' ');
-    ctx.openGroup(classString, this.getAttribute('id'));
+    ctx.openGroup('annotation', this.getAttribute('id'));
     ctx.setFont(this.textFont);
 
-    const text_width = ctx.measureText(this.text).width;
-    const text_height = textFormatter.maxHeight + 2;
+    const text_width = textFormatter.getWidthForTextInPx(this.text);
+    const text_height = textFormatter.getYForStringInPx(this.text).height;
     let x;
     let y;
 
@@ -285,7 +284,8 @@ export class Annotation extends Modifier {
       const yb = stave.getYForBottomText(this.text_line);
       y = yt + (yb - yt) / 2 + text_height / 2;
     } else if (this.verticalJustification === AnnotationVerticalJustify.TOP) {
-      y = note.getYs()[0] - (this.text_line + 1) * Tables.STAVE_LINE_DISTANCE;
+      const topY = Math.min(...note.getYs());
+      y = topY - (this.text_line + 1) * Tables.STAVE_LINE_DISTANCE;
       if (has_stem && stemDirection === Stem.UP) {
         // If the stem is above the stave already, go with default line width vs. actual
         // since the lines between don't really matter.

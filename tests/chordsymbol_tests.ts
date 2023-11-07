@@ -56,8 +56,6 @@ function withModifiers(options: TestOptions): void {
   const f = VexFlowTests.makeFactory(options, 750, 580);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
 
   function draw(chords: ChordSymbol[], y: number) {
     const notes = [
@@ -143,15 +141,13 @@ function withModifiers(options: TestOptions): void {
   ];
   draw(chords, 240);
 
-  ok(true, 'Font Size Chord Symbol');
+  options.assert.ok(true, 'Font Size Chord Symbol');
 }
 
 function fontSize(options: TestOptions): void {
   const f = VexFlowTests.makeFactory(options, 750, 580);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
 
   function draw(chords: ChordSymbol[], y: number) {
     const stave = f.Stave({ x: 10, y, width: 450 }).addClef('treble');
@@ -241,15 +237,13 @@ function fontSize(options: TestOptions): void {
   ];
   draw(chords, 240);
 
-  ok(true, 'Font Size Chord Symbol');
+  options.assert.ok(true, 'Font Size Chord Symbol');
 }
 
 function kern(options: TestOptions): void {
   const f = VexFlowTests.makeFactory(options, 650 * 1.5, 650);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
 
   function draw(chords: ChordSymbol[], y: number) {
     const stave = f.Stave({ x: 10, y, width: 450 }).addClef('treble').setContext(ctx).draw();
@@ -298,21 +292,23 @@ function kern(options: TestOptions): void {
   ];
   draw(chords, 310);
 
-  ok(true, 'Chord Symbol Kerning Tests');
+  options.assert.ok(true, 'Chord Symbol Kerning Tests');
 }
 
 function top(options: TestOptions): void {
   const f = VexFlowTests.makeFactory(options, 650 * 1.5, 650);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
+
+  // Helper function for creating StaveNotes.
+  const note = (factory: Factory, keys: string[], duration: string, chordSymbol: ChordSymbol, direction: number) =>
+    factory.StaveNote({ keys, duration, stem_direction: direction }).addModifier(chordSymbol, 0);
 
   function draw(c1: ChordSymbol, c2: ChordSymbol, y: number) {
     const stave = f.Stave({ x: 10, y, width: 450 }).addClef('treble').setContext(ctx).draw();
     const notes = [
-      note(f, ['e/4', 'a/4', 'd/5'], 'h', c1).addModifier(new Accidental('b'), 0),
-      note(f, ['c/4', 'e/4', 'b/4'], 'h', c2),
+      note(f, ['e/4', 'a/4', 'd/5'], 'h', c1, 1).addModifier(new Accidental('b'), 0),
+      note(f, ['c/5', 'e/5', 'c/6'], 'h', c2, -1),
     ];
     const score = f.EasyScore();
     const voice = score.voice(notes, { time: '4/4' });
@@ -351,15 +347,13 @@ function top(options: TestOptions): void {
   chord2 = f.ChordSymbol().addText('C').addTextSuperscript('sus4');
   draw(chord1, chord2, 240);
 
-  ok(true, 'Top Chord Symbol');
+  options.assert.ok(true, 'Top Chord Symbol');
 }
 
 function topJustify(options: TestOptions): void {
   const f = VexFlowTests.makeFactory(options, 500 * 1.5, 680);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
 
   function draw(chord1: ChordSymbol, chord2: ChordSymbol, y: number) {
     const stave = new Stave(10, y, 450).addClef('treble').setContext(ctx).draw();
@@ -401,15 +395,13 @@ function topJustify(options: TestOptions): void {
   chord2 = f.ChordSymbol({ hJustify: 'centerStem' }).addText('C').addTextSuperscript('Maj.');
   draw(chord1, chord2, 340);
 
-  ok(true, 'Top Chord Justified');
+  options.assert.ok(true, 'Top Chord Justified');
 }
 
 function bottom(options: TestOptions): void {
   const f = VexFlowTests.makeFactory(options, 600 * 1.5, 230);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
 
   function draw(chords: ChordSymbol[], y: number) {
     const stave = new Stave(10, y, 400).addClef('treble').setContext(ctx).draw();
@@ -431,15 +423,13 @@ function bottom(options: TestOptions): void {
   ];
 
   draw(chords, 10);
-  ok(true, 'Bottom Chord Symbol');
+  options.assert.ok(true, 'Bottom Chord Symbol');
 }
 
 function bottomStemDown(options: TestOptions): void {
   const f = VexFlowTests.makeFactory(options, 600 * 1.5, 330);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
 
   function draw(chords: ChordSymbol[], y: number) {
     // Helper function to create a StaveNote with a ChordSymbol and the stem pointing down.
@@ -464,15 +454,13 @@ function bottomStemDown(options: TestOptions): void {
   ];
 
   draw(chords, 10);
-  ok(true, 'Bottom Stem Down Chord Symbol');
+  options.assert.ok(true, 'Bottom Stem Down Chord Symbol');
 }
 
 function doubleBottom(options: TestOptions): void {
   const f = VexFlowTests.makeFactory(options, 600 * 1.5, 260);
   const ctx = f.getContext();
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
 
   function draw(chords: ChordSymbol[], chords2: ChordSymbol[], y: number) {
     // Helper function to create a StaveNote with two ChordSymbols attached.
@@ -503,7 +491,7 @@ function doubleBottom(options: TestOptions): void {
   ];
 
   draw(chords1, chords2, 10);
-  ok(true, '2 Bottom Chord Symbol');
+  options.assert.ok(true, '2 Bottom Chord Symbol');
 }
 
 VexFlowTests.register(ChordSymbolTests);

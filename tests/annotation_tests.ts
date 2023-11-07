@@ -100,14 +100,13 @@ function lyrics(options: TestOptions): void {
     x = x + width;
     fontSize = fontSize + 2;
   }
-  ok(true);
+  options.assert.ok(true);
 }
 
 function simple(options: TestOptions, contextBuilder: ContextBuilder): void {
   const ctx = contextBuilder(options.elementId, 500, 240);
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
+
   ctx.font = '10pt Arial, sans-serif';
   const stave = new TabStave(10, 10, 450).addTabGlyph().setContext(ctx).draw();
 
@@ -126,14 +125,13 @@ function simple(options: TestOptions, contextBuilder: ContextBuilder): void {
   ];
 
   Formatter.FormatAndDraw(ctx, stave, notes);
-  ok(true, 'Simple Annotation');
+  options.assert.ok(true, 'Simple Annotation');
 }
 
 function standard(options: TestOptions, contextBuilder: ContextBuilder): void {
   const ctx = contextBuilder(options.elementId, 500, 240);
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
+
   const stave = new Stave(10, 10, 450).addClef('treble').setContext(ctx).draw();
 
   const annotation = (text: string) => new Annotation(text).setFont(Font.SERIF, FONT_SIZE, 'normal', 'italic');
@@ -144,7 +142,7 @@ function standard(options: TestOptions, contextBuilder: ContextBuilder): void {
   ];
 
   Formatter.FormatAndDraw(ctx, stave, notes);
-  ok(true, 'Standard Notation Annotation');
+  options.assert.ok(true, 'Standard Notation Annotation');
 }
 
 function styling(options: TestOptions, contextBuilder: ContextBuilder): void {
@@ -164,14 +162,13 @@ function styling(options: TestOptions, contextBuilder: ContextBuilder): void {
   ];
 
   Formatter.FormatAndDraw(ctx, stave, notes);
-  ok(true, 'Standard Notation Annotation');
+  options.assert.ok(true, 'Standard Notation Annotation');
 }
 
 function harmonic(options: TestOptions, contextBuilder: ContextBuilder): void {
   const ctx = contextBuilder(options.elementId, 500, 240);
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
+
   ctx.font = '10pt Arial';
   const stave = new TabStave(10, 10, 450).addTabGlyph().setContext(ctx).draw();
 
@@ -192,13 +189,12 @@ function harmonic(options: TestOptions, contextBuilder: ContextBuilder): void {
   ];
 
   Formatter.FormatAndDraw(ctx, stave, notes);
-  ok(true, 'Simple Annotation');
+  options.assert.ok(true, 'Simple Annotation');
 }
 
 function picking(options: TestOptions, contextBuilder: ContextBuilder): void {
   const ctx = contextBuilder(options.elementId, 500, 240);
-  ctx.setFillStyle('#221');
-  ctx.setStrokeStyle('#221');
+
   ctx.setFont(Font.SANS_SERIF, FONT_SIZE);
   const stave = new TabStave(10, 10, 450).addTabGlyph().setContext(ctx).draw();
 
@@ -235,12 +231,11 @@ function picking(options: TestOptions, contextBuilder: ContextBuilder): void {
   ];
 
   Formatter.FormatAndDraw(ctx, stave, notes);
-  ok(true, 'Fingerpicking');
+  options.assert.ok(true, 'Fingerpicking');
 }
 function placement(options: TestOptions, contextBuilder: ContextBuilder): void {
   const ctx = contextBuilder(options.elementId, 750, 300);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
+
   const stave = new Stave(10, 50, 750).addClef('treble').setContext(ctx).draw();
 
   const annotation = (text: string, fontSize: number, vj: number) =>
@@ -298,14 +293,13 @@ function placement(options: TestOptions, contextBuilder: ContextBuilder): void {
   ];
 
   Formatter.FormatAndDraw(ctx, stave, notes);
-  ok(true, ' Annotation Placement');
+  options.assert.ok(true, ' Annotation Placement');
 }
 
 function bottom(options: TestOptions, contextBuilder: ContextBuilder): void {
   const ctx = contextBuilder(options.elementId, 500, 240);
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
+
   const stave = new Stave(10, 10, 300).addClef('treble').setContext(ctx).draw();
 
   const annotation = (text: string) =>
@@ -319,14 +313,13 @@ function bottom(options: TestOptions, contextBuilder: ContextBuilder): void {
   ];
 
   Formatter.FormatAndDraw(ctx, stave, notes);
-  ok(true, 'Bottom Annotation');
+  options.assert.ok(true, 'Bottom Annotation');
 }
 
 function bottomWithBeam(options: TestOptions, contextBuilder: ContextBuilder): void {
   const ctx = contextBuilder(options.elementId, 500, 240);
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
+
   const stave = new Stave(10, 10, 300).addClef('treble').setContext(ctx).draw();
 
   const notes = [
@@ -348,14 +341,12 @@ function bottomWithBeam(options: TestOptions, contextBuilder: ContextBuilder): v
 
   Formatter.FormatAndDraw(ctx, stave, notes);
   beam.setContext(ctx).draw();
-  ok(true, 'Bottom Annotation with Beams');
+  options.assert.ok(true, 'Bottom Annotation with Beams');
 }
 
 function justificationStemUp(options: TestOptions, contextBuilder: ContextBuilder): void {
   const ctx = contextBuilder(options.elementId, 650, 950);
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
 
   const annotation = (text: string, hJustification: number, vJustification: number) =>
     new Annotation(text)
@@ -369,21 +360,19 @@ function justificationStemUp(options: TestOptions, contextBuilder: ContextBuilde
     const notes = [
       staveNote({ keys: ['c/3'], duration: 'q' }).addModifier(annotation('Text', 1, v), 0),
       staveNote({ keys: ['c/4'], duration: 'q' }).addModifier(annotation('Text', 2, v), 0),
-      staveNote({ keys: ['c/5'], duration: 'q' }).addModifier(annotation('Text', 3, v), 0),
+      staveNote({ keys: ['c/4', 'e/4', 'c/5'], duration: 'q' }).addModifier(annotation('Text', 3, v), 0),
       staveNote({ keys: ['c/6'], duration: 'q' }).addModifier(annotation('Text', 4, v), 0),
     ];
 
     Formatter.FormatAndDraw(ctx, stave, notes);
   }
 
-  ok(true, 'Test Justification Annotation');
+  options.assert.ok(true, 'Test Justification Annotation');
 }
 
 function justificationStemDown(options: TestOptions, contextBuilder: ContextBuilder): void {
   const ctx = contextBuilder(options.elementId, 650, 1000);
   ctx.scale(1.5, 1.5);
-  ctx.fillStyle = '#221';
-  ctx.strokeStyle = '#221';
 
   const annotation = (text: string, hJustification: number, vJustification: number) =>
     new Annotation(text)
@@ -395,14 +384,17 @@ function justificationStemDown(options: TestOptions, contextBuilder: ContextBuil
     const stave = new Stave(10, (v - 1) * 150 + 40, 400).addClef('treble').setContext(ctx).draw();
     const notes = [
       staveNote({ keys: ['c/3'], duration: 'q', stem_direction: -1 }).addModifier(annotation('Text', 1, v), 0),
-      staveNote({ keys: ['c/4'], duration: 'q', stem_direction: -1 }).addModifier(annotation('Text', 2, v), 0),
+      staveNote({ keys: ['c/4', 'e/4', 'c/5'], duration: 'q', stem_direction: -1 }).addModifier(
+        annotation('Text', 2, v),
+        0
+      ),
       staveNote({ keys: ['c/5'], duration: 'q', stem_direction: -1 }).addModifier(annotation('Text', 3, v), 0),
       staveNote({ keys: ['c/6'], duration: 'q', stem_direction: -1 }).addModifier(annotation('Text', 4, v), 0),
     ];
     Formatter.FormatAndDraw(ctx, stave, notes);
   }
 
-  ok(true, 'Test Justification Annotation');
+  options.assert.ok(true, 'Test Justification Annotation');
 }
 
 function tabNotes(options: TestOptions, contextBuilder: ContextBuilder): void {
@@ -485,7 +477,7 @@ function tabNotes(options: TestOptions, contextBuilder: ContextBuilder): void {
 
   voice.draw(ctx, stave);
 
-  ok(true, 'TabNotes successfully drawn');
+  options.assert.ok(true, 'TabNotes successfully drawn');
 }
 
 VexFlowTests.register(AnnotationTests);

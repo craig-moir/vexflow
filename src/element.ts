@@ -7,17 +7,14 @@ import { Font, FontInfo, FontStyle, FontWeight } from './font';
 import { Registry } from './registry';
 import { RenderContext } from './rendercontext';
 import { Category } from './typeguard';
-import { defined } from './util';
+import { defined, prefix } from './util';
 
 /** Element attributes. */
 export interface ElementAttributes {
-  // eslint-disable-next-line
-  [name: string]: any;
+  [name: string]: string | undefined;
   id: string;
-  // eslint-disable-next-line
-  el?: any;
   type: string;
-  classes: Record<string, boolean>;
+  class: string;
 }
 
 /** Element style */
@@ -61,12 +58,19 @@ export interface ElementStyle {
 /**
  * Element implements a generic base class for VexFlow, with implementations
  * of general functions and properties that can be inherited by all VexFlow elements.
+ *
+ * The Element is an abstract class that needs to be subclassed to work. It handles
+ * style and text-font properties for the Element and any child elements, along with
+ * working with the Registry to create unique ids, but does not have any tools for
+ * formatting x or y positions or connections to a Stave.
  */
 export abstract class Element {
   static get CATEGORY(): string {
     return Category.Element;
   }
 
+  // all Element objects keep a list of children that they are responsible and which
+  // inherit the style of their parents.
   protected children: Element[] = [];
   protected static ID: number = 1000;
   protected static newID(): string {
@@ -101,9 +105,8 @@ export abstract class Element {
   constructor() {
     this.attrs = {
       id: Element.newID(),
-      el: undefined,
       type: this.getCategory(),
-      classes: {},
+      class: '',
     };
 
     this.rendered = false;
@@ -112,6 +115,15 @@ export abstract class Element {
     Registry.getDefaultRegistry()?.register(this);
   }
 
+  /**
+   * Adds a child Element to the Element, which lets it inherit the
+   * same style as the parent when setGroupStyle() is called.
+   *
+   * Examples of children are noteheads and stems.  Modifiers such
+   * as Accidentals are generally not set as children.
+   *
+   * Note that StaveNote calls setGroupStyle() when setStyle() is called.
+   */
   addChildElement(child: Element): this {
     this.children.push(child);
     return this;
@@ -143,7 +155,7 @@ export abstract class Element {
    * element.drawWithStyle();
    * ```
    */
-  setStyle(style: ElementStyle): this {
+  setStyle(style: ElementStyle | undefined): this {
     this.style = style;
     return this;
   }
@@ -190,7 +202,7 @@ export abstract class Element {
 
   /**
    * Draw the element and all its sub-elements (ie.: Modifiers in a Stave)
-   * with the element style.
+   * with the element's style (see `getStyle()` and `setStyle()`)
    */
   drawWithStyle(): void {
     this.checkContext();
@@ -205,12 +217,15 @@ export abstract class Element {
 
   /** Check if it has a class label (An element can have multiple class labels).  */
   hasClass(className: string): boolean {
-    return this.attrs.classes[className] === true;
+    if (!this.attrs.class) return false;
+    return this.attrs.class?.split(' ').indexOf(className) != -1;
   }
 
   /** Add a class label (An element can have multiple class labels).  */
   addClass(className: string): this {
-    this.attrs.classes[className] = true;
+    if (this.hasClass(className)) return this;
+    if (!this.attrs.class) this.attrs.class = `${className}`;
+    else this.attrs.class = `${this.attrs.class} ${className}`;
     this.registry?.onUpdate({
       id: this.attrs.id,
       name: 'class',
@@ -222,7 +237,12 @@ export abstract class Element {
 
   /** Remove a class label (An element can have multiple class labels).  */
   removeClass(className: string): this {
-    delete this.attrs.classes[className];
+    if (!this.hasClass(className)) return this;
+    const arr = this.attrs.class?.split(' ');
+    if (arr) {
+      arr.splice(arr.indexOf(className));
+      this.attrs.class = arr.join(' ');
+    }
     this.registry?.onUpdate({
       id: this.attrs.id,
       name: 'class',
@@ -254,15 +274,21 @@ export abstract class Element {
     return this.attrs;
   }
 
-  /** Return an attribute. */
+  /** Return an attribute, such as 'id', 'type' or 'class'. */
   // eslint-disable-next-line
   getAttribute(name: string): any {
     return this.attrs[name];
   }
 
-  /** Set an attribute. */
-  // eslint-disable-next-line
-  setAttribute(name: string, value: any): this {
+  /** Return associated SVGElement. */
+  getSVGElement(suffix: string = ''): SVGElement | undefined {
+    const id = prefix(this.attrs.id + suffix);
+    const element = document.getElementById(id);
+    if (element) return element as unknown as SVGElement;
+  }
+
+  /** Set an attribute such as 'id', 'class', or 'type'. */
+  setAttribute(name: string, value: string | undefined): this {
     const oldID = this.attrs.id;
     const oldValue = this.attrs[name];
     this.attrs[name] = value;
@@ -276,18 +302,18 @@ export abstract class Element {
     return this.boundingBox;
   }
 
-  /** Return the context. */
+  /** Return the context, such as an SVGContext or CanvasContext object. */
   getContext(): RenderContext | undefined {
     return this.context;
   }
 
-  /** Set the context. */
+  /** Set the context to an SVGContext or CanvasContext object */
   setContext(context?: RenderContext): this {
     this.context = context;
     return this;
   }
 
-  /** Validate and return the context. */
+  /** Validate and return the rendering context. */
   checkContext(): RenderContext {
     return defined(this.context, 'NoContext', 'No rendering context attached to instance.');
   }
@@ -296,19 +322,24 @@ export abstract class Element {
   // Font Handling
 
   /**
-   * Provide a CSS compatible font string (e.g., 'bold 16px Arial').
+   * Provide a CSS compatible font string (e.g., 'bold 16px Arial') that will be applied
+   * to text (not glyphs).
    */
   set font(f: string) {
     this.setFont(f);
   }
 
-  /** Returns the CSS compatible font string. */
+  /** Returns the CSS compatible font string for the text font. */
   get font(): string {
     return Font.toCSSString(this.textFont);
   }
 
   /**
-   * Set the element's font family, size, weight, style (e.g., `Arial`, `10pt`, `bold`, `italic`).
+   * Set the element's text font family, size, weight, style
+   * (e.g., `Arial`, `10pt`, `bold`, `italic`).
+   *
+   * This attribute does not determine the font used for musical Glyphs like treble clefs.
+   *
    * @param font is 1) a `FontInfo` object or
    *                2) a string formatted as CSS font shorthand (e.g., 'bold 10pt Arial') or
    *                3) a string representing the font family (at least one of `size`, `weight`, or `style` must also be provided).
@@ -354,6 +385,10 @@ export abstract class Element {
     return this;
   }
 
+  /**
+   * Get the css string describing this Element's text font. e.g.,
+   * 'bold 10pt Arial'.
+   */
   getFont(): string {
     if (!this.textFont) {
       this.resetFont();
