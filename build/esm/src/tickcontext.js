@@ -16,7 +16,7 @@ export class TickContext {
         this.maxTickable = undefined;
         this.minTicks = undefined;
         this.minTickable = undefined;
-        this.padding = 1;
+        this.padding = -0.1;
         this.x = 0;
         this.xBase = 0;
         this.xOffset = 0;

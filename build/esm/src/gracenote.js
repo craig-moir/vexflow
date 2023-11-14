@@ -10,14 +10,14 @@ export class GraceNote extends StaveNote {
         return 2;
     }
     static get SCALE() {
-        return 0.66;
+        return 0.45;
     }
     constructor(noteStruct) {
         super(Object.assign({ glyph_font_scale: Tables.NOTATION_FONT_SCALE * GraceNote.SCALE, stroke_px: GraceNote.LEDGER_LINE_OFFSET }, noteStruct));
         this.slash = noteStruct.slash || false;
         this.slur = true;
         this.buildNoteHeads();
-        this.width = 3;
+        this.width = 0;
     }
     getStemExtension() {
         if (this.stem_extension_override) {

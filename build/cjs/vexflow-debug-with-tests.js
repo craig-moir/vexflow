@@ -1,5 +1,5 @@
 /*!
- * VexFlow 4.2.1   2023-11-09T17:19:19.981Z   8904473ef49ba7cfbe070ff009b8f1e8cca3e673
+ * VexFlow 4.2.1   2023-11-14T11:47:15.681Z   706d517a8ab8b2ec16e57ee5c8f8e903a6c44166
  * Copyright (c) 2010 Mohit Muthanna Cheppudira <mohit@muthanna.com>
  * https://www.vexflow.com   https://github.com/0xfe/vexflow
  */
@@ -30,8 +30,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "VERSION": () => (/* binding */ VERSION)
 /* harmony export */ });
 const VERSION = '4.2.1';
-const ID = '8904473ef49ba7cfbe070ff009b8f1e8cca3e673';
-const DATE = '2023-11-09T17:19:19.981Z';
+const ID = '706d517a8ab8b2ec16e57ee5c8f8e903a6c44166';
+const DATE = '2023-11-14T11:47:15.681Z';
 
 
 /***/ }),
@@ -21324,14 +21324,14 @@ class GraceNote extends _stavenote__WEBPACK_IMPORTED_MODULE_0__.StaveNote {
         return 2;
     }
     static get SCALE() {
-        return 0.66;
+        return 0.45;
     }
     constructor(noteStruct) {
         super(Object.assign({ glyph_font_scale: _tables__WEBPACK_IMPORTED_MODULE_2__.Tables.NOTATION_FONT_SCALE * GraceNote.SCALE, stroke_px: GraceNote.LEDGER_LINE_OFFSET }, noteStruct));
         this.slash = noteStruct.slash || false;
         this.slur = true;
         this.buildNoteHeads();
-        this.width = 3;
+        this.width = 0;
     }
     getStemExtension() {
         if (this.stem_extension_override) {
@@ -34250,7 +34250,7 @@ class TickContext {
         this.maxTickable = undefined; // Biggest tickable
         this.minTicks = undefined; // this can remian null if all tickables have ignore_ticks
         this.minTickable = undefined;
-        this.padding = 1; // padding on each side (width += padding * 2)
+        this.padding = -0.1; // padding on each side (width += padding * 2)
         this.x = 0;
         this.xBase = 0; // base x position without xOffset
         this.xOffset = 0; // xBase and xOffset are an alternative way to describe x (x = xB + xO)
