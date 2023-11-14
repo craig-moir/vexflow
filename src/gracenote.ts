@@ -20,7 +20,7 @@ export class GraceNote extends StaveNote {
   }
 
   static get SCALE(): number {
-    return 0.66;
+    return 0.45;
   }
 
   protected slash: boolean;
@@ -38,7 +38,7 @@ export class GraceNote extends StaveNote {
 
     this.buildNoteHeads();
 
-    this.width = 3;
+    this.width = 0;
   }
 
   getStemExtension(): number {
