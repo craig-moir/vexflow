@@ -65,7 +65,8 @@ export class TickContext {
     this.minTicks = undefined; // this can remian null if all tickables have ignore_ticks
     this.minTickable = undefined;
 
-    this.padding = 0; // padding on each side (width += padding * 2)
+    this.padding = -0.1; // padding on each side (width += padding * 2)
+
     this.x = 0;
     this.xBase = 0; // base x position without xOffset
     this.xOffset = 0; // xBase and xOffset are an alternative way to describe x (x = xB + xO)

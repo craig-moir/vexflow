@@ -1,5 +1,5 @@
 /*!
- * VexFlow 4.2.3   2023-11-07T18:46:19.491Z   2d73184d3552dca1d43bf4db8e8fe67f4c6aa03f
+ * VexFlow 4.2.3   2023-11-14T11:19:19.692Z   752be0ae64fc15e1831a7cfe535560d631ea680b
  * Copyright (c) 2010 Mohit Muthanna Cheppudira <mohit@muthanna.com>
  * https://www.vexflow.com   https://github.com/0xfe/vexflow
  */
@@ -30,8 +30,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "VERSION": () => (/* binding */ VERSION)
 /* harmony export */ });
 const VERSION = '4.2.3';
-const ID = '2d73184d3552dca1d43bf4db8e8fe67f4c6aa03f';
-const DATE = '2023-11-07T18:46:19.491Z';
+const ID = '752be0ae64fc15e1831a7cfe535560d631ea680b';
+const DATE = '2023-11-14T11:19:19.692Z';
 
 
 /***/ }),
@@ -34275,7 +34275,7 @@ class TickContext {
         this.maxTickable = undefined; // Biggest tickable
         this.minTicks = undefined; // this can remian null if all tickables have ignore_ticks
         this.minTickable = undefined;
-        this.padding = 0; // padding on each side (width += padding * 2)
+        this.padding = -0.1; // padding on each side (width += padding * 2)
         this.x = 0;
         this.xBase = 0; // base x position without xOffset
         this.xOffset = 0; // xBase and xOffset are an alternative way to describe x (x = xB + xO)
