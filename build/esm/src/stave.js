@@ -269,6 +269,10 @@ class Stave extends Element {
         }
         return this;
     }
+    setClefLines(clefSpec) {
+        this.clef = clefSpec;
+        return this;
+    }
     setClef(clefSpec, size, annotation, position) {
         if (position === undefined) {
             position = StaveModifierPosition.BEGIN;

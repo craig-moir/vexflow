@@ -1,5 +1,5 @@
 /*!
- * VexFlow 4.2.3   2024-07-04T21:44:31.924Z   ee081c170f42abaf88de716f4f36577d91bbe997
+ * VexFlow 4.2.5   2024-07-04T22:20:30.547Z   c0562b3dcda5aeb95445e6f0d5e8b930ac8ebbd3
  * Copyright (c) 2010 Mohit Muthanna Cheppudira <mohit@muthanna.com>
  * https://www.vexflow.com   https://github.com/0xfe/vexflow
  */
@@ -29,9 +29,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "ID": () => (/* binding */ ID),
 /* harmony export */   "VERSION": () => (/* binding */ VERSION)
 /* harmony export */ });
-const VERSION = '4.2.3';
-const ID = 'ee081c170f42abaf88de716f4f36577d91bbe997';
-const DATE = '2024-07-04T21:44:31.924Z';
+const VERSION = '4.2.5';
+const ID = 'c0562b3dcda5aeb95445e6f0d5e8b930ac8ebbd3';
+const DATE = '2024-07-04T22:20:30.547Z';
 
 
 /***/ }),
@@ -1275,6 +1275,7 @@ class BarNote extends _note__WEBPACK_IMPORTED_MODULE_0__.Note {
         // Tell the formatter that bar notes have no duration.
         this.ignore_ticks = true;
         this.setType(type);
+        this.barline = new _stavebarline__WEBPACK_IMPORTED_MODULE_1__.Barline(type);
     }
     /** Get the type of bar note.*/
     getType() {
@@ -1303,9 +1304,11 @@ class BarNote extends _note__WEBPACK_IMPORTED_MODULE_0__.Note {
         const ctx = this.checkContext();
         L('Rendering bar line at: ', this.getAbsoluteX());
         this.applyStyle(ctx);
-        const barline = new _stavebarline__WEBPACK_IMPORTED_MODULE_1__.Barline(this.type);
-        barline.setX(this.getAbsoluteX());
-        barline.draw(this.checkStave());
+        ctx.openGroup('barnote', this.getAttribute('id'));
+        this.barline.setType(this.type);
+        this.barline.setX(this.getAbsoluteX());
+        this.barline.draw(this.checkStave());
+        ctx.closeGroup();
         this.restoreStyle(ctx);
         this.setRendered();
     }
@@ -25954,6 +25957,13 @@ class Stave extends _element__WEBPACK_IMPORTED_MODULE_2__.Element {
         }
         return this;
     }
+    /**
+     * treat the stave as if the clef is clefSpec, but don't display the clef
+     */
+    setClefLines(clefSpec) {
+        this.clef = clefSpec;
+        return this;
+    }
     setClef(clefSpec, size, annotation, position) {
         if (position === undefined) {
             position = _stavemodifier__WEBPACK_IMPORTED_MODULE_6__.StaveModifierPosition.BEGIN;
@@ -39114,11 +39124,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "BarlineTests": () => (/* binding */ BarlineTests)
 /* harmony export */ });
 /* harmony import */ var _vexflow_test_helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./vexflow_test_helpers */ "./tests/vexflow_test_helpers.ts");
-/* harmony import */ var _src_stavebarline__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../src/stavebarline */ "./src/stavebarline.ts");
+/* harmony import */ var _src__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../src */ "./src/index.ts");
+/* harmony import */ var _src_stavebarline__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../src/stavebarline */ "./src/stavebarline.ts");
 // [VexFlow](https://vexflow.com) - Copyright (c) Mohit Muthanna 2010.
 // MIT License
 //
 // Barline Tests
+
 
 
 const BarlineTests = {
@@ -39133,9 +39145,9 @@ const BarlineTests = {
 function enums(assert) {
     // VexFlow 4.0 renamed Barline.type => BarlineType.
     // The old way still works, for backwards compatibility.
-    assert.equal(_src_stavebarline__WEBPACK_IMPORTED_MODULE_1__.Barline.type, _src_stavebarline__WEBPACK_IMPORTED_MODULE_1__.BarlineType);
-    const a = _src_stavebarline__WEBPACK_IMPORTED_MODULE_1__.BarlineType.DOUBLE;
-    const b = _src_stavebarline__WEBPACK_IMPORTED_MODULE_1__.BarlineType.DOUBLE;
+    assert.equal(_src_stavebarline__WEBPACK_IMPORTED_MODULE_2__.Barline.type, _src_stavebarline__WEBPACK_IMPORTED_MODULE_2__.BarlineType);
+    const a = _src_stavebarline__WEBPACK_IMPORTED_MODULE_2__.BarlineType.DOUBLE;
+    const b = _src_stavebarline__WEBPACK_IMPORTED_MODULE_2__.BarlineType.DOUBLE;
     assert.equal(a, b);
 }
 function simple(options) {
@@ -39152,6 +39164,11 @@ function simple(options) {
     const voice = f.Voice().addTickables(notes);
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
+    if (options.backend === _src__WEBPACK_IMPORTED_MODULE_1__.Renderer.Backends.SVG) {
+        notes.forEach((note) => {
+            options.assert.notEqual(note.getSVGElement(), undefined);
+        });
+    }
     options.assert.ok(true, 'Simple Test');
 }
 function style(options) {
@@ -44512,6 +44529,7 @@ const KeySignatureTests = {
         run('Altered key test', majorKeysAltered);
         run('End key with clef test', endKeyWithClef);
         run('Key Signature Change test', changeKey);
+        run('Key Signature with/without clef symbol', clefKeySignature);
     },
 };
 const fontWidths = () => {
@@ -44796,6 +44814,29 @@ function changeKey(options) {
         f.BarNote(),
         f.KeySigNote({ key: 'D', alterKey: ['b', 'n'] }),
         f.StaveNote({ keys: ['c/4'], duration: '1' }),
+    ]);
+    f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
+    f.draw();
+    options.assert.ok(true, 'all pass');
+}
+function clefKeySignature(options) {
+    const f = _vexflow_test_helpers__WEBPACK_IMPORTED_MODULE_0__.VexFlowTests.makeFactory(options, 900);
+    const stave = f.Stave({ x: 10, y: 10, width: 800 }).addClef('bass').addTimeSignature('C|').setClefLines('bass');
+    const voice = f
+        .Voice()
+        .setStrict(false)
+        .addTickables([
+        f.KeySigNote({ key: 'Bb' }),
+        f.StaveNote({ keys: ['c/4'], duration: '1', clef: 'bass' }),
+        f.BarNote(),
+        f.KeySigNote({ key: 'D', cancelKey: 'Bb' }),
+        f.StaveNote({ keys: ['c/4'], duration: '1', clef: 'bass' }),
+        f.BarNote(),
+        f.KeySigNote({ key: 'Bb' }),
+        f.StaveNote({ keys: ['c/4'], duration: '1', clef: 'bass' }),
+        f.BarNote(),
+        f.KeySigNote({ key: 'D', alterKey: ['b', 'n'] }),
+        f.StaveNote({ keys: ['c/4'], duration: '1', clef: 'bass' }),
     ]);
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();

@@ -1,5 +1,5 @@
 /*!
- * VexFlow 4.2.3   2024-07-04T21:44:31.924Z   ee081c170f42abaf88de716f4f36577d91bbe997
+ * VexFlow 4.2.5   2024-07-04T22:20:30.547Z   c0562b3dcda5aeb95445e6f0d5e8b930ac8ebbd3
  * Copyright (c) 2010 Mohit Muthanna Cheppudira <mohit@muthanna.com>
  * https://www.vexflow.com   https://github.com/0xfe/vexflow
  */
@@ -29,9 +29,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "ID": () => (/* binding */ ID),
 /* harmony export */   "VERSION": () => (/* binding */ VERSION)
 /* harmony export */ });
-const VERSION = '4.2.3';
-const ID = 'ee081c170f42abaf88de716f4f36577d91bbe997';
-const DATE = '2024-07-04T21:44:31.924Z';
+const VERSION = '4.2.5';
+const ID = 'c0562b3dcda5aeb95445e6f0d5e8b930ac8ebbd3';
+const DATE = '2024-07-04T22:20:30.547Z';
 
 
 /***/ }),
@@ -1275,6 +1275,7 @@ class BarNote extends _note__WEBPACK_IMPORTED_MODULE_0__.Note {
         // Tell the formatter that bar notes have no duration.
         this.ignore_ticks = true;
         this.setType(type);
+        this.barline = new _stavebarline__WEBPACK_IMPORTED_MODULE_1__.Barline(type);
     }
     /** Get the type of bar note.*/
     getType() {
@@ -1303,9 +1304,11 @@ class BarNote extends _note__WEBPACK_IMPORTED_MODULE_0__.Note {
         const ctx = this.checkContext();
         L('Rendering bar line at: ', this.getAbsoluteX());
         this.applyStyle(ctx);
-        const barline = new _stavebarline__WEBPACK_IMPORTED_MODULE_1__.Barline(this.type);
-        barline.setX(this.getAbsoluteX());
-        barline.draw(this.checkStave());
+        ctx.openGroup('barnote', this.getAttribute('id'));
+        this.barline.setType(this.type);
+        this.barline.setX(this.getAbsoluteX());
+        this.barline.draw(this.checkStave());
+        ctx.closeGroup();
         this.restoreStyle(ctx);
         this.setRendered();
     }
@@ -25952,6 +25955,13 @@ class Stave extends _element__WEBPACK_IMPORTED_MODULE_2__.Element {
             this.modifiers[1].setType(type);
             this.formatted = false;
         }
+        return this;
+    }
+    /**
+     * treat the stave as if the clef is clefSpec, but don't display the clef
+     */
+    setClefLines(clefSpec) {
+        this.clef = clefSpec;
         return this;
     }
     setClef(clefSpec, size, annotation, position) {

@@ -17,6 +17,7 @@ const KeySignatureTests = {
         run('Altered key test', majorKeysAltered);
         run('End key with clef test', endKeyWithClef);
         run('Key Signature Change test', changeKey);
+        run('Key Signature with/without clef symbol', clefKeySignature);
     },
 };
 const fontWidths = () => {
@@ -299,6 +300,29 @@ function changeKey(options) {
         f.BarNote(),
         f.KeySigNote({ key: 'D', alterKey: ['b', 'n'] }),
         f.StaveNote({ keys: ['c/4'], duration: '1' }),
+    ]);
+    f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
+    f.draw();
+    options.assert.ok(true, 'all pass');
+}
+function clefKeySignature(options) {
+    const f = VexFlowTests.makeFactory(options, 900);
+    const stave = f.Stave({ x: 10, y: 10, width: 800 }).addClef('bass').addTimeSignature('C|').setClefLines('bass');
+    const voice = f
+        .Voice()
+        .setStrict(false)
+        .addTickables([
+        f.KeySigNote({ key: 'Bb' }),
+        f.StaveNote({ keys: ['c/4'], duration: '1', clef: 'bass' }),
+        f.BarNote(),
+        f.KeySigNote({ key: 'D', cancelKey: 'Bb' }),
+        f.StaveNote({ keys: ['c/4'], duration: '1', clef: 'bass' }),
+        f.BarNote(),
+        f.KeySigNote({ key: 'Bb' }),
+        f.StaveNote({ keys: ['c/4'], duration: '1', clef: 'bass' }),
+        f.BarNote(),
+        f.KeySigNote({ key: 'D', alterKey: ['b', 'n'] }),
+        f.StaveNote({ keys: ['c/4'], duration: '1', clef: 'bass' }),
     ]);
     f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
     f.draw();
