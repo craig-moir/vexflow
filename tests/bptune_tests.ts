@@ -15,7 +15,7 @@ import { Formatter } from '../src/formatter';
 import { GraceNote, GraceNoteStruct } from '../src/gracenote';
 import { StaveNote, StaveNoteStruct } from '../src/stavenote';
 import { Barline, BarlineType } from '../src/stavebarline';
-import { Vex } from '../src';
+import { GraceNoteGroup, Vex } from '../src';
 
 const BPTuneTests = {
   Start(): void {
@@ -23,6 +23,7 @@ const BPTuneTests = {
     const run = VexFlowTests.runTests;
     run('Scotland the Brave Bar 1', scotlandTheBraveBar1);
     run('Scotland the Brave Bar 2', scotlandTheBraveBar2);
+    run('Highland Harry Bar 2', highlandHarryBar2);
   },
 };
 
@@ -97,7 +98,7 @@ function beamNotes(f: Factory, notes: StaveNote[], beams: Beam[]) {
     // eslint-disable-next-line
     // @ts-ignore
     // notes[i].stem.stem_extension = 50
-    console.log("hello", notes[i].keys, stemExtensions[notes[i].keys[0]], notes[i].stem)
+    // console.log("hello", notes[i].keys, stemExtensions[notes[i].keys[0]], notes[i].stem)
   }
 }
 
@@ -140,19 +141,67 @@ function scotlandTheBraveBar2(options: TestOptions): void {
 
   const notes: StaveNote[] = [
     createNoteWithEmbellishment(f, 'a/5', '4', false, ['a/5', 'g/5'], beams),
-    createNoteWithEmbellishment(f, 'a/5', '8', false, ['g/5'], beams),
+    createNoteWithEmbellishment(f, 'a/5', '4', false, ['g/5'], beams),
     createNoteWithEmbellishment(f, 'a/5', '8', false, ['g/4', 'd/5', 'g/4'], beams),
     createNoteWithEmbellishment(f, 'e/5', '8', false, [], beams),
     createNoteWithEmbellishment(f, 'c/5', '8', false, ['g/5', 'c/5', 'd/5'], beams),
     createNoteWithEmbellishment(f, 'a/4', '8', false, ['e/5'], beams),
   ]
 
-  beams.push(f.Beam({ notes: [notes[2], notes[3]] }));
-  beams.push(f.Beam({ notes: [notes[4], notes[5]] }));
+  beamNotes(f, [notes[2], notes[3]], beams)
+  beamNotes(f, [notes[4], notes[5]], beams)
 
   voice.addTickables(notes);
 
   f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
+
+  f.draw();
+
+  options.assert.ok(true, 'GraceNoteStem');
+}
+
+function highlandHarryBar2(options: TestOptions): void {
+  const f = VexFlowTests.makeFactory(options, 700, 130);
+  const stave = f.Stave({ x: 10, y: 10, width: 325 });
+
+  const beams: Beam[] = [];
+  const voice = f.Voice().setStrict(false);
+
+  const notes: StaveNote[] = [
+    createNoteWithEmbellishment(f, 'g/5', '8', true, ['a/5', 'g/5'], beams),
+    createNoteWithEmbellishment(f, 'e/5', '16', false, [], beams),
+    createNoteWithEmbellishment(f, 'd/5', '8', true, ['g/4', 'd/5', 'c/5'], beams),
+    createNoteWithEmbellishment(f, 'b/4', '16', false, [], beams),
+    createNoteWithEmbellishment(f, 'g/4', '8', true, ['g/5',], beams),
+    createNoteWithEmbellishment(f, 'g/4', '16', false, ['d/5'], beams),
+    createNoteWithEmbellishment(f, 'g/4', '8', true, ['e/5'], beams),
+    createNoteWithEmbellishment(f, 'g/5', '16', false, [], beams),
+  ]
+
+  beamNotes(f, [notes[0], notes[1]], beams)
+  beamNotes(f, [notes[2], notes[3]], beams)
+  beamNotes(f, [notes[4], notes[5]], beams)
+  beamNotes(f, [notes[6], notes[7]], beams)
+
+  voice.addTickables(notes);
+
+  f.Formatter().joinVoices([voice]).formatToStave([voice], stave);
+
+  // voice.getTickables().forEach((t) => {
+  //   t.getModifiers().forEach((m) => {
+  //     if (m instanceof GraceNoteGroup) {
+  //       console.log(m)
+  //       const mc = m.getModifierContext()
+  //       console.log(mc)
+  //       m.setXShift(100)
+  //       // eslint-disable-next-line
+  //       // @ts-ignore
+  //       //mc.state.left_shift = 0
+  //       // if (mc)
+  //       // m.setModifierContext(mc)
+  //     }
+  //   })
+  // })
 
   f.draw();
 
