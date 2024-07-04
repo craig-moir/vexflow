@@ -90,7 +90,12 @@ export class GraceNoteGroup extends Modifier {
       );
     }
 
-    state.left_shift += group_shift;
+    state.right_shift = 0;
+    if (gracenote_groups[0].getGraceNotes().length > 1) {
+      state.left_shift += group_shift;
+    } else {
+      state.left_shift = gracenote_groups[0].getWidth() + 1;
+    }
     return true;
   }
 
@@ -153,7 +158,7 @@ export class GraceNoteGroup extends Modifier {
   }
 
   getWidth(): number {
-    return this.width + StaveNote.minNoteheadPadding;
+    return this.width; // + StaveNote.minNoteheadPadding;
   }
 
   getGraceNotes(): Note[] {
