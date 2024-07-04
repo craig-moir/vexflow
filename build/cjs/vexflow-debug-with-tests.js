@@ -1,5 +1,5 @@
 /*!
- * VexFlow 4.2.3   2024-07-04T21:04:28.347Z   3d6ee919a65f006cbff84c93441ddb4e770d22e0
+ * VexFlow 4.2.1   2023-11-14T11:47:15.681Z   706d517a8ab8b2ec16e57ee5c8f8e903a6c44166
  * Copyright (c) 2010 Mohit Muthanna Cheppudira <mohit@muthanna.com>
  * https://www.vexflow.com   https://github.com/0xfe/vexflow
  */
@@ -29,13 +29,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "ID": () => (/* binding */ ID),
 /* harmony export */   "VERSION": () => (/* binding */ VERSION)
 /* harmony export */ });
+<<<<<<< HEAD
 const VERSION = '4.2.3';
 const ID = '3d6ee919a65f006cbff84c93441ddb4e770d22e0';
 const DATE = '2024-07-04T21:04:28.347Z';
 
 
 /***/ }),
-
 /***/ "./src/accidental.ts":
 /*!***************************!*\
   !*** ./src/accidental.ts ***!
@@ -21678,11 +21678,11 @@ class GraceTabNote extends _tabnote__WEBPACK_IMPORTED_MODULE_1__.TabNote {
     }
     constructor(noteStruct) {
         super(noteStruct, false);
-        this.render_options = Object.assign(Object.assign({}, this.render_options), { 
+        this.render_options = Object.assign(Object.assign({}, this.render_options), {
             // vertical shift from stave line
-            y_shift: 0.3, 
+            y_shift: 0.3,
             // grace glyph scale
-            scale: 0.6, 
+            scale: 0.6,
             // grace tablature font
             font: `7.5pt ${_font__WEBPACK_IMPORTED_MODULE_0__.Font.SANS_SERIF}` });
         this.updateWidth();
@@ -24124,7 +24124,7 @@ class NoteHead extends _note__WEBPACK_IMPORTED_MODULE_2__.Note {
         }
         this.setStyle(noteStruct.style);
         this.slashed = noteStruct.slashed || false;
-        this.render_options = Object.assign(Object.assign({}, this.render_options), { 
+        this.render_options = Object.assign(Object.assign({}, this.render_options), {
             // font size for note heads
             glyph_font_scale: noteStruct.glyph_font_scale || _tables__WEBPACK_IMPORTED_MODULE_4__.Tables.NOTATION_FONT_SCALE });
         this.setWidth(this.custom_glyph &&
@@ -27803,9 +27803,9 @@ class StaveNote extends _stemmablenote__WEBPACK_IMPORTED_MODULE_4__.StemmableNot
         // Drawing
         this._noteHeads = [];
         this.modifiers = [];
-        this.render_options = Object.assign(Object.assign({}, this.render_options), { 
+        this.render_options = Object.assign(Object.assign({}, this.render_options), {
             // font size for note heads and rests
-            glyph_font_scale: noteStruct.glyph_font_scale || _tables__WEBPACK_IMPORTED_MODULE_5__.Tables.NOTATION_FONT_SCALE, 
+            glyph_font_scale: noteStruct.glyph_font_scale || _tables__WEBPACK_IMPORTED_MODULE_5__.Tables.NOTATION_FONT_SCALE,
             // number of stroke px to the left and right of head
             stroke_px: noteStruct.stroke_px || StaveNote.LEDGER_LINE_OFFSET });
         this.calculateKeyProps();
@@ -32541,19 +32541,19 @@ class TabNote extends _stemmablenote__WEBPACK_IMPORTED_MODULE_4__.StemmableNote 
         // The fret positions in the note. An array of `{ str: X, fret: X }`
         this.positions = noteStruct.positions || [];
         // Render Options
-        this.render_options = Object.assign(Object.assign({}, this.render_options), { 
+        this.render_options = Object.assign(Object.assign({}, this.render_options), {
             // font size for note heads and rests
-            glyph_font_scale: _tables__WEBPACK_IMPORTED_MODULE_5__.Tables.TABLATURE_FONT_SCALE, 
+            glyph_font_scale: _tables__WEBPACK_IMPORTED_MODULE_5__.Tables.TABLATURE_FONT_SCALE,
             // Flag to draw a stem
-            draw_stem, 
+            draw_stem,
             // Flag to draw dot modifiers
-            draw_dots: draw_stem, 
+            draw_dots: draw_stem,
             // Flag to extend the main stem through the stave and fret positions
-            draw_stem_through_stave: false, 
+            draw_stem_through_stave: false,
             // vertical shift from stave line
-            y_shift: 0, 
+            y_shift: 0,
             // normal glyph scale
-            scale: 1.0, 
+            scale: 1.0,
             // default tablature font
             font: `${_font__WEBPACK_IMPORTED_MODULE_0__.Font.SIZE}pt ${_font__WEBPACK_IMPORTED_MODULE_0__.Font.SANS_SERIF}` });
         this.glyphProps = _tables__WEBPACK_IMPORTED_MODULE_5__.Tables.getGlyphProps(this.duration, this.noteType);
@@ -54678,7 +54678,7 @@ _vexflow_test_helpers__WEBPACK_IMPORTED_MODULE_0__.VexFlowTests.register(VoiceTe
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/ 	
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -54692,14 +54692,14 @@ _vexflow_test_helpers__WEBPACK_IMPORTED_MODULE_0__.VexFlowTests.register(VoiceTe
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
-/******/ 	
+/******/
 /******/ 		// Execute the module function
 /******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
-/******/ 	
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/ 	
+/******/
 /************************************************************************/
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
@@ -54712,7 +54712,7 @@ _vexflow_test_helpers__WEBPACK_IMPORTED_MODULE_0__.VexFlowTests.register(VoiceTe
 /******/ 			}
 /******/ 		};
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/global */
 /******/ 	(() => {
 /******/ 		__webpack_require__.g = (function() {
@@ -54724,12 +54724,12 @@ _vexflow_test_helpers__WEBPACK_IMPORTED_MODULE_0__.VexFlowTests.register(VoiceTe
 /******/ 			}
 /******/ 		})();
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
 /******/ 	(() => {
 /******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
@@ -54740,7 +54740,7 @@ _vexflow_test_helpers__WEBPACK_IMPORTED_MODULE_0__.VexFlowTests.register(VoiceTe
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 		};
 /******/ 	})();
-/******/ 	
+/******/
 /************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
