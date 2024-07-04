@@ -7,6 +7,7 @@ export * from './barline_tests.js';
 export * from './beam_tests.js';
 export * from './bend_tests.js';
 export * from './boundingbox_tests.js';
+export * from './bptune_tests.js';
 export * from './chordsymbol_tests.js';
 export * from './clef_tests.js';
 export * from './crossbeam_tests.js';

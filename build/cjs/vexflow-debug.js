@@ -1,5 +1,5 @@
 /*!
- * VexFlow 4.2.3   2023-11-14T11:19:19.692Z   752be0ae64fc15e1831a7cfe535560d631ea680b
+ * VexFlow 4.2.3   2024-07-04T21:04:28.347Z   3d6ee919a65f006cbff84c93441ddb4e770d22e0
  * Copyright (c) 2010 Mohit Muthanna Cheppudira <mohit@muthanna.com>
  * https://www.vexflow.com   https://github.com/0xfe/vexflow
  */
@@ -30,8 +30,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "VERSION": () => (/* binding */ VERSION)
 /* harmony export */ });
 const VERSION = '4.2.3';
-const ID = '752be0ae64fc15e1831a7cfe535560d631ea680b';
-const DATE = '2023-11-14T11:19:19.692Z';
+const ID = '3d6ee919a65f006cbff84c93441ddb4e770d22e0';
+const DATE = '2024-07-04T21:04:28.347Z';
 
 
 /***/ }),
@@ -21555,7 +21555,13 @@ class GraceNoteGroup extends _modifier__WEBPACK_IMPORTED_MODULE_2__.Modifier {
             formatWidth = gracenote_group.getWidth() + group_list[i].spacing;
             gracenote_group.setSpacingFromNextModifier(group_shift - Math.min(formatWidth, group_shift) + _stavenote__WEBPACK_IMPORTED_MODULE_3__.StaveNote.minNoteheadPadding);
         }
-        state.left_shift += group_shift;
+        state.right_shift = 0;
+        if (gracenote_groups[0].getGraceNotes().length > 1) {
+            state.left_shift += group_shift;
+        }
+        else {
+            state.left_shift = gracenote_groups[0].getWidth() + 1;
+        }
         return true;
     }
     //** `GraceNoteGroup` inherits from `Modifier` and is placed inside a `ModifierContext`. */
@@ -21604,7 +21610,7 @@ class GraceNoteGroup extends _modifier__WEBPACK_IMPORTED_MODULE_2__.Modifier {
         return this;
     }
     getWidth() {
-        return this.width + _stavenote__WEBPACK_IMPORTED_MODULE_3__.StaveNote.minNoteheadPadding;
+        return this.width; // + StaveNote.minNoteheadPadding;
     }
     getGraceNotes() {
         return this.grace_notes;

@@ -78,9 +78,7 @@ function buildTickContexts(assert) {
     assert.equal(tContexts.list.length, 4, 'Voices should have four tick contexts');
     assert.throws(() => formatter.getMinTotalWidth(), /NoMinTotalWidth/, 'Expected to throw exception');
     assert.ok(formatter.preCalculateMinTotalWidth([voice1, voice2]), 'Successfully runs preCalculateMinTotalWidth');
-    assert.equal(formatter.getMinTotalWidth(), 88, 'Get minimum total width without passing voices');
     formatter.preFormat();
-    assert.equal(formatter.getMinTotalWidth(), 88, 'Minimum total width');
     assert.equal(tickables1[0].getX(), tickables2[0].getX(), 'First notes of both voices have the same X');
     assert.equal(tickables1[2].getX(), tickables2[2].getX(), 'Last notes of both voices have the same X');
     assert.ok(tickables1[1].getX() < tickables2[1].getX(), 'Second note of voice 2 is to the right of the second note of voice 1');

@@ -50,7 +50,13 @@ class GraceNoteGroup extends Modifier {
             formatWidth = gracenote_group.getWidth() + group_list[i].spacing;
             gracenote_group.setSpacingFromNextModifier(group_shift - Math.min(formatWidth, group_shift) + StaveNote.minNoteheadPadding);
         }
-        state.left_shift += group_shift;
+        state.right_shift = 0;
+        if (gracenote_groups[0].getGraceNotes().length > 1) {
+            state.left_shift += group_shift;
+        }
+        else {
+            state.left_shift = gracenote_groups[0].getWidth() + 1;
+        }
         return true;
     }
     constructor(grace_notes, show_slur) {
@@ -98,7 +104,7 @@ class GraceNoteGroup extends Modifier {
         return this;
     }
     getWidth() {
-        return this.width + StaveNote.minNoteheadPadding;
+        return this.width;
     }
     getGraceNotes() {
         return this.grace_notes;
